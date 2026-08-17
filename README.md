@@ -6,7 +6,7 @@ O projeto busca tornar o processo de adoção mais **humanizado, seguro e respon
 
 ---
 
-## 🚀 Tecnologias
+## Tecnologias
 
 - [Next.js](https://nextjs.org/) — Framework principal
 - [React](https://react.dev/) — Construção da interface
