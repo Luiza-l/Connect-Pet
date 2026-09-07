@@ -1,28 +1,27 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Fraunces } from "next/font/google";
+import { Playfair_Display, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { AppProvider } from "@/context/AppContext";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
+import { ToastContainer } from "@/components/ui/ToastContainer";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const jakarta = Plus_Jakarta_Sans({
+  variable: "--font-jakarta",
   subsets: ["latin"],
-});
-
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
-  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "AcolherPet | Adoção Responsável",
-  description: "Encontre um novo melhor amigo.",
+  title: "ConnectPet | Acolher Pet - Adoção Responsável de Cães e Gatos",
+  description: "Conectando adotantes conscientes a ONGs e protetores sérios. Triagem criteriosa, 100% ética e gratuita para garantir o lar perfeito.",
 };
 
 export default function RootLayout({
@@ -31,17 +30,24 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col">
+    <html
+      lang="pt-BR"
+      suppressHydrationWarning
+      className={`${jakarta.variable} ${playfair.variable} h-full antialiased`}
+    >
+      <body className="min-h-full flex flex-col font-sans bg-background text-foreground selection:bg-primary/20 selection:text-primary">
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
+          <AppProvider>
+            <Navbar />
+            <main className="flex-1">{children}</main>
+            <Footer />
+            <ToastContainer />
+          </AppProvider>
         </ThemeProvider>
       </body>
     </html>

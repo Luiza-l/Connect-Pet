@@ -64,4 +64,21 @@ function Button({
   )
 }
 
-export { Button, buttonVariants }
+function LinkButton({
+  className,
+  variant = "ghost",
+  size = "icon",
+  ...props
+}: React.ComponentProps<"a"> & VariantProps<typeof buttonVariants>) {
+  return (
+    <a
+      data-slot="button"
+      data-variant={variant}
+      data-size={size}
+      className={cn(buttonVariants({ variant, size, className }))}
+      {...props}
+    />
+  )
+}
+
+export { Button, LinkButton, buttonVariants }

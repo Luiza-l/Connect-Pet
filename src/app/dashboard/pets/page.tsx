@@ -1,34 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { Plus, MoreHorizontal, Pencil, Trash } from "lucide-react";
-import { mockPets } from "@/data/pets";
+import { Plus, Pencil, Trash } from "lucide-react";
+import { useApp } from "@/context/AppContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 
 export default function ManagePetsPage() {
-  const [pets, setPets] = useState(mockPets.filter(p => p.isOng));
+  const { pets, deletePet } = useApp();
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   const handleDelete = () => {
     if (deleteId) {
-      setPets(pets.filter(p => p.id !== deleteId));
+      deletePet(deleteId);
       setDeleteId(null);
     }
+  };
+
+  const statusLabel = {
+    available: "Disponível",
+    in_process: "Em Processo",
+    adopted: "Adotado"
   };
 
   return (
@@ -60,76 +54,73 @@ export default function ManagePetsPage() {
               </Button>
             </div>
           ) : (
-            <div className="rounded-md border">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Nome</TableHead>
-                    <TableHead>Espécie/Porte</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead className="text-right">Ações</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+            <div className="rounded-2xl border border-border/60 overflow-hidden">
+              <table className="w-full text-xs text-left">
+                <thead className="bg-secondary/50 text-muted-foreground uppercase text-[10px] tracking-wider border-b border-border/60">
+                  <tr>
+                    <th className="p-3.5 pl-5 font-bold">Nome</th>
+                    <th className="p-3.5 font-bold">Espécie / Porte</th>
+                    <th className="p-3.5 font-bold">Status</th>
+                    <th className="p-3.5 pr-5 text-right font-bold">Ações</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border/40">
                   {pets.map((pet) => (
-                    <TableRow key={pet.id}>
-                      <TableCell className="font-medium">{pet.name}</TableCell>
-                      <TableCell>{pet.species} • {pet.size}</TableCell>
-                      <TableCell>
-                        <Badge variant={pet.status === 'Disponível' ? 'default' : 'secondary'}>
-                          {pet.status}
+                    <tr key={pet.id} className="hover:bg-secondary/20 transition-colors">
+                      <td className="p-3.5 pl-5 font-bold text-foreground">{pet.name}</td>
+                      <td className="p-3.5 text-muted-foreground">{pet.species === "dog" ? "Cachorro" : "Gato"} • {pet.size}</td>
+                      <td className="p-3.5">
+                        <Badge variant={pet.status === "available" ? "default" : "secondary"}>
+                          {statusLabel[pet.status] || pet.status}
                         </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0">
-                              <span className="sr-only">Abrir menu</span>
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem asChild>
-                              <Link href={`/dashboard/pets/${pet.id}/editar`} className="cursor-pointer">
-                                <Pencil className="mr-2 h-4 w-4" />
-                                Editar
-                              </Link>
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              className="text-red-600 cursor-pointer"
-                              onClick={() => setDeleteId(pet.id)}
-                            >
-                              <Trash className="mr-2 h-4 w-4" />
-                              Excluir
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
+                      </td>
+                      <td className="p-3.5 pr-5 text-right">
+                        <div className="flex justify-end items-center gap-1">
+                          <Button variant="ghost" size="sm" asChild className="h-8 px-2.5 text-xs">
+                            <Link href={`/dashboard/pets/${pet.id}/editar`}>
+                              <Pencil className="mr-1 h-3.5 w-3.5" />
+                              Editar
+                            </Link>
+                          </Button>
+                          <Button 
+                            variant="ghost"
+                            size="sm"
+                            className="h-8 px-2.5 text-xs text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/30"
+                            onClick={() => setDeleteId(pet.id)}
+                          >
+                            <Trash className="mr-1 h-3.5 w-3.5" />
+                            Excluir
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
                   ))}
-                </TableBody>
-              </Table>
+                </tbody>
+              </table>
             </div>
           )}
         </CardContent>
       </Card>
 
-      <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Tem certeza que deseja remover este pet?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Esta ação não pode ser desfeita. O pet não aparecerá mais como disponível na plataforma.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
-              Confirmar Exclusão
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Confirmação de Exclusão */}
+      {deleteId && (
+        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
+          <div className="bg-card rounded-2xl border border-border p-6 max-w-sm w-full space-y-4 shadow-xl">
+            <h3 className="font-bold text-base text-foreground">Excluir este animal?</h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Essa ação não pode ser desfeita. O pet será removido permanentemente da base de dados.
+            </p>
+            <div className="flex justify-end gap-2 pt-2">
+              <Button variant="outline" size="sm" onClick={() => setDeleteId(null)}>
+                Cancelar
+              </Button>
+              <Button size="sm" className="bg-red-600 hover:bg-red-700" onClick={handleDelete}>
+                Excluir
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

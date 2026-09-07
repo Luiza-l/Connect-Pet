@@ -1,14 +1,18 @@
+"use client";
+
+import React, { use } from "react";
 import { notFound } from "next/navigation";
-import { mockPets } from "@/data/pets";
+import { useApp } from "@/context/AppContext";
 import { PetForm } from "@/components/pets/PetForm";
 
 interface EditPetPageProps {
   params: Promise<{ id: string }>;
 }
 
-export default async function EditPetPage({ params }: EditPetPageProps) {
-  const { id } = await params;
-  const pet = mockPets.find(p => p.id === id);
+export default function EditPetPage({ params }: EditPetPageProps) {
+  const { id } = use(params);
+  const { pets } = useApp();
+  const pet = pets.find((p) => p.id === id);
 
   if (!pet) {
     notFound();

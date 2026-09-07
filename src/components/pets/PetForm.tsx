@@ -1,15 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Pet } from "@/types";
+import { useApp } from "@/context/AppContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { ImagePlus, X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 
 interface PetFormProps {
   initialData?: Pet;
@@ -18,142 +19,229 @@ interface PetFormProps {
 
 export function PetForm({ initialData, isEditing = false }: PetFormProps) {
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { addPet, updatePet, currentUser } = useApp();
 
-  // Estados dos formulários (simulados)
-  const [images, setImages] = useState<string[]>(initialData?.images || []);
+  const [name, setName] = useState(initialData?.name || "");
+  const [species, setSpecies] = useState<"dog" | "cat">(initialData?.species || "dog");
+  const [breed, setBreed] = useState(initialData?.breed || "Vira-lata (SRD)");
+  const [size, setSize] = useState<"small" | "medium" | "large">(initialData?.size || "medium");
+  const [approximateAge, setApproximateAge] = useState(initialData?.approximateAge || "1 ano");
+  const [sex, setSex] = useState<"male" | "female">(initialData?.sex || "male");
+  const [story, setStory] = useState(initialData?.story || "");
+  const [headline, setHeadline] = useState(initialData?.headline || "");
+  const [temperament, setTemperament] = useState(initialData?.temperament?.join(", ") || "Dócil, Brincalhão");
+  const [vaccinated, setVaccinated] = useState(initialData ? initialData.vaccinated : true);
+  const [castrated, setCastrated] = useState(initialData ? initialData.castrated : true);
+  const [photos, setPhotos] = useState<string[]>(
+    initialData?.photos || [
+      "https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=600&auto=format&fit=crop"
+    ]
+  );
+  const [newPhotoUrl, setNewPhotoUrl] = useState("");
 
-  const handleAddFakeImage = () => {
-    setImages([...images, "https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=300&auto=format&fit=crop"]);
+  const handleAddPhoto = () => {
+    if (newPhotoUrl.trim()) {
+      setPhotos([...photos, newPhotoUrl.trim()]);
+      setNewPhotoUrl("");
+    }
   };
 
-  const removeImage = (index: number) => {
-    setImages(images.filter((_, i) => i !== index));
+  const handleRemovePhoto = (index: number) => {
+    setPhotos(photos.filter((_, i) => i !== index));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    
-    // Simula salvamento
-    setTimeout(() => {
-      setIsSubmitting(false);
-      router.push("/dashboard/pets");
-    }, 1000);
+
+    const temperamentArray = temperament.split(",").map((t) => t.trim()).filter(Boolean);
+
+    if (isEditing && initialData) {
+      updatePet(initialData.id, {
+        name,
+        species,
+        breed,
+        size,
+        approximateAge,
+        sex,
+        story,
+        headline,
+        temperament: temperamentArray,
+        vaccinated,
+        castrated,
+        photos: photos.length > 0 ? photos : ["https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=600&auto=format&fit=crop"]
+      });
+    } else {
+      addPet({
+        name,
+        species,
+        breed,
+        size,
+        approximateAge,
+        ageCategory: "young",
+        sex,
+        status: "available",
+        vaccinated,
+        castrated,
+        dewormed: true,
+        vaccinationDetails: "Vacinas essenciais em dia.",
+        specialNeeds: "",
+        photos: photos.length > 0 ? photos : ["https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=600&auto=format&fit=crop"],
+        headline: headline || "Pronto para alegrar seu lar.",
+        story: story || "Resgatado com muito carinho, pronto para ser adotado com amor.",
+        temperament: temperamentArray.length > 0 ? temperamentArray : ["Dócil"],
+        temperamentDescription: "Amoroso e companheiro para todas as horas.",
+        guardianId: currentUser?.id || "guardian-1",
+        guardianName: currentUser?.name || "ONG Patinhas com Amor",
+        guardianType: "ngo",
+        guardianPhone: "(11) 97123-9988",
+        guardianEmail: "contato@patinhascomamor.org.br",
+        location: {
+          city: "São Paulo",
+          state: "SP",
+          neighborhood: "Vila Mariana"
+        }
+      });
+    }
+
+    router.push("/dashboard");
   };
 
   return (
     <form onSubmit={handleSubmit}>
       <Card>
         <CardHeader>
-          <CardTitle>Informações do Animal</CardTitle>
+          <CardTitle>{isEditing ? "Editar Animal" : "Informações do Animal"}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="space-y-4">
-            <div>
-              <Label className="mb-2 block">Fotos</Label>
-              <div className="flex flex-wrap gap-4">
-                {images.map((img, i) => (
-                  <div key={i} className="relative h-24 w-24 rounded-md overflow-hidden border">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={img} alt="Preview" className="h-full w-full object-cover" />
-                    <button 
-                      type="button"
-                      onClick={() => removeImage(i)}
-                      className="absolute top-1 right-1 bg-red-500 text-white rounded-full p-0.5"
-                    >
-                      <X className="h-4 w-4" />
-                    </button>
-                  </div>
-                ))}
-                <button 
-                  type="button"
-                  onClick={handleAddFakeImage}
-                  className="h-24 w-24 flex flex-col items-center justify-center rounded-md border-2 border-dashed text-muted-foreground hover:bg-muted/50 transition-colors"
-                >
-                  <ImagePlus className="h-6 w-6 mb-1" />
-                  <span className="text-xs">Adicionar</span>
-                </button>
-              </div>
+          
+          {/* Fotos */}
+          <div className="space-y-2">
+            <Label>Fotos do Animal</Label>
+            <div className="flex flex-wrap gap-3">
+              {photos.map((img, i) => (
+                <div key={i} className="relative h-20 w-20 rounded-xl overflow-hidden border">
+                  <Image src={img} alt="Preview" fill sizes="80px" className="object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => handleRemovePhoto(i)}
+                    className="absolute top-1 right-1 bg-black/70 text-white rounded-full p-0.5"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Nome</Label>
-                <Input id="name" defaultValue={initialData?.name} required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="species">Espécie</Label>
-                <select id="species" className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm" defaultValue={initialData?.species || "Cachorro"}>
-                  <option value="Cachorro">Cachorro</option>
-                  <option value="Gato">Gato</option>
-                  <option value="Outro">Outro</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="size">Porte</Label>
-                <select id="size" className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm" defaultValue={initialData?.size || "Médio"}>
-                  <option value="Pequeno">Pequeno</option>
-                  <option value="Médio">Médio</option>
-                  <option value="Grande">Grande</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="age">Idade Aproximada</Label>
-                <Input id="age" placeholder="Ex: 2 anos, 3 meses..." defaultValue={initialData?.age} required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="gender">Sexo</Label>
-                <select id="gender" className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm" defaultValue={initialData?.gender || "Fêmea"}>
-                  <option value="Fêmea">Fêmea</option>
-                  <option value="Macho">Macho</option>
-                </select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="location">Localização</Label>
-                <Input id="location" placeholder="Cidade, Estado" defaultValue={initialData?.location} required />
-              </div>
-            </div>
-
-            <div className="flex gap-6 py-2 border-y">
-              <div className="flex items-center space-x-2">
-                <Checkbox id="vaccinated" defaultChecked={initialData?.vaccinated} />
-                <Label htmlFor="vaccinated">Vacinado</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox id="castrated" defaultChecked={initialData?.castrated} />
-                <Label htmlFor="castrated">Castrado</Label>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="history">História</Label>
-              <Textarea 
-                id="history" 
-                placeholder="Conte a história de resgate deste animal..." 
-                defaultValue={initialData?.history} 
-                rows={4}
-                required 
+            <div className="flex gap-2 pt-2">
+              <Input
+                placeholder="Cole o link da foto (URL)..."
+                value={newPhotoUrl}
+                onChange={(e) => setNewPhotoUrl(e.target.value)}
+                className="text-xs"
               />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="temperament">Temperamento (separado por vírgula)</Label>
-              <Input 
-                id="temperament" 
-                placeholder="Ex: Dócil, Brincalhão, Calmo..." 
-                defaultValue={initialData?.temperament?.join(', ')} 
-                required 
-              />
+              <Button type="button" variant="outline" size="sm" onClick={handleAddPhoto}>
+                <Plus className="w-4 h-4 mr-1" /> Adicionar
+              </Button>
             </div>
           </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <Label>Nome *</Label>
+              <Input required value={name} onChange={(e) => setName(e.target.value)} />
+            </div>
+            <div className="space-y-1">
+              <Label>Raça *</Label>
+              <Input required value={breed} onChange={(e) => setBreed(e.target.value)} />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-1">
+              <Label>Espécie</Label>
+              <select
+                value={species}
+                onChange={(e) => setSpecies(e.target.value as "dog" | "cat")}
+                className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+              >
+                <option value="dog">Cão</option>
+                <option value="cat">Gato</option>
+              </select>
+            </div>
+            <div className="space-y-1">
+              <Label>Porte</Label>
+              <select
+                value={size}
+                onChange={(e) => setSize(e.target.value as "small" | "medium" | "large")}
+                className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+              >
+                <option value="small">Pequeno</option>
+                <option value="medium">Médio</option>
+                <option value="large">Grande</option>
+              </select>
+            </div>
+            <div className="space-y-1">
+              <Label>Sexo</Label>
+              <select
+                value={sex}
+                onChange={(e) => setSex(e.target.value as "male" | "female")}
+                className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+              >
+                <option value="male">Macho</option>
+                <option value="female">Fêmea</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <Label>Idade Aproximada</Label>
+            <Input value={approximateAge} onChange={(e) => setApproximateAge(e.target.value)} />
+          </div>
+
+          <div className="space-y-1">
+            <Label>Frase de Destaque</Label>
+            <Input value={headline} onChange={(e) => setHeadline(e.target.value)} />
+          </div>
+
+          <div className="space-y-1">
+            <Label>História de Resgate</Label>
+            <Textarea rows={3} value={story} onChange={(e) => setStory(e.target.value)} />
+          </div>
+
+          <div className="space-y-1">
+            <Label>Temperamento (separado por vírgula)</Label>
+            <Input value={temperament} onChange={(e) => setTemperament(e.target.value)} />
+          </div>
+
+          <div className="flex gap-6 p-4 rounded-xl bg-secondary/50">
+            <label htmlFor="vac" className="flex items-center gap-2 text-sm font-medium cursor-pointer">
+              <input
+                id="vac"
+                type="checkbox"
+                checked={vaccinated}
+                onChange={(e) => setVaccinated(e.target.checked)}
+                className="w-4 h-4 rounded accent-primary cursor-pointer"
+              />
+              Vacinado
+            </label>
+            <label htmlFor="cast" className="flex items-center gap-2 text-sm font-medium cursor-pointer">
+              <input
+                id="cast"
+                type="checkbox"
+                checked={castrated}
+                onChange={(e) => setCastrated(e.target.checked)}
+                className="w-4 h-4 rounded accent-primary cursor-pointer"
+              />
+              Castrado
+            </label>
+          </div>
+
         </CardContent>
-        <CardFooter className="flex justify-end gap-4 bg-muted/20 py-4 border-t">
-          <Button type="button" variant="outline" onClick={() => router.back()}>
+        <CardFooter className="flex justify-between">
+          <Button variant="outline" type="button" onClick={() => router.back()}>
             Cancelar
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? "Salvando..." : isEditing ? "Salvar Alterações" : "Cadastrar Pet"}
+          <Button type="submit">
+            {isEditing ? "Salvar Alterações" : "Cadastrar Pet"}
           </Button>
         </CardFooter>
       </Card>

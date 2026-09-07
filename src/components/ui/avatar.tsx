@@ -31,6 +31,7 @@ function AvatarImage({ className, ...props }: React.ComponentProps<"img">) {
     props.src ? "loading" : "error"
   )
   return (
+    // eslint-disable-next-line @next/next/no-img-element
     <img
       data-slot="avatar-image"
       alt={props.alt || ""}
