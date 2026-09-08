@@ -46,7 +46,7 @@ export function PetCard({ pet, priority = false }: PetCardProps) {
 
   return (
     <div className="group relative flex flex-col rounded-3xl border border-border/50 bg-card overflow-hidden shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300">
-      
+
       {/* Top Image Section */}
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-secondary">
         <Image
@@ -79,9 +79,8 @@ export function PetCard({ pet, priority = false }: PetCardProps) {
           className="absolute top-3.5 right-3.5 w-9 h-9 rounded-full bg-white/90 dark:bg-black/80 backdrop-blur-md flex items-center justify-center text-foreground hover:scale-110 active:scale-95 transition-all shadow-md"
         >
           <Heart
-            className={`w-4 h-4 transition-colors ${
-              favorite ? "fill-rose-500 text-rose-500" : "text-muted-foreground hover:text-rose-500"
-            }`}
+            className={`w-4 h-4 transition-colors ${favorite ? "fill-rose-500 text-rose-500" : "text-muted-foreground hover:text-rose-500"
+              }`}
           />
         </button>
 
@@ -103,7 +102,7 @@ export function PetCard({ pet, priority = false }: PetCardProps) {
 
       {/* Body Content */}
       <div className="flex flex-1 flex-col p-5 space-y-4">
-        
+
         {/* Attributes row */}
         <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
           <Badge variant="secondary" className="rounded-lg text-[11px] font-medium">

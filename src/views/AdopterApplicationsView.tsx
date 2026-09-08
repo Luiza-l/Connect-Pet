@@ -61,7 +61,7 @@ export function AdopterApplicationsView() {
 
   return (
     <div className="container mx-auto px-4 sm:px-8 py-10 md:py-16 min-h-screen space-y-8">
-      
+
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border/60">
         <div>
@@ -98,7 +98,7 @@ export function AdopterApplicationsView() {
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
+
           {/* Applications list on left (4 cols) */}
           <div className="lg:col-span-4 space-y-3">
             <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
@@ -112,11 +112,10 @@ export function AdopterApplicationsView() {
                   <button
                     key={app.id}
                     onClick={() => setSelectedAppId(app.id)}
-                    className={`w-full p-4 rounded-2xl border text-left transition-all flex items-center gap-3.5 ${
-                      isSelected
+                    className={`w-full p-4 rounded-2xl border text-left transition-all flex items-center gap-3.5 ${isSelected
                         ? "border-primary bg-primary/5 shadow-md"
                         : "border-border/60 bg-card hover:bg-secondary/40"
-                    }`}
+                      }`}
                   >
                     <div className="relative w-14 h-14 rounded-xl overflow-hidden shrink-0 bg-secondary">
                       <Image
@@ -156,7 +155,7 @@ export function AdopterApplicationsView() {
           <div className="lg:col-span-8 space-y-6">
             {selectedApp && (
               <div className="p-6 sm:p-8 rounded-3xl bg-card border border-border/60 shadow-sm space-y-8">
-                
+
                 {/* Pet summary */}
                 <div className="flex items-center gap-4 pb-6 border-b border-border/60">
                   <div className="relative w-16 h-16 rounded-2xl overflow-hidden shrink-0 bg-secondary">
@@ -196,13 +195,12 @@ export function AdopterApplicationsView() {
                       return (
                         <div
                           key={st.status}
-                          className={`p-3.5 rounded-2xl border transition-all ${
-                            isCurrent
+                          className={`p-3.5 rounded-2xl border transition-all ${isCurrent
                               ? "bg-primary/10 border-primary text-primary shadow-sm"
                               : isPastOrCurrent
-                              ? "bg-secondary/40 border-border text-foreground"
-                              : "bg-background/40 border-border/40 text-muted-foreground opacity-50"
-                          }`}
+                                ? "bg-secondary/40 border-border text-foreground"
+                                : "bg-background/40 border-border/40 text-muted-foreground opacity-50"
+                            }`}
                         >
                           <div className="flex items-center gap-2 mb-1">
                             {isPastOrCurrent ? (
@@ -253,11 +251,10 @@ export function AdopterApplicationsView() {
                             {msg.senderName} &bull; {new Date(msg.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
                           <div
-                            className={`max-w-md p-3 rounded-2xl text-xs leading-relaxed ${
-                              isAdopter
+                            className={`max-w-md p-3 rounded-2xl text-xs leading-relaxed ${isAdopter
                                 ? "bg-primary text-primary-foreground font-medium rounded-br-none"
                                 : "bg-card border border-border text-foreground rounded-bl-none shadow-sm"
-                            }`}
+                              }`}
                           >
                             {msg.content}
                           </div>

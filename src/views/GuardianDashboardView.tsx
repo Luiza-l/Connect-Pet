@@ -53,11 +53,6 @@ export function GuardianDashboardView() {
   const [chatMessage, setChatMessage] = useState("");
   const [notesInput, setNotesInput] = useState(selectedApplication?.guardianNotes || "");
 
-  useEffect(() => {
-    if (selectedApplication) {
-      setNotesInput(selectedApplication.guardianNotes || "");
-    }
-  }, [selectedApplication?.id]);
 
   // Modal State for New Pet
   const [isAddPetModalOpen, setIsAddPetModalOpen] = useState(false);
@@ -167,7 +162,7 @@ export function GuardianDashboardView() {
 
   return (
     <div className="container mx-auto px-4 sm:px-8 py-10 md:py-16 min-h-screen space-y-8">
-      
+
       {/* Dashboard Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border/60">
         <div>
@@ -201,33 +196,30 @@ export function GuardianDashboardView() {
       <div className="flex border-b border-border/60 gap-4">
         <button
           onClick={() => setActiveTab("applications")}
-          className={`pb-3 text-xs sm:text-sm font-bold flex items-center gap-2 border-b-2 transition-all ${
-            activeTab === "applications"
+          className={`pb-3 text-xs sm:text-sm font-bold flex items-center gap-2 border-b-2 transition-all ${activeTab === "applications"
               ? "border-primary text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"
-          }`}
+            }`}
         >
           <FileCheck2 className="w-4 h-4" /> Triagem de Candidaturas ({applications.length})
         </button>
 
         <button
           onClick={() => setActiveTab("animals")}
-          className={`pb-3 text-xs sm:text-sm font-bold flex items-center gap-2 border-b-2 transition-all ${
-            activeTab === "animals"
+          className={`pb-3 text-xs sm:text-sm font-bold flex items-center gap-2 border-b-2 transition-all ${activeTab === "animals"
               ? "border-primary text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"
-          }`}
+            }`}
         >
           <PawPrint className="w-4 h-4" /> Gestão de Animais ({pets.length})
         </button>
 
         <button
           onClick={() => setActiveTab("metrics")}
-          className={`pb-3 text-xs sm:text-sm font-bold flex items-center gap-2 border-b-2 transition-all ${
-            activeTab === "metrics"
+          className={`pb-3 text-xs sm:text-sm font-bold flex items-center gap-2 border-b-2 transition-all ${activeTab === "metrics"
               ? "border-primary text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"
-          }`}
+            }`}
         >
           <BarChart3 className="w-4 h-4" /> Métricas e Indicadores
         </button>
@@ -236,7 +228,7 @@ export function GuardianDashboardView() {
       {/* TAB 1: TRIAGEM DE CANDIDATURAS */}
       {activeTab === "applications" && (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
+
           {/* Applications List (4 Cols) */}
           <div className="lg:col-span-4 space-y-3">
             <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
@@ -255,11 +247,10 @@ export function GuardianDashboardView() {
                       setSelectedApplicationId(app.id);
                       setNotesInput(app.guardianNotes || "");
                     }}
-                    className={`w-full p-4 rounded-2xl border text-left transition-all ${
-                      isSelected
+                    className={`w-full p-4 rounded-2xl border text-left transition-all ${isSelected
                         ? "border-primary bg-primary/5 shadow-md"
                         : "border-border/60 bg-card hover:border-border hover:bg-secondary/40"
-                    }`}
+                      }`}
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div>
@@ -293,7 +284,7 @@ export function GuardianDashboardView() {
           <div className="lg:col-span-8 space-y-6">
             {selectedApplication ? (
               <div className="p-6 sm:p-8 rounded-3xl bg-card border border-border/60 shadow-sm space-y-6">
-                
+
                 {/* Application Header with Status Changer */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border/60">
                   <div>
@@ -387,7 +378,7 @@ export function GuardianDashboardView() {
 
                 {/* Candidate Core Details Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                  
+
                   {/* Personal */}
                   <div className="p-4 rounded-2xl bg-secondary/30 space-y-2 border border-border/50">
                     <span className="font-bold text-foreground uppercase tracking-wider block">
@@ -482,11 +473,10 @@ export function GuardianDashboardView() {
                               {msg.senderName} &bull; {new Date(msg.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </span>
                             <div
-                              className={`max-w-md p-3 rounded-2xl text-xs leading-relaxed ${
-                                isNGO
+                              className={`max-w-md p-3 rounded-2xl text-xs leading-relaxed ${isNGO
                                   ? "bg-primary text-primary-foreground font-medium rounded-br-none"
                                   : "bg-card border border-border text-foreground rounded-bl-none shadow-sm"
-                              }`}
+                                }`}
                             >
                               {msg.content}
                             </div>

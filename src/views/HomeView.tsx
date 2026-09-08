@@ -24,11 +24,11 @@ export function HomeView() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      
+
       {/* 1. HERO SECTION */}
       <section className="relative pt-10 pb-20 md:pt-16 md:pb-28 overflow-hidden">
         <div className="container mx-auto px-4 sm:px-8 relative z-10 flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
-          
+
           <div className="flex-1 text-center lg:text-left flex flex-col items-center lg:items-start space-y-6">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-wider">
               <Sparkles className="w-3.5 h-3.5" /> Adoção Consciente • 100% Gratuita & Ética
@@ -99,7 +99,7 @@ export function HomeView() {
                 className="object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-              
+
               <div className="absolute bottom-6 left-6 right-6 p-4 rounded-2xl bg-white/90 dark:bg-stone-900/90 backdrop-blur-md border border-white/20 shadow-xl flex items-center justify-between">
                 <div>
                   <p className="text-xs font-bold text-foreground">Encontro marcado com o amor</p>
@@ -118,7 +118,7 @@ export function HomeView() {
       {/* 2. PRESENTATION SECTION ("QUEM SOMOS") */}
       <section className="py-20 bg-secondary/30 border-y border-border/40">
         <div className="container mx-auto px-4 sm:px-8 space-y-12">
-          
+
           <div className="max-w-3xl mx-auto text-center space-y-4">
             <span className="text-xs font-bold uppercase tracking-wider text-primary">
               Transparência & Propósito
@@ -132,7 +132,7 @@ export function HomeView() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
+
             <div className="p-8 rounded-3xl bg-card border border-border/60 shadow-sm space-y-4">
               <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
                 <ShieldCheck className="w-6 h-6" />
@@ -171,7 +171,7 @@ export function HomeView() {
       {/* 3. HOW IT WORKS SECTION ("POR QUE ADOTAR CONOSCO") */}
       <section id="como-funciona" className="py-20">
         <div className="container mx-auto px-4 sm:px-8 space-y-14">
-          
+
           <div className="max-w-2xl mx-auto text-center space-y-3">
             <span className="text-xs font-bold uppercase tracking-wider text-primary">
               Passo a Passo Seguro
@@ -185,7 +185,7 @@ export function HomeView() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-            
+
             {/* Step 1 */}
             <div className="flex flex-col items-center text-center p-6 space-y-4">
               <div className="w-16 h-16 rounded-3xl bg-primary text-primary-foreground font-serif text-2xl font-bold flex items-center justify-center shadow-lg shadow-primary/20">
@@ -227,7 +227,7 @@ export function HomeView() {
       {/* 4. PET PREVIEW SECTION */}
       <section className="py-20 bg-secondary/20 border-t border-border/40">
         <div className="container mx-auto px-4 sm:px-8 space-y-10">
-          
+
           <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-4">
             <div>
               <span className="text-xs font-bold uppercase tracking-wider text-primary">

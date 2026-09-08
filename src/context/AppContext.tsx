@@ -77,8 +77,8 @@ function normalizePet(raw: unknown): Pet {
   const photos = Array.isArray(rawObj.photos) && rawObj.photos.length > 0
     ? (rawObj.photos as string[])
     : Array.isArray(rawObj.images) && rawObj.images.length > 0
-    ? (rawObj.images as string[])
-    : ["https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=1000&auto=format&fit=crop"];
+      ? (rawObj.images as string[])
+      : ["https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=1000&auto=format&fit=crop"];
 
   let location = { city: "São Paulo", state: "SP", neighborhood: "Vila Mariana" };
   const rawLoc = rawObj.location;
@@ -142,7 +142,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       try {
         const savedTheme = localStorage.getItem(STORAGE_KEYS.THEME) as ThemeMode | null;
         if (savedTheme) return savedTheme;
-      } catch {}
+      } catch { }
     }
     return 'system';
   });
@@ -153,7 +153,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       try {
         const savedUser = localStorage.getItem(STORAGE_KEYS.USER);
         if (savedUser) return JSON.parse(savedUser);
-      } catch {}
+      } catch { }
     }
     return demoAdopter;
   });
@@ -167,7 +167,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           const parsed = JSON.parse(savedPets);
           if (Array.isArray(parsed)) return parsed.map(normalizePet);
         }
-      } catch {}
+      } catch { }
     }
     return initialMockPets.map(normalizePet);
   });
@@ -183,7 +183,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
             return parsed.filter((id): id is string => typeof id === 'string' && !id.startsWith('pet-'));
           }
         }
-      } catch {}
+      } catch { }
     }
     return [];
   });
@@ -194,7 +194,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       try {
         const savedApps = localStorage.getItem(STORAGE_KEYS.APPLICATIONS);
         if (savedApps) return JSON.parse(savedApps);
-      } catch {}
+      } catch { }
     }
     return initialApplications;
   });
@@ -304,7 +304,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
             const merged = [...mappedPets, ...filteredPrev];
             try {
               localStorage.setItem(STORAGE_KEYS.PETS, JSON.stringify(merged));
-            } catch {}
+            } catch { }
             return merged;
           });
         }
@@ -331,19 +331,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
             const rawMessages = Array.isArray(a.application_messages) && a.application_messages.length > 0
               ? [...a.application_messages]
-                  .sort((m1: Record<string, unknown>, m2: Record<string, unknown>) =>
-                    new Date(String(m1.created_at || 0)).getTime() - new Date(String(m2.created_at || 0)).getTime()
-                  )
-                  .map((m: Record<string, unknown>) => ({
-                    id: String(m.id),
-                    senderName: String(m.sender_name || 'Usuário'),
-                    senderRole: (m.sender_role === 'candidate' ? 'adopter' : m.sender_role) as 'adopter' | 'guardian' | 'system',
-                    content: String(m.message || ''),
-                    sentAt: String(m.created_at || new Date().toISOString())
-                  }))
+                .sort((m1: Record<string, unknown>, m2: Record<string, unknown>) =>
+                  new Date(String(m1.created_at || 0)).getTime() - new Date(String(m2.created_at || 0)).getTime()
+                )
+                .map((m: Record<string, unknown>) => ({
+                  id: String(m.id),
+                  senderName: String(m.sender_name || 'Usuário'),
+                  senderRole: (m.sender_role === 'candidate' ? 'adopter' : m.sender_role) as 'adopter' | 'guardian' | 'system',
+                  content: String(m.message || ''),
+                  sentAt: String(m.created_at || new Date().toISOString())
+                }))
               : Array.isArray(a.messages)
-              ? (a.messages as PreAdoptionApplication['messages'])
-              : [
+                ? (a.messages as PreAdoptionApplication['messages'])
+                : [
                   {
                     id: `msg-${a.id}`,
                     senderName: String(candidate.name || a.candidate_name || 'Candidato'),
@@ -411,7 +411,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
             const merged = [...mappedApps, ...filteredPrev];
             try {
               localStorage.setItem(STORAGE_KEYS.APPLICATIONS, JSON.stringify(merged));
-            } catch {}
+            } catch { }
             return merged;
           });
         }
@@ -432,7 +432,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setThemeState(newTheme);
     try {
       localStorage.setItem(STORAGE_KEYS.THEME, newTheme);
-    } catch {}
+    } catch { }
   }, []);
 
   // Set Current User with persistence
@@ -444,7 +444,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       } else {
         localStorage.removeItem(STORAGE_KEYS.USER);
       }
-    } catch {}
+    } catch { }
   }, []);
 
   // Toasts
@@ -503,7 +503,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const updated = [newPet, ...prev];
       try {
         localStorage.setItem(STORAGE_KEYS.PETS, JSON.stringify(updated));
-      } catch {}
+      } catch { }
       return updated;
     });
 
@@ -565,7 +565,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const updated = prev.map((p) => (p.id === id ? { ...p, ...updates } : p));
       try {
         localStorage.setItem(STORAGE_KEYS.PETS, JSON.stringify(updated));
-      } catch {}
+      } catch { }
       return updated;
     });
 
@@ -606,7 +606,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setPetsState(updated);
     try {
       localStorage.setItem(STORAGE_KEYS.PETS, JSON.stringify(updated));
-    } catch {}
+    } catch { }
 
     showToast('Pet removido', `${petName} foi removido do catálogo.`, 'info');
 
@@ -632,7 +632,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setFavoritesState(updated);
     try {
       localStorage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify(updated));
-    } catch {}
+    } catch { }
 
     if (isCurrentlyFav) {
       showToast('Removido dos favoritos', undefined, 'info');
@@ -924,7 +924,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const updated = [newApp, ...prev];
       try {
         localStorage.setItem(STORAGE_KEYS.APPLICATIONS, JSON.stringify(updated));
-      } catch {}
+      } catch { }
       return updated;
     });
 
@@ -933,7 +933,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const updated = prev.map((p) => (p.id === data.petId ? { ...p, status: 'in_process' as const } : p));
       try {
         localStorage.setItem(STORAGE_KEYS.PETS, JSON.stringify(updated));
-      } catch {}
+      } catch { }
       return updated;
     });
 
@@ -1037,7 +1037,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       });
       try {
         localStorage.setItem(STORAGE_KEYS.APPLICATIONS, JSON.stringify(updated));
-      } catch {}
+      } catch { }
       return updated;
     });
 
@@ -1081,7 +1081,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const updated = prev.map((app) => (app.id === appId ? { ...app, guardianNotes: notes } : app));
       try {
         localStorage.setItem(STORAGE_KEYS.APPLICATIONS, JSON.stringify(updated));
-      } catch {}
+      } catch { }
       return updated;
     });
 
@@ -1129,7 +1129,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       });
       try {
         localStorage.setItem(STORAGE_KEYS.APPLICATIONS, JSON.stringify(updated));
-      } catch {}
+      } catch { }
       return updated;
     });
 
