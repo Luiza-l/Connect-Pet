@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { useApp } from "@/context/AppContext";
 import {
-  PreAdoptionApplication,
   ApplicationStatus,
   PetAdoptionStatus,
   PetSpecies,
@@ -46,11 +45,19 @@ export function GuardianDashboardView() {
 
   const [activeTab, setActiveTab] = useState<"animals" | "applications" | "metrics">("applications");
   const [searchAnimal, setSearchAnimal] = useState("");
-  const [selectedApplication, setSelectedApplication] = useState<PreAdoptionApplication | null>(
-    applications[0] || null
+  const [selectedApplicationId, setSelectedApplicationId] = useState<string | null>(
+    applications[0]?.id || null
   );
+
+  const selectedApplication = applications.find((a) => a.id === (selectedApplicationId || applications[0]?.id)) || applications[0] || null;
   const [chatMessage, setChatMessage] = useState("");
   const [notesInput, setNotesInput] = useState(selectedApplication?.guardianNotes || "");
+
+  useEffect(() => {
+    if (selectedApplication) {
+      setNotesInput(selectedApplication.guardianNotes || "");
+    }
+  }, [selectedApplication?.id]);
 
   // Modal State for New Pet
   const [isAddPetModalOpen, setIsAddPetModalOpen] = useState(false);
@@ -94,10 +101,6 @@ export function GuardianDashboardView() {
     if (!selectedApplication || !chatMessage.trim()) return;
     sendApplicationMessage(selectedApplication.id, chatMessage);
     setChatMessage("");
-
-    // Update locally displayed application messages
-    const updated = applications.find((a) => a.id === selectedApplication.id);
-    if (updated) setSelectedApplication(updated);
   };
 
   const handleSaveNotes = () => {
@@ -249,7 +252,7 @@ export function GuardianDashboardView() {
                   <button
                     key={app.id}
                     onClick={() => {
-                      setSelectedApplication(app);
+                      setSelectedApplicationId(app.id);
                       setNotesInput(app.guardianNotes || "");
                     }}
                     className={`w-full p-4 rounded-2xl border text-left transition-all ${
@@ -310,7 +313,6 @@ export function GuardianDashboardView() {
                       onChange={(e) => {
                         const newStatus = e.target.value as ApplicationStatus;
                         updateApplicationStatus(selectedApplication.id, newStatus);
-                        setSelectedApplication({ ...selectedApplication, status: newStatus });
                       }}
                       className="px-3 py-1.5 rounded-xl border border-border bg-background text-xs font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                     >

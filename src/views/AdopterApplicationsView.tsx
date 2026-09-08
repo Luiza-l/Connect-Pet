@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useApp } from "@/context/AppContext";
-import { PreAdoptionApplication, ApplicationStatus } from "@/types";
+import { ApplicationStatus } from "@/types";
 import { Button } from "@/components/ui/button";
 import {
   FileCheck2,
@@ -27,9 +27,11 @@ export function AdopterApplicationsView() {
     return true;
   });
 
-  const [selectedApp, setSelectedApp] = useState<PreAdoptionApplication | null>(
-    userApplications[0] || null
+  const [selectedAppId, setSelectedAppId] = useState<string | null>(
+    userApplications[0]?.id || null
   );
+
+  const selectedApp = userApplications.find((a) => a.id === (selectedAppId || userApplications[0]?.id)) || userApplications[0] || null;
   const [chatMessage, setChatMessage] = useState("");
 
   const handleSendMessage = (e: React.FormEvent) => {
@@ -37,9 +39,6 @@ export function AdopterApplicationsView() {
     if (!selectedApp || !chatMessage.trim()) return;
     sendApplicationMessage(selectedApp.id, chatMessage);
     setChatMessage("");
-
-    const updated = applications.find((a) => a.id === selectedApp.id);
-    if (updated) setSelectedApp(updated);
   };
 
   const stepsList: { status: ApplicationStatus; label: string; desc: string }[] = [
@@ -112,7 +111,7 @@ export function AdopterApplicationsView() {
                 return (
                   <button
                     key={app.id}
-                    onClick={() => setSelectedApp(app)}
+                    onClick={() => setSelectedAppId(app.id)}
                     className={`w-full p-4 rounded-2xl border text-left transition-all flex items-center gap-3.5 ${
                       isSelected
                         ? "border-primary bg-primary/5 shadow-md"

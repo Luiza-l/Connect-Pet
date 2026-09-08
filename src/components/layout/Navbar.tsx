@@ -31,9 +31,14 @@ export function Navbar() {
     switchUser,
     logout,
     favorites,
+    pets,
     theme,
     setTheme
   } = useApp();
+
+  const favoritesCount = pets.length > 0
+    ? favorites.filter((favId) => pets.some((p) => p.id === favId)).length
+    : favorites.filter((favId) => !favId.startsWith('pet-')).length;
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
@@ -99,10 +104,10 @@ export function Navbar() {
             className="relative p-2.5 rounded-full border border-border/50 bg-card hover:bg-secondary/50 transition-colors text-muted-foreground hover:text-rose-500"
             title="Pets Favoritos"
           >
-            <Heart className={`w-5 h-5 ${favorites.length > 0 ? "text-rose-500 fill-rose-500/20" : ""}`} />
-            {favorites.length > 0 && (
+            <Heart className={`w-5 h-5 ${favoritesCount > 0 ? "text-rose-500 fill-rose-500/20" : ""}`} />
+            {favoritesCount > 0 && (
               <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white shadow-sm animate-in zoom-in-50">
-                {favorites.length}
+                {favoritesCount}
               </span>
             )}
           </Link>

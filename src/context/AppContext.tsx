@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useMemo, useRef } from 'react';
 import {
   Pet,
   CurrentUser,
@@ -10,6 +10,7 @@ import {
   MatchResult
 } from '../types';
 import { mockPets as initialMockPets, demoAdopter, demoGuardian, initialApplications } from '../data/mockPets';
+import { createClient } from '@/lib/client';
 
 export interface ToastItem {
   id: string;
@@ -72,7 +73,7 @@ const STORAGE_KEYS = {
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 function normalizePet(raw: unknown): Pet {
-  const rawObj = (raw && typeof raw === "object" ? raw : {}) as Record<string, unknown>;
+  const rawObj = (raw && typeof raw === "object" ? (raw as Record<string, unknown>) : {}) as Record<string, unknown>;
   const photos = Array.isArray(rawObj.photos) && rawObj.photos.length > 0
     ? (rawObj.photos as string[])
     : Array.isArray(rawObj.images) && rawObj.images.length > 0
@@ -80,14 +81,16 @@ function normalizePet(raw: unknown): Pet {
     : ["https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=1000&auto=format&fit=crop"];
 
   let location = { city: "São Paulo", state: "SP", neighborhood: "Vila Mariana" };
-  if (raw?.location && typeof raw.location === "object") {
+  const rawLoc = rawObj.location;
+  if (rawLoc && typeof rawLoc === "object") {
+    const locObj = rawLoc as Record<string, string>;
     location = {
-      city: raw.location.city || "São Paulo",
-      state: raw.location.state || "SP",
-      neighborhood: raw.location.neighborhood || "Vila Mariana"
+      city: locObj.city || "São Paulo",
+      state: locObj.state || "SP",
+      neighborhood: locObj.neighborhood || "Vila Mariana"
     };
-  } else if (typeof raw?.location === "string") {
-    const parts = raw.location.split(",").map((s: string) => s.trim());
+  } else if (typeof rawLoc === "string") {
+    const parts = rawLoc.split(",").map((s: string) => s.trim());
     location = {
       city: parts[0] || "São Paulo",
       state: parts[1] || "SP",
@@ -96,39 +99,39 @@ function normalizePet(raw: unknown): Pet {
   }
 
   let temperament: string[] = ["Dócil", "Sociável"];
-  if (Array.isArray(raw?.temperament)) {
-    temperament = raw.temperament;
-  } else if (typeof raw?.temperament === "string") {
-    temperament = raw.temperament.split(",").map((s: string) => s.trim()).filter(Boolean);
+  if (Array.isArray(rawObj.temperament)) {
+    temperament = rawObj.temperament as string[];
+  } else if (typeof rawObj.temperament === "string") {
+    temperament = rawObj.temperament.split(",").map((s: string) => s.trim()).filter(Boolean);
   }
 
   return {
-    id: String(raw?.id || `pet-${Date.now()}`),
-    name: raw?.name || "Sem Nome",
-    species: raw?.species === "cat" || raw?.species === "Gato" ? "cat" : "dog",
-    breed: raw?.breed || "Vira-lata (SRD)",
-    size: raw?.size === "small" || raw?.size === "Pequeno" ? "small" : raw?.size === "large" || raw?.size === "Grande" ? "large" : "medium",
-    approximateAge: raw?.approximateAge || raw?.age || "1 ano",
-    ageCategory: raw?.ageCategory || "young",
-    sex: raw?.sex === "female" || raw?.gender === "Fêmea" ? "female" : "male",
-    status: raw?.status === "adopted" || raw?.status === "Adotado" ? "adopted" : raw?.status === "in_process" || raw?.status === "Em processo" ? "in_process" : "available",
-    vaccinated: !!raw?.vaccinated,
-    castrated: !!raw?.castrated,
-    dewormed: raw?.dewormed !== undefined ? !!raw?.dewormed : true,
-    vaccinationDetails: raw?.vaccinationDetails || "Vacinação em dia.",
-    specialNeeds: raw?.specialNeeds || "",
+    id: String(rawObj.id || `pet-${Date.now()}`),
+    name: String(rawObj.name || "Sem Nome"),
+    species: rawObj.species === "cat" || rawObj.species === "Gato" ? "cat" : "dog",
+    breed: String(rawObj.breed || "Vira-lata (SRD)"),
+    size: rawObj.size === "small" || rawObj.size === "Pequeno" ? "small" : rawObj.size === "large" || rawObj.size === "Grande" ? "large" : "medium",
+    approximateAge: String(rawObj.approximateAge || rawObj.age || "1 ano"),
+    ageCategory: (rawObj.ageCategory as Pet['ageCategory']) || "young",
+    sex: rawObj.sex === "female" || rawObj.gender === "Fêmea" ? "female" : "male",
+    status: rawObj.status === "adopted" || rawObj.status === "Adotado" ? "adopted" : rawObj.status === "in_process" || rawObj.status === "Em processo" ? "in_process" : "available",
+    vaccinated: !!rawObj.vaccinated,
+    castrated: !!rawObj.castrated,
+    dewormed: rawObj.dewormed !== undefined ? !!rawObj.dewormed : true,
+    vaccinationDetails: String(rawObj.vaccinationDetails || "Vacinação em dia."),
+    specialNeeds: String(rawObj.specialNeeds || ""),
     photos,
-    headline: raw?.headline || "Pronto para um novo lar cheio de carinho.",
-    story: raw?.story || raw?.history || "Resgatado com carinho, aguarda uma família amorosa e responsável.",
+    headline: String(rawObj.headline || "Pronto para um novo lar cheio de carinho."),
+    story: String(rawObj.story || rawObj.history || "Resgatado com carinho, aguarda uma família amorosa e responsável."),
     temperament: temperament.length > 0 ? temperament : ["Dócil"],
-    temperamentDescription: raw?.temperamentDescription || "Muito dócil, companheiro e educado.",
-    guardianId: raw?.guardianId || "guardian-1",
-    guardianName: raw?.guardianName || (raw?.isOng ? "ONG Patinhas com Amor" : "Protetor Independente"),
-    guardianType: raw?.guardianType || (raw?.isOng ? "ngo" : "individual"),
-    guardianPhone: raw?.guardianPhone || "(11) 97123-9988",
-    guardianEmail: raw?.guardianEmail || "contato@patinhascomamor.org.br",
+    temperamentDescription: String(rawObj.temperamentDescription || "Muito dócil, companheiro e educado."),
+    guardianId: String(rawObj.guardianId || "guardian-1"),
+    guardianName: String(rawObj.guardianName || (rawObj.isOng ? "ONG Patinhas com Amor" : "Protetor Independente")),
+    guardianType: (rawObj.guardianType as Pet['guardianType']) || (rawObj.isOng ? "ngo" : "individual"),
+    guardianPhone: String(rawObj.guardianPhone || "(11) 97123-9988"),
+    guardianEmail: String(rawObj.guardianEmail || "contato@patinhascomamor.org.br"),
     location,
-    createdAt: raw?.createdAt || new Date().toISOString()
+    createdAt: String(rawObj.createdAt || new Date().toISOString())
   };
 }
 
@@ -174,10 +177,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     if (typeof window !== 'undefined') {
       try {
         const savedFavorites = localStorage.getItem(STORAGE_KEYS.FAVORITES);
-        if (savedFavorites) return JSON.parse(savedFavorites);
+        if (savedFavorites) {
+          const parsed = JSON.parse(savedFavorites);
+          if (Array.isArray(parsed)) {
+            return parsed.filter((id): id is string => typeof id === 'string' && !id.startsWith('pet-'));
+          }
+        }
       } catch {}
     }
-    return ['pet-1', 'pet-2'];
+    return [];
   });
 
   // 5. Applications State
@@ -218,6 +226,207 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return () => mediaQuery.removeEventListener('change', listener);
   }, [theme]);
 
+  // Supabase Client
+  const supabase = useMemo(() => {
+    try {
+      if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY) {
+        return createClient();
+      }
+    } catch (err) {
+      console.warn('Could not initialize Supabase client:', err);
+    }
+    return null;
+  }, []);
+
+  // Derive valid favorites: only keep IDs that actually exist in the current pets catalogue
+  const validFavorites = useMemo(() => {
+    if (!pets || pets.length === 0) {
+      return favorites.filter((id) => !id.startsWith('pet-'));
+    }
+    const petIdSet = new Set(pets.map((p) => p.id));
+    return favorites.filter((id) => petIdSet.has(id));
+  }, [favorites, pets]);
+
+  // Fetch Pets and Applications from Supabase on mount
+  useEffect(() => {
+    if (!supabase) return;
+
+    let isMounted = true;
+
+    async function syncFromSupabase() {
+      try {
+        // 1. Fetch Pets
+        const { data: remotePets, error: petsError } = await supabase!
+          .from('pets')
+          .select('*')
+          .order('created_at', { ascending: false });
+
+        if (!petsError && Array.isArray(remotePets) && remotePets.length > 0 && isMounted) {
+          const mappedPets = remotePets.map((p: Record<string, unknown>) =>
+            normalizePet({
+              id: p.id,
+              name: p.name,
+              species: p.species,
+              breed: p.breed,
+              size: p.size,
+              approximateAge: p.approximate_age,
+              ageCategory: p.age_category,
+              sex: p.sex,
+              status: p.status,
+              vaccinated: p.vaccinated,
+              castrated: p.castrated,
+              dewormed: p.dewormed,
+              vaccinationDetails: p.vaccination_details,
+              specialNeeds: p.special_needs,
+              photos: p.photos,
+              headline: p.headline,
+              story: p.story,
+              temperament: p.temperament,
+              temperamentDescription: p.temperament_description,
+              guardianId: p.guardian_id,
+              guardianName: p.guardian_name,
+              guardianType: p.guardian_type,
+              guardianPhone: p.guardian_phone,
+              guardianEmail: p.guardian_email,
+              location: {
+                city: p.city || 'São Paulo',
+                state: p.state || 'SP',
+                neighborhood: p.neighborhood || 'Vila Mariana'
+              },
+              createdAt: p.created_at
+            })
+          );
+
+          setPetsState((prev) => {
+            // Replace temporary mock pets (pet-1, etc.) with real Supabase records
+            const remoteIds = new Set(mappedPets.map((p) => p.id));
+            const filteredPrev = prev.filter((p) => !remoteIds.has(p.id) && !p.id.startsWith('pet-'));
+            const merged = [...mappedPets, ...filteredPrev];
+            try {
+              localStorage.setItem(STORAGE_KEYS.PETS, JSON.stringify(merged));
+            } catch {}
+            return merged;
+          });
+        }
+
+        // 2. Fetch Applications with joined pets and messages
+        const { data: remoteApps, error: appsError } = await supabase!
+          .from('applications')
+          .select('*, pets(id, name, photos, species), application_messages(*)')
+          .order('created_at', { ascending: false });
+
+        if (!appsError && Array.isArray(remoteApps) && remoteApps.length > 0 && isMounted) {
+          const mappedApps: PreAdoptionApplication[] = remoteApps.map((a: Record<string, unknown>) => {
+            const candidate = (a.candidate || {}) as Record<string, string>;
+            const housing = (a.housing || {}) as Record<string, unknown>;
+            const routine = (a.routine || {}) as Record<string, unknown>;
+            const finance = (a.finance || {}) as Record<string, unknown>;
+            const dossier = (a.dossier || {}) as Record<string, unknown>;
+
+            const petObj = (a.pets && typeof a.pets === 'object' ? a.pets : null) as Record<string, unknown> | null;
+            const petPhotos = petObj && Array.isArray(petObj.photos) ? (petObj.photos as string[]) : [];
+            const petPhoto = petPhotos[0] || String(a.pet_photo || 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?q=80&w=1000&auto=format&fit=crop');
+            const petName = petObj?.name ? String(petObj.name) : String(a.pet_name || 'Pet');
+            const petSpecies = (petObj?.species || a.pet_species || 'dog') as Pet['species'];
+
+            const rawMessages = Array.isArray(a.application_messages) && a.application_messages.length > 0
+              ? [...a.application_messages]
+                  .sort((m1: Record<string, unknown>, m2: Record<string, unknown>) =>
+                    new Date(String(m1.created_at || 0)).getTime() - new Date(String(m2.created_at || 0)).getTime()
+                  )
+                  .map((m: Record<string, unknown>) => ({
+                    id: String(m.id),
+                    senderName: String(m.sender_name || 'Usuário'),
+                    senderRole: (m.sender_role === 'candidate' ? 'adopter' : m.sender_role) as 'adopter' | 'guardian' | 'system',
+                    content: String(m.message || ''),
+                    sentAt: String(m.created_at || new Date().toISOString())
+                  }))
+              : Array.isArray(a.messages)
+              ? (a.messages as PreAdoptionApplication['messages'])
+              : [
+                  {
+                    id: `msg-${a.id}`,
+                    senderName: String(candidate.name || a.candidate_name || 'Candidato'),
+                    senderRole: 'adopter' as const,
+                    content: 'Candidatura enviada.',
+                    sentAt: String(a.created_at || new Date().toISOString())
+                  }
+                ];
+
+            return {
+              id: String(a.id),
+              petId: String(a.pet_id || ''),
+              petName,
+              petPhoto,
+              petSpecies,
+              guardianId: String(a.guardian_id || 'guardian-1'),
+              guardianName: String(a.guardian_name || 'ONG Patinhas com Amor'),
+              guardianType: (a.guardian_type as Pet['guardianType']) || 'ngo',
+              candidateId: String(a.candidate_id || candidate.id || 'candidate-1'),
+              candidate: {
+                name: candidate.name || String(a.candidate_name || 'Candidato'),
+                birthDate: candidate.birthDate || '2000-01-01',
+                profession: candidate.profession || 'Não informado',
+                primaryPhone: candidate.primaryPhone || candidate.phone || String(a.candidate_phone || ''),
+                email: candidate.email || String(a.candidate_email || ''),
+                socialMedia: candidate.socialMedia || '',
+                cpf: candidate.cpf || '000.000.000-00',
+                rg: candidate.rg || '00.000.000-0'
+              },
+              housingType: (housing.housingType as PreAdoptionApplication['housingType']) || 'casa',
+              housingStatus: (housing.housingStatus as PreAdoptionApplication['housingStatus']) || 'proprio',
+              landlordPermission: housing.landlordPermission !== undefined ? !!housing.landlordPermission : true,
+              hasProtection: housing.hasProtection !== undefined ? !!housing.hasProtection : true,
+              protectionDetails: String(housing.protectionDetails || ''),
+              accessArea: (housing.accessArea as PreAdoptionApplication['accessArea']) || 'livre_total',
+              adultsCount: typeof routine.adultsCount === 'number' ? routine.adultsCount : 2,
+              childrenCount: typeof routine.childrenCount === 'number' ? routine.childrenCount : 0,
+              familyAgreement: routine.familyAgreement !== undefined ? !!routine.familyAgreement : true,
+              allergyCases: !!routine.allergyCases,
+              allergyDetails: String(routine.allergyDetails || ''),
+              hoursAlone: typeof routine.hoursAlone === 'number' ? routine.hoursAlone : 4,
+              travelCarePlan: String(routine.travelCarePlan || 'Hotelzinho ou parente'),
+              hasCurrentPets: !!routine.hasCurrentPets,
+              currentPetsDetails: Array.isArray(routine.currentPetsDetails) ? (routine.currentPetsDetails as PreAdoptionApplication['currentPetsDetails']) : undefined,
+              previousPetsHistory: String(routine.previousPetsHistory || 'Histórico de cuidados responsável.'),
+              costAwareness: finance.costAwareness !== undefined ? !!finance.costAwareness : true,
+              status: (a.status as ApplicationStatus) || 'pending',
+              createdAt: String(a.created_at || new Date().toISOString()),
+              notes: Array.isArray(a.notes) ? (a.notes as string[]) : ['Candidatura registrada.'],
+              guardianNotes: String(a.guardian_notes || ''),
+              messages: rawMessages,
+              automatedAnalysis: (dossier.automatedAnalysis || a.automated_analysis || {
+                suitabilityScore: 85,
+                verdict: 'Recomendada',
+                strengths: ['Dossiê completo'],
+                attentionPoints: [],
+                suggestedQuestions: []
+              }) as NonNullable<PreAdoptionApplication['automatedAnalysis']>
+            };
+          });
+
+          setApplicationsState((prev) => {
+            const remoteIds = new Set(mappedApps.map((a) => a.id));
+            const filteredPrev = prev.filter((a) => !remoteIds.has(a.id) && !a.id.startsWith('app-'));
+            const merged = [...mappedApps, ...filteredPrev];
+            try {
+              localStorage.setItem(STORAGE_KEYS.APPLICATIONS, JSON.stringify(merged));
+            } catch {}
+            return merged;
+          });
+        }
+      } catch (err) {
+        console.warn('Sync from Supabase skipped or failed:', err);
+      }
+    }
+
+    syncFromSupabase();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [supabase]);
+
   // Set Theme with persistence
   const setTheme = useCallback((newTheme: ThemeMode) => {
     setThemeState(newTheme);
@@ -239,12 +448,23 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   // Toasts
+  const lastToastRef = useRef<{ key: string; time: number } | null>(null);
+
   const removeToast = useCallback((id: string) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
   const showToast = useCallback((title: string, message?: string, type: 'success' | 'error' | 'warning' | 'info' = 'info') => {
-    const id = `toast-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+    const key = `${title}::${message || ''}`;
+    const now = Date.now();
+
+    // Evita disparos duplicados idênticos em menos de 600ms (ex: React StrictMode ou duplo clique)
+    if (lastToastRef.current && lastToastRef.current.key === key && (now - lastToastRef.current.time) < 600) {
+      return;
+    }
+    lastToastRef.current = { key, time: now };
+
+    const id = `toast-${now}-${Math.random().toString(36).slice(2, 7)}`;
     const newToast: ToastItem = { id, title, message, type };
     setToasts((prev) => [...prev, newToast]);
 
@@ -277,6 +497,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       createdAt: new Date().toISOString()
     };
     const newPet = normalizePet(rawPet);
+
+    // 1. Optimistic Local Update
     setPetsState((prev) => {
       const updated = [newPet, ...prev];
       try {
@@ -284,8 +506,59 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       } catch {}
       return updated;
     });
+
+    // 2. Remote Supabase Insertion
+    if (supabase) {
+      (async () => {
+        try {
+          const { data, error } = await supabase
+            .from('pets')
+            .insert({
+              name: newPet.name,
+              species: newPet.species,
+              breed: newPet.breed,
+              size: newPet.size,
+              approximate_age: newPet.approximateAge,
+              age_category: newPet.ageCategory,
+              sex: newPet.sex,
+              status: newPet.status,
+              vaccinated: newPet.vaccinated,
+              castrated: newPet.castrated,
+              dewormed: newPet.dewormed,
+              vaccination_details: newPet.vaccinationDetails,
+              special_needs: newPet.specialNeeds,
+              photos: newPet.photos,
+              headline: newPet.headline,
+              story: newPet.story,
+              temperament: newPet.temperament,
+              temperament_description: newPet.temperamentDescription,
+              guardian_id: newPet.guardianId,
+              guardian_name: newPet.guardianName,
+              guardian_type: newPet.guardianType,
+              guardian_phone: newPet.guardianPhone,
+              guardian_email: newPet.guardianEmail,
+              city: newPet.location.city,
+              state: newPet.location.state,
+              neighborhood: newPet.location.neighborhood
+            })
+            .select();
+
+          if (error) {
+            console.warn('Supabase pet insert failed, kept in localStorage:', error.message);
+          } else if (data && data[0]) {
+            const created = data[0];
+            setPetsState((prev) =>
+              prev.map((p) => (p.id === newPet.id ? { ...p, id: created.id } : p))
+            );
+          }
+        } catch (err) {
+          console.warn('Supabase pet insert error:', err);
+        }
+      })();
+    }
+
     showToast('Animal cadastrado!', `${newPet.name} já está visível para adoção.`, 'success');
-  }, [showToast]);
+  }, [showToast, supabase]);
 
   const updatePet = useCallback((id: string, updates: Partial<Pet>) => {
     setPetsState((prev) => {
@@ -295,41 +568,82 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       } catch {}
       return updated;
     });
+
+    if (supabase) {
+      (async () => {
+        try {
+          const remoteUpdates: Record<string, unknown> = {};
+          if (updates.name !== undefined) remoteUpdates.name = updates.name;
+          if (updates.status !== undefined) remoteUpdates.status = updates.status;
+          if (updates.story !== undefined) remoteUpdates.story = updates.story;
+          if (updates.headline !== undefined) remoteUpdates.headline = updates.headline;
+          if (updates.photos !== undefined) remoteUpdates.photos = updates.photos;
+          if (updates.vaccinated !== undefined) remoteUpdates.vaccinated = updates.vaccinated;
+          if (updates.castrated !== undefined) remoteUpdates.castrated = updates.castrated;
+          if (updates.dewormed !== undefined) remoteUpdates.dewormed = updates.dewormed;
+
+          if (Object.keys(remoteUpdates).length > 0) {
+            const { error } = await supabase
+              .from('pets')
+              .update(remoteUpdates)
+              .eq('id', id);
+            if (error) console.warn('Supabase pet update failed:', error.message);
+          }
+        } catch (err) {
+          console.warn('Supabase pet update error:', err);
+        }
+      })();
+    }
+
     showToast('Pet atualizado', 'As alterações foram salvas com sucesso.', 'success');
-  }, [showToast]);
+  }, [showToast, supabase]);
 
   const deletePet = useCallback((id: string) => {
-    setPetsState((prev) => {
-      const petToDelete = prev.find((p) => p.id === id);
-      const updated = prev.filter((p) => p.id !== id);
-      try {
-        localStorage.setItem(STORAGE_KEYS.PETS, JSON.stringify(updated));
-      } catch {}
-      showToast('Pet removido', `${petToDelete?.name || 'O animal'} foi removido do catálogo.`, 'info');
-      return updated;
-    });
-  }, [showToast]);
+    const petToDelete = pets.find((p) => p.id === id);
+    const petName = petToDelete?.name || 'O animal';
+    const updated = pets.filter((p) => p.id !== id);
+
+    setPetsState(updated);
+    try {
+      localStorage.setItem(STORAGE_KEYS.PETS, JSON.stringify(updated));
+    } catch {}
+
+    showToast('Pet removido', `${petName} foi removido do catálogo.`, 'info');
+
+    if (supabase) {
+      (async () => {
+        try {
+          const { error } = await supabase.from('pets').delete().eq('id', id);
+          if (error) console.warn('Supabase pet delete failed:', error.message);
+        } catch (err) {
+          console.warn('Supabase pet delete error:', err);
+        }
+      })();
+    }
+  }, [pets, showToast, supabase]);
 
   // Favorites
   const toggleFavorite = useCallback((petId: string) => {
-    setFavoritesState((prev) => {
-      const exists = prev.includes(petId);
-      const updated = exists ? prev.filter((id) => id !== petId) : [...prev, petId];
-      try {
-        localStorage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify(updated));
-      } catch {}
-      if (exists) {
-        showToast('Removido dos favoritos', undefined, 'info');
-      } else {
-        showToast('Adicionado aos favoritos!', 'Você pode acompanhar seus pets favoritos.', 'success');
-      }
-      return updated;
-    });
-  }, [showToast]);
+    const isCurrentlyFav = validFavorites.includes(petId);
+    const updated = isCurrentlyFav
+      ? validFavorites.filter((id) => id !== petId)
+      : [...validFavorites, petId];
+
+    setFavoritesState(updated);
+    try {
+      localStorage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify(updated));
+    } catch {}
+
+    if (isCurrentlyFav) {
+      showToast('Removido dos favoritos', undefined, 'info');
+    } else {
+      showToast('Adicionado aos favoritos!', 'Você pode acompanhar seus pets favoritos.', 'success');
+    }
+  }, [validFavorites, showToast]);
 
   const isFavorite = useCallback((petId: string) => {
-    return favorites.includes(petId);
-  }, [favorites]);
+    return validFavorites.includes(petId);
+  }, [validFavorites]);
 
   // Business Rule 1: Age calculation & 21+ rule
   const calculateAge = useCallback((birthDate: string): number => {
@@ -624,8 +938,76 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
 
     showToast('Candidatura enviada!', `Seu dossiê para adotar ${data.petName} foi recebido pela ONG.`, 'success');
+
+    // Remote Supabase Application Insertion
+    if (supabase) {
+      (async () => {
+        try {
+          const { data: created, error } = await supabase
+            .from('applications')
+            .insert({
+              pet_id: data.petId.startsWith('pet-') ? null : data.petId,
+              candidate_name: data.candidate.name,
+              candidate_email: data.candidate.email,
+              candidate_phone: data.candidate.primaryPhone || '',
+              guardian_id: data.guardianId,
+              status: 'pending',
+              candidate: data.candidate,
+              housing: {
+                housingType: data.housingType,
+                housingStatus: data.housingStatus,
+                landlordPermission: data.landlordPermission,
+                hasProtection: data.hasProtection,
+                protectionDetails: data.protectionDetails,
+                accessArea: data.accessArea
+              },
+              routine: {
+                adultsCount: data.adultsCount,
+                childrenCount: data.childrenCount,
+                hoursAlone: data.hoursAlone,
+                familyAgreement: data.familyAgreement,
+                allergyCases: data.allergyCases,
+                allergyDetails: data.allergyDetails,
+                travelCarePlan: data.travelCarePlan,
+                hasCurrentPets: data.hasCurrentPets,
+                currentPetsDetails: data.currentPetsDetails,
+                previousPetsHistory: data.previousPetsHistory
+              },
+              finance: {
+                costAwareness: data.costAwareness
+              },
+              dossier: {
+                automatedAnalysis: analysis
+              },
+              automated_analysis: analysis
+            })
+            .select();
+
+          if (error) {
+            console.warn('Supabase application insert note:', error.message);
+          } else if (created && created[0]) {
+            const newAppId = created[0].id;
+            setApplicationsState((prev) =>
+              prev.map((app) => (app.id === newApp.id ? { ...app, id: newAppId } : app))
+            );
+
+            // Inserir mensagem inicial no Supabase
+            await supabase.from('application_messages').insert({
+              application_id: newAppId,
+              sender_id: data.candidateId,
+              sender_name: data.candidate.name,
+              sender_role: 'candidate',
+              message: `Olá! Acabei de enviar minha candidatura para adotar ${data.petName}. Fico à disposição para conversar e agendar uma visita!`
+            });
+          }
+        } catch (err) {
+          console.warn('Supabase app insert error:', err);
+        }
+      })();
+    }
+
     return newApp;
-  }, [analyzeDossier, showToast]);
+  }, [analyzeDossier, showToast, supabase]);
 
   const updateApplicationStatus = useCallback((appId: string, status: ApplicationStatus) => {
     setApplicationsState((prev) => {
@@ -658,8 +1040,41 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       } catch {}
       return updated;
     });
+
+    if (supabase && !appId.startsWith('app-')) {
+      (async () => {
+        try {
+          const { error } = await supabase
+            .from('applications')
+            .update({ status })
+            .eq('id', appId);
+          if (error) console.warn('Supabase app status update note:', error.message);
+
+          const statusLabels: Record<ApplicationStatus, string> = {
+            pending: 'Pendente',
+            under_review: 'Em Avaliação',
+            approved: 'Aprovada',
+            rejected: 'Não Aprovada',
+            completed: 'Adoção Concluída'
+          };
+
+          await supabase
+            .from('application_messages')
+            .insert({
+              application_id: appId,
+              sender_id: 'system',
+              sender_name: 'Sistema ConnectPet',
+              sender_role: 'system',
+              message: `Status da candidatura alterado para: ${statusLabels[status]}.`
+            });
+        } catch (err) {
+          console.warn('Supabase app status update error:', err);
+        }
+      })();
+    }
+
     showToast('Status atualizado', 'O andamento da candidatura foi atualizado com sucesso.', 'success');
-  }, [showToast]);
+  }, [showToast, supabase]);
 
   const updateGuardianNotes = useCallback((appId: string, notes: string) => {
     setApplicationsState((prev) => {
@@ -669,8 +1084,23 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       } catch {}
       return updated;
     });
+
+    if (supabase && !appId.startsWith('app-')) {
+      (async () => {
+        try {
+          const { error } = await supabase
+            .from('applications')
+            .update({ guardian_notes: notes })
+            .eq('id', appId);
+          if (error) console.warn('Supabase guardian notes note:', error.message);
+        } catch (err) {
+          console.warn('Supabase guardian notes error:', err);
+        }
+      })();
+    }
+
     showToast('Nota salva', 'Anotações internas da ONG atualizadas.', 'info');
-  }, [showToast]);
+  }, [showToast, supabase]);
 
   const sendApplicationMessage = useCallback((appId: string, content: string) => {
     if (!content.trim()) return;
@@ -702,8 +1132,28 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       } catch {}
       return updated;
     });
+
+    if (supabase && !appId.startsWith('app-')) {
+      (async () => {
+        try {
+          const { error } = await supabase
+            .from('application_messages')
+            .insert({
+              application_id: appId,
+              sender_id: currentUser?.id || 'anon',
+              sender_name: currentUser?.name || 'Usuário',
+              sender_role: currentUser?.role === 'guardian' ? 'guardian' : 'candidate',
+              message: content.trim()
+            });
+          if (error) console.warn('Supabase message insert note:', error.message);
+        } catch (err) {
+          console.warn('Supabase message error:', err);
+        }
+      })();
+    }
+
     showToast('Mensagem enviada', undefined, 'success');
-  }, [currentUser, showToast]);
+  }, [currentUser, showToast, supabase]);
 
   const contextValue = useMemo<AppContextType>(() => ({
     theme,
@@ -716,7 +1166,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     addPet,
     updatePet,
     deletePet,
-    favorites,
+    favorites: validFavorites,
     toggleFavorite,
     isFavorite,
     applications,
@@ -742,7 +1192,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     addPet,
     updatePet,
     deletePet,
-    favorites,
+    validFavorites,
     toggleFavorite,
     isFavorite,
     applications,
