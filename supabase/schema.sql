@@ -82,12 +82,58 @@ create table if not exists public.application_messages (
 create index if not exists idx_app_messages_app_id on public.application_messages (application_id);
 create index if not exists idx_app_messages_created_at on public.application_messages (created_at);
 
--- 5. Configuração de Row Level Security (RLS)
+-- 5. Tabela de Perfis de Usuário (profiles)
+create table if not exists public.profiles (
+  id uuid primary key references auth.users (id) on delete cascade,
+  role text not null check (role in ('adopter', 'guardian')),
+  name text not null,
+  email text not null,
+  primary_phone text,
+  secondary_phone text,
+  avatar text,
+  -- Campos específicos de Adotante
+  cpf text,
+  rg text,
+  birth_date text,
+  profession text,
+  social_media text,
+  -- Campos específicos de Guardião / ONG
+  guardian_type text check (guardian_type in ('individual', 'ngo')),
+  responsible_name text,
+  document text,
+  city text,
+  state text,
+  neighborhood text,
+  description text,
+  bio text,
+  verified boolean default false,
+  created_at timestamp with time zone not null default timezone('utc'::text, now()),
+  updated_at timestamp with time zone not null default timezone('utc'::text, now())
+);
+
+create index if not exists idx_profiles_role on public.profiles (role);
+create index if not exists idx_profiles_email on public.profiles (email);
+
+-- 6. Tabela de Favoritos / Curtidas (favorites)
+create table if not exists public.favorites (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users (id) on delete cascade,
+  pet_id uuid not null references public.pets (id) on delete cascade,
+  created_at timestamp with time zone not null default timezone('utc'::text, now()),
+  unique (user_id, pet_id)
+);
+
+create index if not exists idx_favorites_user_id on public.favorites (user_id);
+create index if not exists idx_favorites_pet_id on public.favorites (pet_id);
+
+-- 7. Configuração de Row Level Security (RLS)
 alter table public.pets enable row level security;
 alter table public.applications enable row level security;
 alter table public.application_messages enable row level security;
+alter table public.profiles enable row level security;
+alter table public.favorites enable row level security;
 
--- Políticas para Pets (leitura pública, escrita permitida para anon e autenticados no modo atual)
+-- Políticas para Pets (catálogo é público para leitura; gerenciamento por autenticados)
 create policy "Allow public read access for pets"
   on public.pets for select
   to anon, authenticated
@@ -95,54 +141,116 @@ create policy "Allow public read access for pets"
 
 create policy "Allow insert for pets"
   on public.pets for insert
-  to anon, authenticated
-  with check (true);
+  to authenticated
+  with check (guardian_id = (select auth.uid())::text);
 
 create policy "Allow update for pets"
   on public.pets for update
-  to anon, authenticated
-  using (true)
-  with check (true);
+  to authenticated
+  using (guardian_id = (select auth.uid())::text)
+  with check (guardian_id = (select auth.uid())::text);
 
 create policy "Allow delete for pets"
   on public.pets for delete
-  to anon, authenticated
-  using (true);
+  to authenticated
+  using (guardian_id = (select auth.uid())::text);
 
--- Políticas para Candidaturas
-create policy "Allow public read access for applications"
+-- Políticas para Profiles
+create policy "Allow user to read own profile or public guardian profiles"
+  on public.profiles for select
+  to authenticated
+  using ((select auth.uid()) = id or role = 'guardian');
+
+create policy "Allow public read for guardian profiles"
+  on public.profiles for select
+  to anon
+  using (role = 'guardian');
+
+create policy "Allow user to insert own profile"
+  on public.profiles for insert
+  to authenticated
+  with check ((select auth.uid()) = id);
+
+create policy "Allow user to update own profile"
+  on public.profiles for update
+  to authenticated
+  using ((select auth.uid()) = id)
+  with check ((select auth.uid()) = id);
+
+create policy "Allow user to delete own profile"
+  on public.profiles for delete
+  to authenticated
+  using ((select auth.uid()) = id);
+
+-- Políticas para Favorites (apenas o próprio usuário acessa seus favoritos)
+create policy "Allow user to read own favorites"
+  on public.favorites for select
+  to authenticated
+  using ((select auth.uid()) = user_id);
+
+create policy "Allow user to insert own favorites"
+  on public.favorites for insert
+  to authenticated
+  with check ((select auth.uid()) = user_id);
+
+create policy "Allow user to delete own favorites"
+  on public.favorites for delete
+  to authenticated
+  using ((select auth.uid()) = user_id);
+
+-- Políticas para Candidaturas (Adotante vê as suas, Guardião vê as recebidas)
+create policy "Allow participants to view applications"
   on public.applications for select
-  to anon, authenticated
-  using (true);
+  to authenticated
+  using (
+    guardian_id = (select auth.uid())::text
+    or candidate_email = (select auth.jwt() ->> 'email')
+    or (candidate ->> 'id') = (select auth.uid())::text
+  );
 
-create policy "Allow insert for applications"
+create policy "Allow candidate to insert application"
   on public.applications for insert
-  to anon, authenticated
-  with check (true);
+  to authenticated
+  with check (
+    candidate_email = (select auth.jwt() ->> 'email')
+    or (candidate ->> 'id') = (select auth.uid())::text
+  );
 
-create policy "Allow update for applications"
+create policy "Allow guardian to update application"
   on public.applications for update
-  to anon, authenticated
-  using (true)
-  with check (true);
-
-create policy "Allow delete for applications"
-  on public.applications for delete
-  to anon, authenticated
-  using (true);
+  to authenticated
+  using (guardian_id = (select auth.uid())::text)
+  with check (guardian_id = (select auth.uid())::text);
 
 -- Políticas para Mensagens de Candidatura
-create policy "Allow public read access for application_messages"
+create policy "Allow participants to read application messages"
   on public.application_messages for select
-  to anon, authenticated
-  using (true);
+  to authenticated
+  using (
+    exists (
+      select 1 from public.applications a
+      where a.id = application_id
+      and (
+        a.guardian_id = (select auth.uid())::text
+        or a.candidate_email = (select auth.jwt() ->> 'email')
+        or (a.candidate ->> 'id') = (select auth.uid())::text
+      )
+    )
+  );
 
-create policy "Allow insert for application_messages"
+create policy "Allow participants to insert application messages"
   on public.application_messages for insert
-  to anon, authenticated
-  with check (true);
+  to authenticated
+  with check (
+    sender_id = (select auth.uid())::text
+    and exists (
+      select 1 from public.applications a
+      where a.id = application_id
+      and (
+        a.guardian_id = (select auth.uid())::text
+        or a.candidate_email = (select auth.jwt() ->> 'email')
+        or (a.candidate ->> 'id') = (select auth.uid())::text
+      )
+    )
+  );
 
-create policy "Allow delete for application_messages"
-  on public.application_messages for delete
-  to anon, authenticated
-  using (true);

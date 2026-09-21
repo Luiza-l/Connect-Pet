@@ -38,13 +38,13 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
   const [formData, setFormData] = useState({
     // Step 1: Candidate
     name: adopterData?.name || "",
-    birthDate: adopterData?.birthDate || "1997-04-15",
-    profession: adopterData?.profession || "Arquiteta e Urbanista",
-    primaryPhone: adopterData?.primaryPhone || "(11) 98765-4321",
-    email: adopterData?.email || "camila.rodrigues.arq@gmail.com",
-    socialMedia: adopterData?.socialMedia || "@camila.arq.design",
-    cpf: adopterData?.cpf || "348.912.875-01",
-    rg: adopterData?.rg || "44.892.112-X",
+    birthDate: adopterData?.birthDate || "1998-01-01",
+    profession: adopterData?.profession || "",
+    primaryPhone: adopterData?.primaryPhone || "",
+    email: adopterData?.email || "",
+    socialMedia: adopterData?.socialMedia || "",
+    cpf: adopterData?.cpf || "",
+    rg: adopterData?.rg || "",
 
     // Step 2: Environment
     housingType: "apartamento" as "apartamento" | "casa" | "sobrado" | "sitio",
@@ -65,7 +65,7 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
 
     // Step 4: Pets & Finances
     hasCurrentPets: false,
-    previousPetsHistory: "Tive um cão mestiço que viveu por 14 anos com todos os cuidados veterinários até falecer de velhice.",
+    previousPetsHistory: "Cuidados veterinários e carinho garantidos para o bem-estar do animal.",
     costAwareness: true,
   });
 

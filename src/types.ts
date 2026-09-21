@@ -12,7 +12,7 @@ export interface AdopterProfile {
   role: 'adopter';
   name: string;
   cpf: string;
-  rg: string;
+  rg?: string;
   birthDate: string;
   primaryPhone: string;
   secondaryPhone?: string;

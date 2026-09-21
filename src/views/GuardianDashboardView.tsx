@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { useApp } from "@/context/AppContext";
 import {
   ApplicationStatus,
@@ -26,6 +27,7 @@ import {
   MessageSquare,
   ShieldCheck,
   Sparkles,
+  Building2,
   X
 } from "lucide-react";
 
@@ -43,13 +45,21 @@ export function GuardianDashboardView() {
     showToast
   } = useApp();
 
+  const isGuardian = currentUser?.role === "guardian";
+  const guardianApplications = applications.filter(
+    (a) => !currentUser || a.guardianId === currentUser.id
+  );
+  const guardianPets = pets.filter(
+    (p) => !currentUser || p.guardianId === currentUser.id
+  );
+
   const [activeTab, setActiveTab] = useState<"animals" | "applications" | "metrics">("applications");
   const [searchAnimal, setSearchAnimal] = useState("");
   const [selectedApplicationId, setSelectedApplicationId] = useState<string | null>(
-    applications[0]?.id || null
+    guardianApplications[0]?.id || null
   );
 
-  const selectedApplication = applications.find((a) => a.id === (selectedApplicationId || applications[0]?.id)) || applications[0] || null;
+  const selectedApplication = guardianApplications.find((a) => a.id === (selectedApplicationId || guardianApplications[0]?.id)) || guardianApplications[0] || null;
   const [chatMessage, setChatMessage] = useState("");
   const [notesInput, setNotesInput] = useState(selectedApplication?.guardianNotes || "");
 
@@ -77,7 +87,7 @@ export function GuardianDashboardView() {
   });
 
   // Filtered animals
-  const filteredPets = pets.filter((p) =>
+  const filteredPets = guardianPets.filter((p) =>
     p.name.toLowerCase().includes(searchAnimal.toLowerCase()) ||
     p.breed.toLowerCase().includes(searchAnimal.toLowerCase())
   );
@@ -120,6 +130,8 @@ export function GuardianDashboardView() {
       .map((t) => t.trim())
       .filter((t) => t.length > 0);
 
+    const guardianProfile = currentUser?.role === "guardian" ? currentUser : null;
+
     addPet({
       name: newPetForm.name,
       species: newPetForm.species,
@@ -140,30 +152,49 @@ export function GuardianDashboardView() {
       temperament: temperamentTags.length > 0 ? temperamentTags : ["Dócil", "Carinhoso"],
       temperamentDescription: newPetForm.temperamentDescription,
       guardianId: currentUser?.id || "guardian-1",
-      guardianName: currentUser?.name || "ONG Patinhas com Amor",
-      guardianType: "ngo",
-      guardianPhone: "(11) 97123-9988",
-      guardianEmail: "contato@patinhascomamor.org.br",
+      guardianName: currentUser?.name || "ONG / Protetor",
+      guardianType: guardianProfile?.guardianType || "ngo",
+      guardianPhone: currentUser?.primaryPhone || "(11) 97123-9988",
+      guardianEmail: currentUser?.email || "contato@patinhascomamor.org.br",
       location: {
-        city: "São Paulo",
-        state: "SP",
-        neighborhood: "Vila Mariana"
+        city: guardianProfile?.city || "São Paulo",
+        state: guardianProfile?.state || "SP",
+        neighborhood: guardianProfile?.neighborhood || "Centro"
       }
     });
 
     setIsAddPetModalOpen(false);
   };
 
+  if (!currentUser) {
+    return (
+      <div className="container mx-auto px-4 py-20 min-h-[70vh] flex items-center justify-center">
+        <div className="p-10 rounded-3xl bg-card border border-border text-center space-y-4 max-w-md shadow-xl">
+          <Building2 className="w-12 h-12 text-primary mx-auto" />
+          <div className="space-y-1">
+            <h2 className="font-serif text-2xl font-bold text-foreground">Acesso ao Painel da ONG</h2>
+            <p className="text-xs text-muted-foreground">
+              Você precisa estar conectado à sua conta de ONG ou Protetor para gerenciar animais e candidaturas.
+            </p>
+          </div>
+          <Button asChild className="rounded-full bg-primary hover:bg-primary/90 w-full">
+            <Link href="/login?redirect=/dashboard">Entrar como ONG</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   // Metrics computation
-  const totalPets = pets.length;
-  const inProcessPets = pets.filter((p) => p.status === "in_process").length;
-  const adoptedPets = pets.filter((p) => p.status === "adopted").length + 42; // historical count
-  const pendingApps = applications.filter((a) => a.status === "pending").length;
+  const totalPets = guardianPets.length;
+  const inProcessPets = guardianPets.filter((p) => p.status === "in_process").length;
+  const adoptedPets = guardianPets.filter((p) => p.status === "adopted").length;
+  const pendingApps = guardianApplications.filter((a) => a.status === "pending").length;
 
   return (
     <div className="container mx-auto px-4 sm:px-8 py-10 md:py-16 min-h-screen space-y-8">
 
-      {/* Dashboard Top Header */}
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border/60">
         <div>
           <div className="flex items-center gap-2">
@@ -171,11 +202,11 @@ export function GuardianDashboardView() {
               Painel de Gestão e Triagem
             </span>
             <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-primary/10 text-primary">
-              ONG Verificada
+              {isGuardian ? "ONG / Protetor" : "Usuário"}
             </span>
           </div>
           <h1 className="font-serif text-3xl sm:text-4xl font-bold text-foreground mt-1">
-            {currentUser?.name || "ONG Patinhas com Amor"}
+            {currentUser?.name || "Painel da Instituição"}
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">
             Gerencie seus animais resgatados, avalie dossiês de candidatos e converse via chat integrado.

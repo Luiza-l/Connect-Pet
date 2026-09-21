@@ -14,8 +14,6 @@ import {
   Sun,
   Moon,
   Laptop,
-  UserCheck,
-  Building2,
   LogOut,
   ChevronDown,
   Compass,
@@ -28,7 +26,6 @@ export function Navbar() {
   const pathname = usePathname();
   const {
     currentUser,
-    switchUser,
     logout,
     favorites,
     pets,
@@ -191,7 +188,7 @@ export function Navbar() {
                     {currentUser.name}
                   </span>
                   <span className="text-[10px] font-medium text-primary leading-none">
-                    {isAdopter ? "Adotante Demo" : "ONG Demo"}
+                    {isAdopter ? "Adotante" : "ONG / Protetor"}
                   </span>
                 </div>
                 <ChevronDown className="w-3.5 h-3.5 text-muted-foreground hidden sm:block" />
@@ -228,34 +225,7 @@ export function Navbar() {
                     </Link>
                   )}
 
-                  {/* Demo Switchers */}
-                  <div className="my-2 border-t border-border/50 pt-2 px-1">
-                    <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider mb-1.5 px-2">
-                      Alternar Perfil Demo:
-                    </p>
-                    <button
-                      onClick={() => {
-                        switchUser("adopter");
-                        setProfileDropdownOpen(false);
-                      }}
-                      className={`flex w-full items-center gap-2 px-2.5 py-1.5 text-xs rounded-xl transition-colors ${
-                        isAdopter ? "bg-secondary font-bold text-primary" : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                      }`}
-                    >
-                      <UserCheck className="w-3.5 h-3.5" /> Camila (Adotante)
-                    </button>
-                    <button
-                      onClick={() => {
-                        switchUser("guardian");
-                        setProfileDropdownOpen(false);
-                      }}
-                      className={`flex w-full items-center gap-2 px-2.5 py-1.5 text-xs rounded-xl transition-colors ${
-                        isGuardian ? "bg-secondary font-bold text-primary" : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                      }`}
-                    >
-                      <Building2 className="w-3.5 h-3.5" /> ONG Patinhas com Amor
-                    </button>
-                  </div>
+
 
                   {/* Logout */}
                   <div className="border-t border-border/50 pt-1">
@@ -337,35 +307,47 @@ export function Navbar() {
             )}
           </nav>
 
-          {/* Fast switch demo buttons for mobile */}
-          <div className="p-3 bg-secondary/40 rounded-2xl border border-border/50">
-            <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-2">
-              Alternar Perfil de Demonstração
-            </p>
-            <div className="flex gap-2">
-              <Button
-                variant={isAdopter ? "default" : "outline"}
-                size="sm"
-                className="flex-1 text-xs rounded-xl"
-                onClick={() => {
-                  switchUser("adopter");
-                  setMobileMenuOpen(false);
-                }}
-              >
-                Camila (Adotante)
-              </Button>
-              <Button
-                variant={isGuardian ? "default" : "outline"}
-                size="sm"
-                className="flex-1 text-xs rounded-xl"
-                onClick={() => {
-                  switchUser("guardian");
-                  setMobileMenuOpen(false);
-                }}
-              >
-                ONG Patinhas
-              </Button>
-            </div>
+          {/* Mobile User Actions */}
+          <div className="pt-2 border-t border-border/50">
+            {currentUser ? (
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 p-3 bg-secondary/40 rounded-2xl">
+                  <div className="w-9 h-9 rounded-full overflow-hidden relative border border-primary/20 bg-secondary">
+                    <Image
+                      src={currentUser.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop"}
+                      alt={currentUser.name}
+                      fill
+                      sizes="36px"
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="flex-1 truncate">
+                    <p className="text-xs font-bold text-foreground">{currentUser.name}</p>
+                    <p className="text-[11px] text-muted-foreground truncate">{currentUser.email}</p>
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full text-xs font-medium text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-900 rounded-xl"
+                  onClick={() => {
+                    logout();
+                    setMobileMenuOpen(false);
+                  }}
+                >
+                  <LogOut className="w-3.5 h-3.5 mr-2" /> Sair da conta
+                </Button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                <Button variant="outline" size="sm" asChild className="rounded-xl text-xs" onClick={() => setMobileMenuOpen(false)}>
+                  <Link href="/login">Entrar</Link>
+                </Button>
+                <Button size="sm" asChild className="rounded-xl text-xs bg-primary hover:bg-primary/90" onClick={() => setMobileMenuOpen(false)}>
+                  <Link href="/cadastro">Cadastrar</Link>
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       )}

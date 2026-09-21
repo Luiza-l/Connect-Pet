@@ -91,14 +91,14 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
         temperament: temperamentArray.length > 0 ? temperamentArray : ["Dócil"],
         temperamentDescription: "Amoroso e companheiro para todas as horas.",
         guardianId: currentUser?.id || "guardian-1",
-        guardianName: currentUser?.name || "ONG Patinhas com Amor",
-        guardianType: "ngo",
-        guardianPhone: "(11) 97123-9988",
-        guardianEmail: "contato@patinhascomamor.org.br",
+        guardianName: currentUser?.name || "ONG / Protetor",
+        guardianType: currentUser?.role === "guardian" ? currentUser.guardianType : "ngo",
+        guardianPhone: currentUser?.primaryPhone || "(11) 97123-9988",
+        guardianEmail: currentUser?.email || "contato@patinhascomamor.org.br",
         location: {
-          city: "São Paulo",
-          state: "SP",
-          neighborhood: "Vila Mariana"
+          city: currentUser?.role === "guardian" ? currentUser.city : "São Paulo",
+          state: currentUser?.role === "guardian" ? currentUser.state : "SP",
+          neighborhood: currentUser?.role === "guardian" ? currentUser.neighborhood : "Centro"
         }
       });
     }

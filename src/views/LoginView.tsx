@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useApp } from "@/context/AppContext";
 import { demoAdopter, demoGuardian } from "@/data/mockPets";
 import { Button } from "@/components/ui/button";
+import { createClient } from "@/lib/client";
 import {
   PawPrint,
   UserCheck,
@@ -21,11 +22,14 @@ export function LoginView() {
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/";
 
-  const { setCurrentUser, showToast } = useApp();
+  const { showToast } = useApp();
 
   const [roleTab, setRoleTab] = useState<"adopter" | "guardian">("adopter");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isSubmittingRef = useRef(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleFillDemo = (role: "adopter" | "guardian") => {
     if (role === "adopter") {
@@ -39,16 +43,67 @@ export function LoginView() {
     }
   };
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (roleTab === "adopter") {
-      setCurrentUser(demoAdopter);
-      showToast("Bem-vinda de volta!", `Conectada como Camila Rodrigues.`, "success");
-      router.push(redirect);
-    } else {
-      setCurrentUser(demoGuardian);
-      showToast("Bem-vinda, ONG!", `Conectada como ONG Patinhas com Amor.`, "success");
-      router.push("/dashboard");
+
+    if (isSubmittingRef.current) return;
+    isSubmittingRef.current = true;
+    setIsSubmitting(true);
+    setErrorMessage(null);
+
+    try {
+      const supabase = createClient();
+      const targetEmail = email.trim();
+      const targetPassword = password;
+
+      if (!targetEmail || !targetPassword) {
+        setErrorMessage("Por favor, preencha o e-mail e a senha.");
+        isSubmittingRef.current = false;
+        setIsSubmitting(false);
+        return;
+      }
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: targetEmail,
+        password: targetPassword,
+      });
+
+      if (error) {
+        const isRateLimit =
+          error.message.toLowerCase().includes("rate limit") ||
+          error.code === "over_request_rate_limit";
+
+        if (isRateLimit) {
+          setErrorMessage("Muitas tentativas de login em pouco tempo. Aguarde alguns instantes antes de tentar novamente.");
+        } else if (error.code === "invalid_credentials" || error.message.includes("Invalid login credentials")) {
+          setErrorMessage("E-mail ou senha incorretos.");
+        } else if (error.code === "email_not_confirmed" || error.message.includes("Email not confirmed")) {
+          setErrorMessage("Seu e-mail ainda não foi confirmado. Verifique sua caixa de entrada para ativar sua conta.");
+        } else {
+          setErrorMessage(error.message);
+        }
+        showToast("Erro no login", isRateLimit ? "Limite temporário de tentativas. Aguarde um momento." : error.message, "error");
+        isSubmittingRef.current = false;
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (data.session && data.user) {
+        showToast("Bem-vindo(a) de volta!", "Login realizado com sucesso.", "success");
+        const userRole = data.user.user_metadata?.role || roleTab;
+        if (userRole === "guardian") {
+          router.push(redirect === "/" ? "/dashboard" : redirect);
+        } else {
+          router.push(redirect);
+        }
+      }
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Erro ao efetuar login.";
+      setErrorMessage(msg);
+      showToast("Erro no login", msg, "error");
+    } finally {
+      isSubmittingRef.current = false;
+      setIsSubmitting(false);
     }
   };
 
@@ -110,6 +165,13 @@ export function LoginView() {
           </button>
         </div>
 
+        {/* Error Feedback */}
+        {errorMessage && (
+          <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs">
+            {errorMessage}
+          </div>
+        )}
+
         {/* Form */}
         <form onSubmit={handleLogin} className="space-y-4 text-xs">
           <div className="space-y-1.5">
@@ -144,9 +206,10 @@ export function LoginView() {
 
           <Button
             type="submit"
-            className="w-full h-12 rounded-full text-xs font-bold bg-primary hover:bg-primary/90 shadow-md"
+            disabled={isSubmitting}
+            className="w-full h-12 rounded-full text-xs font-bold bg-primary hover:bg-primary/90 shadow-md transition-opacity disabled:opacity-60"
           >
-            Entrar na Plataforma <ArrowRight className="w-4 h-4 ml-1.5" />
+            {isSubmitting ? "Entrando..." : "Entrar na Plataforma"} <ArrowRight className="w-4 h-4 ml-1.5" />
           </Button>
         </form>
 

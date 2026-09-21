@@ -1,15 +1,17 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import type { User as SupabaseUser } from '@supabase/supabase-js';
 import {
   Pet,
   CurrentUser,
   PreAdoptionApplication,
   ApplicationStatus,
   SmartMatchQuizData,
-  MatchResult
+  MatchResult,
+  GuardianType
 } from '../types';
-import { mockPets as initialMockPets, demoAdopter, demoGuardian, initialApplications } from '../data/mockPets';
+import { mockPets as initialMockPets } from '../data/mockPets';
 import { createClient } from '@/lib/client';
 
 export interface ToastItem {
@@ -30,7 +32,7 @@ interface AppContextType {
   currentUser: CurrentUser | null;
   setCurrentUser: (user: CurrentUser | null) => void;
   switchUser: (role: 'adopter' | 'guardian') => void;
-  logout: () => void;
+  logout: () => void | Promise<void>;
 
   // Pets
   pets: Pet[];
@@ -135,6 +137,94 @@ function normalizePet(raw: unknown): Pet {
   };
 }
 
+async function fetchUserProfile(supabaseClient: ReturnType<typeof createClient>, sessionUser: SupabaseUser): Promise<CurrentUser> {
+  const meta = (sessionUser.user_metadata || {}) as Record<string, unknown>;
+  const isGuardian = meta.role === 'guardian';
+
+  try {
+    const { data: profile, error } = await supabaseClient
+      .from('profiles')
+      .select('*')
+      .eq('id', sessionUser.id)
+      .maybeSingle();
+
+    if (!error && profile) {
+      if (profile.role === 'guardian') {
+        return {
+          id: profile.id,
+          role: 'guardian',
+          guardianType: profile.guardian_type || 'ngo',
+          name: profile.name || 'ONG Patinhas',
+          responsibleName: profile.responsible_name || undefined,
+          document: profile.document || '',
+          email: profile.email || sessionUser.email || '',
+          primaryPhone: profile.primary_phone || '',
+          city: profile.city || 'São Paulo',
+          state: profile.state || 'SP',
+          neighborhood: profile.neighborhood || 'Centro',
+          description: profile.description || undefined,
+          bio: profile.bio || undefined,
+          verified: profile.verified ?? false,
+          avatar: profile.avatar || (meta.avatar as string | undefined)
+        };
+      } else {
+        return {
+          id: profile.id,
+          role: 'adopter',
+          name: profile.name || 'Adotante',
+          cpf: profile.cpf || '',
+          rg: profile.rg || '',
+          birthDate: profile.birth_date || '2000-01-01',
+          primaryPhone: profile.primary_phone || '',
+          secondaryPhone: profile.secondary_phone || undefined,
+          email: profile.email || sessionUser.email || '',
+          profession: profile.profession || undefined,
+          socialMedia: profile.social_media || undefined,
+          avatar: profile.avatar || (meta.avatar as string | undefined)
+        };
+      }
+    }
+  } catch (err) {
+    console.warn('Profile query error:', err);
+  }
+
+  // Fallback seguro extraído de sessionUser.user_metadata (gravado durante o signUp)
+  if (isGuardian) {
+    return {
+      id: sessionUser.id,
+      role: 'guardian',
+      guardianType: (meta.guardianType as GuardianType) || 'ngo',
+      name: String(meta.name || sessionUser.email?.split('@')[0] || 'ONG Patinhas'),
+      responsibleName: meta.responsibleName ? String(meta.responsibleName) : undefined,
+      document: String(meta.document || ''),
+      email: sessionUser.email || '',
+      primaryPhone: String(meta.primaryPhone || ''),
+      city: String(meta.city || 'São Paulo'),
+      state: String(meta.state || 'SP'),
+      neighborhood: String(meta.neighborhood || 'Centro'),
+      description: meta.description ? String(meta.description) : undefined,
+      bio: meta.bio ? String(meta.bio) : undefined,
+      verified: !!meta.verified,
+      avatar: meta.avatar ? String(meta.avatar) : undefined
+    };
+  }
+
+  return {
+    id: sessionUser.id,
+    role: 'adopter',
+    name: String(meta.name || sessionUser.email?.split('@')[0] || 'Adotante'),
+    cpf: String(meta.cpf || ''),
+    rg: String(meta.rg || ''),
+    birthDate: String(meta.birthDate || '2000-01-01'),
+    primaryPhone: String(meta.primaryPhone || ''),
+    secondaryPhone: meta.secondaryPhone ? String(meta.secondaryPhone) : undefined,
+    email: sessionUser.email || '',
+    profession: meta.profession ? String(meta.profession) : undefined,
+    socialMedia: meta.socialMedia ? String(meta.socialMedia) : undefined,
+    avatar: meta.avatar ? String(meta.avatar) : undefined
+  };
+}
+
 export function AppProvider({ children }: { children: React.ReactNode }) {
   // 1. Theme State
   const [theme, setThemeState] = useState<ThemeMode>(() => {
@@ -147,7 +237,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return 'system';
   });
 
-  // 2. User State
+  // 2. User State - Inicia estritamente nulo se não houver sessão salva
   const [currentUser, setCurrentUserState] = useState<CurrentUser | null>(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -155,7 +245,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         if (savedUser) return JSON.parse(savedUser);
       } catch { }
     }
-    return demoAdopter;
+    return null;
   });
 
   // 3. Pets State
@@ -172,23 +262,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return initialMockPets.map(normalizePet);
   });
 
-  // 4. Favorites State
-  const [favorites, setFavoritesState] = useState<string[]>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const savedFavorites = localStorage.getItem(STORAGE_KEYS.FAVORITES);
-        if (savedFavorites) {
-          const parsed = JSON.parse(savedFavorites);
-          if (Array.isArray(parsed)) {
-            return parsed.filter((id): id is string => typeof id === 'string' && !id.startsWith('pet-'));
-          }
-        }
-      } catch { }
-    }
-    return [];
-  });
+  // 4. Favorites State - Isolado por usuário
+  const [favorites, setFavoritesState] = useState<string[]>([]);
 
-  // 5. Applications State
+  // 5. Applications State - Inicia vazio (sem mocks fictícios)
   const [applications, setApplicationsState] = useState<PreAdoptionApplication[]>(() => {
     if (typeof window !== 'undefined') {
       try {
@@ -196,7 +273,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         if (savedApps) return JSON.parse(savedApps);
       } catch { }
     }
-    return initialApplications;
+    return [];
   });
 
   // 6. Toasts State
@@ -238,14 +315,95 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return null;
   }, []);
 
-  // Derive valid favorites: only keep IDs that actually exist in the current pets catalogue
+  // Derive valid favorites: only keep IDs that actually exist in the current pets catalogue and if user is logged in
   const validFavorites = useMemo(() => {
+    if (!currentUser) return [];
     if (!pets || pets.length === 0) {
       return favorites.filter((id) => !id.startsWith('pet-'));
     }
     const petIdSet = new Set(pets.map((p) => p.id));
     return favorites.filter((id) => petIdSet.has(id));
-  }, [favorites, pets]);
+  }, [currentUser, favorites, pets]);
+
+  // Sincronização e escuta da sessão real do Supabase Auth
+  useEffect(() => {
+    if (!supabase) return;
+
+    let isMounted = true;
+
+    async function handleUserSession(sessionUser: SupabaseUser | null) {
+      if (!sessionUser) {
+        if (isMounted) {
+          setCurrentUserState(null);
+          setFavoritesState([]);
+          try {
+            localStorage.removeItem(STORAGE_KEYS.USER);
+          } catch { }
+        }
+        return;
+      }
+
+      const profile = await fetchUserProfile(supabase!, sessionUser);
+      if (!isMounted) return;
+
+      setCurrentUserState(profile);
+      try {
+        localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(profile));
+      } catch { }
+
+      // Buscar favoritos reais do usuário autenticado no Supabase
+      try {
+        const { data: favData, error: favErr } = await supabase!
+          .from('favorites')
+          .select('pet_id')
+          .eq('user_id', sessionUser.id);
+
+        if (!favErr && Array.isArray(favData) && isMounted) {
+          const ids = favData.map((f: { pet_id: string }) => f.pet_id);
+          setFavoritesState(ids);
+          try {
+            localStorage.setItem(`acolher_favorites_${sessionUser.id}`, JSON.stringify(ids));
+          } catch { }
+        } else {
+          try {
+            const cached = localStorage.getItem(`acolher_favorites_${sessionUser.id}`);
+            if (cached && isMounted) {
+              setFavoritesState(JSON.parse(cached));
+            }
+          } catch { }
+        }
+      } catch (err) {
+        console.warn('Supabase favorites fetch warning:', err);
+      }
+    }
+
+    // 1. Verificar sessão ativa no carregamento inicial / F5
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!isMounted) return;
+      if (session?.user) {
+        handleUserSession(session.user);
+      } else {
+        handleUserSession(null);
+      }
+    });
+
+    // 2. Escutar mudanças em tempo real (LOGIN, LOGOUT, REFRESH_TOKEN)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (!isMounted) return;
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+        if (session?.user) {
+          await handleUserSession(session.user);
+        }
+      } else if (event === 'SIGNED_OUT') {
+        await handleUserSession(null);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
+  }, [supabase]);
 
   // Fetch Pets and Applications from Supabase on mount
   useEffect(() => {
@@ -473,21 +631,27 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }, 4500);
   }, [removeToast]);
 
-  // Quick switch demo user
-  const switchUser = useCallback((role: 'adopter' | 'guardian') => {
-    if (role === 'adopter') {
-      setCurrentUser(demoAdopter);
-      showToast('Perfil alterado', 'Conectado como Adotante: Camila Rodrigues', 'info');
-    } else {
-      setCurrentUser(demoGuardian);
-      showToast('Perfil alterado', 'Conectado como ONG: Patinhas com Amor', 'info');
-    }
-  }, [setCurrentUser, showToast]);
+  // Quick switch demo user (avisa que deve usar autenticação real)
+  const switchUser = useCallback(() => {
+    showToast('Aviso', 'Acesse a tela de login ou cadastro para alternar entre contas reais.', 'info');
+  }, [showToast]);
 
-  const logout = useCallback(() => {
-    setCurrentUser(null);
-    showToast('Sessão encerrada', 'Você saiu da sua conta.', 'info');
-  }, [setCurrentUser, showToast]);
+  const logout = useCallback(async () => {
+    if (supabase) {
+      try {
+        await supabase.auth.signOut();
+      } catch (err) {
+        console.warn('Supabase signOut error:', err);
+      }
+    }
+    setCurrentUserState(null);
+    setFavoritesState([]);
+    try {
+      localStorage.removeItem(STORAGE_KEYS.USER);
+      localStorage.removeItem(STORAGE_KEYS.FAVORITES);
+    } catch { }
+    showToast('Sessão encerrada', 'Você saiu da sua conta com sucesso.', 'info');
+  }, [supabase, showToast]);
 
   // Pets Management
   const addPet = useCallback((newPetData: Omit<Pet, 'id' | 'createdAt'>) => {
@@ -623,7 +787,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, [pets, showToast, supabase]);
 
   // Favorites
-  const toggleFavorite = useCallback((petId: string) => {
+  const toggleFavorite = useCallback(async (petId: string) => {
+    if (!currentUser) {
+      showToast('Acesso necessário', 'Faça login ou cadastre-se para favoritar animais.', 'info');
+      return;
+    }
+
     const isCurrentlyFav = validFavorites.includes(petId);
     const updated = isCurrentlyFav
       ? validFavorites.filter((id) => id !== petId)
@@ -631,19 +800,44 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
     setFavoritesState(updated);
     try {
-      localStorage.setItem(STORAGE_KEYS.FAVORITES, JSON.stringify(updated));
+      localStorage.setItem(`acolher_favorites_${currentUser.id}`, JSON.stringify(updated));
     } catch { }
+
+    if (supabase) {
+      try {
+        if (isCurrentlyFav) {
+          const { error } = await supabase
+            .from('favorites')
+            .delete()
+            .eq('user_id', currentUser.id)
+            .eq('pet_id', petId);
+          if (error && error.code !== 'PGRST205') {
+            console.warn('Supabase favorite delete error:', error.message);
+          }
+        } else {
+          const { error } = await supabase
+            .from('favorites')
+            .insert({ user_id: currentUser.id, pet_id: petId });
+          if (error && error.code !== 'PGRST205') {
+            console.warn('Supabase favorite insert error:', error.message);
+          }
+        }
+      } catch (err) {
+        console.warn('Supabase favorite toggle error:', err);
+      }
+    }
 
     if (isCurrentlyFav) {
       showToast('Removido dos favoritos', undefined, 'info');
     } else {
       showToast('Adicionado aos favoritos!', 'Você pode acompanhar seus pets favoritos.', 'success');
     }
-  }, [validFavorites, showToast]);
+  }, [currentUser, validFavorites, showToast, supabase]);
 
   const isFavorite = useCallback((petId: string) => {
+    if (!currentUser) return false;
     return validFavorites.includes(petId);
-  }, [validFavorites]);
+  }, [currentUser, validFavorites]);
 
   // Business Rule 1: Age calculation & 21+ rule
   const calculateAge = useCallback((birthDate: string): number => {

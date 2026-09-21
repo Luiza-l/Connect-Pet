@@ -18,13 +18,13 @@ import {
 export function AdopterApplicationsView() {
   const { currentUser, applications, sendApplicationMessage } = useApp();
 
-  // Filter applications belonging to the current adopter or show all if demo
+  // Filter applications belonging strictly to the current adopter
   const userApplications = applications.filter((app) => {
-    if (!currentUser) return true;
+    if (!currentUser) return false;
     if (currentUser.role === "adopter") {
       return app.candidateId === currentUser.id || app.candidate.email === currentUser.email;
     }
-    return true;
+    return false;
   });
 
   const [selectedAppId, setSelectedAppId] = useState<string | null>(
@@ -83,7 +83,20 @@ export function AdopterApplicationsView() {
         </Button>
       </div>
 
-      {userApplications.length === 0 ? (
+      {!currentUser ? (
+        <div className="p-12 rounded-3xl bg-secondary/30 border border-border text-center space-y-4 max-w-lg mx-auto">
+          <FileCheck2 className="w-12 h-12 text-muted-foreground mx-auto opacity-50" />
+          <div className="space-y-1">
+            <h3 className="font-bold text-lg text-foreground">Acesso Restrito</h3>
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              Você precisa estar conectado à sua conta para visualizar e acompanhar suas candidaturas.
+            </p>
+          </div>
+          <Button asChild className="rounded-full bg-primary hover:bg-primary/90">
+            <Link href="/login?redirect=/minhas-candidaturas">Fazer Login</Link>
+          </Button>
+        </div>
+      ) : userApplications.length === 0 ? (
         <div className="p-12 rounded-3xl bg-secondary/30 border border-border text-center space-y-4 max-w-lg mx-auto">
           <FileCheck2 className="w-12 h-12 text-muted-foreground mx-auto opacity-50" />
           <div className="space-y-1">
