@@ -20,8 +20,17 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "ConnectPet | Acolher Pet - Adoção Responsável de Cães e Gatos",
+  title: "ConnectPet - Adoção Responsável de Cães e Gatos",
   description: "Conectando adotantes conscientes a ONGs e protetores sérios. Triagem criteriosa, 100% ética e gratuita para garantir o lar perfeito.",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "32x32" }
+    ],
+    apple: [
+      { url: "/icon.svg", type: "image/svg+xml" }
+    ]
+  }
 };
 
 export default function RootLayout({

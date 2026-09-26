@@ -4,15 +4,15 @@ import { PawPrint, Heart, ShieldAlert, CheckCircle, Scale } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="w-full bg-[#AEE0FF] text-slate-800 transition-colors overflow-hidden">
+    <footer className="w-full bg-[#AEE0FF] text-slate-800 transition-colors duration-300 overflow-hidden">
       
-      {/* Onda Superior Suave em Azul-Claro */}
+      {/* Onda Superior Suave em Azul-Claro conectando ao fundo da página (seja branco ou escuro #080E1A) */}
       <div className="w-full overflow-hidden leading-none">
         <svg
           viewBox="0 0 1440 60"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="w-full h-8 sm:h-12 text-white fill-current block"
+          className="w-full h-8 sm:h-12 text-white dark:text-[#080E1A] fill-current block transition-colors duration-300"
           preserveAspectRatio="none"
         >
           <path d="M0,0 L1440,0 L1440,25 C1100,55 860,10 520,40 C240,65 80,20 0,35 Z" />
@@ -26,7 +26,7 @@ export function Footer() {
           
           {/* Logo ConnectPet com Patinha */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-2xl bg-white text-sky-600 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
+            <div className="w-10 h-10 rounded-2xl bg-white text-sky-600 border border-sky-200/50 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
               <PawPrint className="w-6 h-6 fill-current" />
             </div>
             <span className="font-serif font-extrabold text-2xl tracking-tight text-sky-950">
@@ -56,8 +56,8 @@ export function Footer() {
         </div>
 
         {/* Conscientização Legal e Ética (Lei 9.605/98) */}
-        <div className="rounded-3xl p-6 bg-white/70 backdrop-blur-sm border border-sky-200/80 text-slate-800 flex flex-col md:flex-row items-start md:items-center gap-5 shadow-sm">
-          <div className="w-12 h-12 rounded-2xl bg-sky-100 text-sky-700 flex items-center justify-center shrink-0">
+        <div className="rounded-3xl p-6 bg-white/85 backdrop-blur-sm border border-sky-200/80 text-slate-800 flex flex-col md:flex-row items-start md:items-center gap-5 shadow-sm">
+          <div className="w-12 h-12 rounded-2xl bg-sky-100 text-sky-700 border border-sky-200/60 flex items-center justify-center shrink-0">
             <Scale className="w-6 h-6" />
           </div>
           <div className="flex-1">
@@ -78,10 +78,10 @@ export function Footer() {
 
         {/* Linha Inferior com Copyright */}
         <div className="pt-4 border-t border-sky-300/40 flex flex-col sm:flex-row items-center justify-between text-xs text-sky-950 font-medium gap-3">
-          <p>© 2026 ConnectPet (Acolher Pet) • Adoção Consciente e Responsável. Todos os direitos reservados.</p>
+          <p>© 2026 ConnectPet • Adoção Consciente e Responsável. Todos os direitos reservados.</p>
           <div className="flex items-center gap-6 text-[11px] text-sky-900/80">
-            <span>Privacidade & LGPD</span>
-            <span>Termos de Uso</span>
+            <span className="hover:text-sky-950 cursor-pointer transition-colors">Privacidade & LGPD</span>
+            <span className="hover:text-sky-950 cursor-pointer transition-colors">Termos de Uso</span>
             <span className="flex items-center gap-1">
               <Heart className="w-3 h-3 text-rose-500 fill-rose-500" /> Salve Vidas
             </span>
