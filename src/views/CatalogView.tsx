@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { useApp } from "@/context/AppContext";
 import { PetCard } from "@/components/pets/PetCard";
@@ -248,7 +248,7 @@ function FilterPanel({
 
 export function CatalogView() {
   const searchParams = useSearchParams();
-  const { pets, favorites } = useApp();
+  const { pets, favorites, showFavoritesOnly, setShowFavoritesOnly } = useApp();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [species, setSpecies] = useState("all");
@@ -259,7 +259,14 @@ export function CatalogView() {
   const [city, setCity] = useState("all");
   const [onlyCastrated, setOnlyCastrated] = useState(false);
   const [onlyVaccinated, setOnlyVaccinated] = useState(false);
-  const [onlyFavorites, setOnlyFavorites] = useState(() => searchParams.get("favoritos") === "true");
+
+  const isFavoritosUrl = searchParams.get("favoritos") === "true";
+
+  useEffect(() => {
+    if (isFavoritosUrl) {
+      setShowFavoritesOnly(true);
+    }
+  }, [isFavoritosUrl, setShowFavoritesOnly]);
 
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
 
@@ -285,7 +292,7 @@ export function CatalogView() {
     setCity("all");
     setOnlyCastrated(false);
     setOnlyVaccinated(false);
-    setOnlyFavorites(false);
+    setShowFavoritesOnly(false);
   };
 
   // Filter computation
@@ -331,7 +338,7 @@ export function CatalogView() {
       if (onlyVaccinated && !pet.vaccinated) return false;
 
       // Favorites
-      if (onlyFavorites && !favorites.includes(pet.id)) return false;
+      if (showFavoritesOnly && !favorites.includes(pet.id)) return false;
 
       return true;
     });
@@ -346,7 +353,7 @@ export function CatalogView() {
     city,
     onlyCastrated,
     onlyVaccinated,
-    onlyFavorites,
+    showFavoritesOnly,
     favorites
   ]);
 
@@ -420,8 +427,8 @@ export function CatalogView() {
             setOnlyCastrated={setOnlyCastrated}
             onlyVaccinated={onlyVaccinated}
             setOnlyVaccinated={setOnlyVaccinated}
-            onlyFavorites={onlyFavorites}
-            setOnlyFavorites={setOnlyFavorites}
+            onlyFavorites={showFavoritesOnly}
+            setOnlyFavorites={setShowFavoritesOnly}
             availableCities={availableCities}
             resetFilters={resetFilters}
           />
@@ -458,8 +465,8 @@ export function CatalogView() {
                 setOnlyCastrated={setOnlyCastrated}
                 onlyVaccinated={onlyVaccinated}
                 setOnlyVaccinated={setOnlyVaccinated}
-                onlyFavorites={onlyFavorites}
-                setOnlyFavorites={setOnlyFavorites}
+                onlyFavorites={showFavoritesOnly}
+                setOnlyFavorites={setShowFavoritesOnly}
                 availableCities={availableCities}
                 resetFilters={resetFilters}
               />

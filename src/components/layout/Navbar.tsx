@@ -32,8 +32,21 @@ export function Navbar() {
     favorites,
     pets,
     theme,
-    setTheme
+    setTheme,
+    showFavoritesOnly,
+    setShowFavoritesOnly
   } = useApp();
+
+  const isCatalog = pathname === "/pets";
+
+  const handleFavoritesClick = (e: React.MouseEvent) => {
+    if (isCatalog) {
+      e.preventDefault();
+      setShowFavoritesOnly((prev) => !prev);
+    } else {
+      setShowFavoritesOnly(true);
+    }
+  };
 
   const favoritesCount = pets.length > 0
     ? favorites.filter((favId) => pets.some((p) => p.id === favId)).length
@@ -98,10 +111,15 @@ export function Navbar() {
           {/* Favorites Button */}
           <Link
             href="/pets?favoritos=true"
-            className="relative p-2.5 rounded-full border border-border/50 bg-card hover:bg-secondary/50 transition-colors text-muted-foreground hover:text-rose-500"
-            title="Pets Favoritos"
+            onClick={handleFavoritesClick}
+            className={`relative p-2.5 rounded-full border transition-all ${
+              isCatalog && showFavoritesOnly
+                ? "bg-rose-500/15 border-rose-500/40 text-rose-500 shadow-sm"
+                : "border-border/50 bg-card hover:bg-secondary/50 text-muted-foreground hover:text-rose-500"
+            }`}
+            title={isCatalog && showFavoritesOnly ? "Ver Todos os Pets" : "Ver Pets Favoritos"}
           >
-            <Heart className={`w-5 h-5 ${favoritesCount > 0 ? "text-rose-500 fill-rose-500/20" : ""}`} />
+            <Heart className={`w-5 h-5 ${favoritesCount > 0 || (isCatalog && showFavoritesOnly) ? "text-rose-500 fill-rose-500/20" : ""}`} />
             {favoritesCount > 0 && (
               <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white shadow-sm animate-in zoom-in-50">
                 {favoritesCount}

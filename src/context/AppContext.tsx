@@ -48,6 +48,8 @@ interface AppContextType {
   favorites: string[];
   toggleFavorite: (petId: string) => void;
   isFavorite: (petId: string) => boolean;
+  showFavoritesOnly: boolean;
+  setShowFavoritesOnly: React.Dispatch<React.SetStateAction<boolean>>;
 
   // Applications
   applications: PreAdoptionApplication[];
@@ -308,6 +310,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   // 4. Favorites State - Isolado por usuário
   const [favorites, setFavoritesState] = useState<string[]>([]);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState<boolean>(false);
 
   // 5. Applications State - Inicia vazio (sem mocks fictícios)
   const [applications, setApplicationsState] = useState<PreAdoptionApplication[]>(() => {
@@ -1509,6 +1512,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     favorites: validFavorites,
     toggleFavorite,
     isFavorite,
+    showFavoritesOnly,
+    setShowFavoritesOnly,
     applications,
     submitApplication,
     updateApplicationStatus,
@@ -1536,6 +1541,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     validFavorites,
     toggleFavorite,
     isFavorite,
+    showFavoritesOnly,
+    setShowFavoritesOnly,
     applications,
     submitApplication,
     updateApplicationStatus,

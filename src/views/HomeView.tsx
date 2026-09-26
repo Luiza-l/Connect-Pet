@@ -434,7 +434,7 @@ export function HomeView() {
               className="inline-flex items-center gap-2.5 px-8 sm:px-10 py-3.5 sm:py-4 rounded-full bg-[#BEE5FE] hover:bg-[#BAE6FD] text-sky-950 font-extrabold text-sm sm:text-base border border-sky-300/80 shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all"
             >
               <Search className="w-5 h-5 text-sky-700 stroke-[2.5]" />
-              <span>Acessar Catálogo Completo com Filtros</span>
+              <span>Acessar Catálogo Completo</span>
             </Link>
           </div>
 
