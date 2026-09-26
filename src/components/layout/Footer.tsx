@@ -1,126 +1,90 @@
 import React from "react";
 import Link from "next/link";
-import { PawPrint, Heart, ShieldAlert, CheckCircle, Scale, Mail, MapPin } from "lucide-react";
+import { PawPrint, Heart, ShieldAlert, CheckCircle, Scale } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="border-t border-border/40 bg-card/60 pt-16 pb-12 text-muted-foreground transition-colors">
-      <div className="container mx-auto px-4 sm:px-8 space-y-12">
+    <footer className="w-full bg-[#AEE0FF] text-slate-800 transition-colors overflow-hidden">
+      
+      {/* Onda Superior Suave em Azul-Claro */}
+      <div className="w-full overflow-hidden leading-none">
+        <svg
+          viewBox="0 0 1440 60"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-full h-8 sm:h-12 text-white fill-current block"
+          preserveAspectRatio="none"
+        >
+          <path d="M0,0 L1440,0 L1440,25 C1100,55 860,10 520,40 C240,65 80,20 0,35 Z" />
+        </svg>
+      </div>
+
+      <div className="container mx-auto px-4 sm:px-8 pt-4 pb-12 space-y-10">
         
-        {/* Conscientização Legal Banner (Lei 9.605/98) */}
-        <div className="rounded-3xl p-6 sm:p-8 bg-amber-500/10 border border-amber-500/20 text-foreground flex flex-col md:flex-row items-start md:items-center gap-5">
-          <div className="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+        {/* Barra Superior do Rodapé (Logo e Links Estilo Canva) */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 pb-6 border-b border-sky-300/60">
+          
+          {/* Logo ConnectPet com Patinha */}
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="w-10 h-10 rounded-2xl bg-white text-sky-600 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform">
+              <PawPrint className="w-6 h-6 fill-current" />
+            </div>
+            <span className="font-serif font-extrabold text-2xl tracking-tight text-sky-950">
+              ConnectPet
+            </span>
+          </Link>
+
+          {/* Links Rápidos Estilo Referência Visual */}
+          <nav className="flex flex-wrap items-center justify-center gap-6 sm:gap-8 text-sm font-bold text-sky-950">
+            <Link href="/" className="hover:text-sky-700 transition-colors">
+              Início
+            </Link>
+            <Link href="/pets" className="hover:text-sky-700 transition-colors">
+              Catálogo
+            </Link>
+            <Link href="/pets?favoritos=true" className="hover:text-sky-700 transition-colors">
+              Favoritos
+            </Link>
+            <Link href="/match" className="hover:text-sky-700 transition-colors">
+              SmartMatch
+            </Link>
+            <Link href="/login" className="hover:text-sky-700 transition-colors">
+              Perfil
+            </Link>
+          </nav>
+
+        </div>
+
+        {/* Conscientização Legal e Ética (Lei 9.605/98) */}
+        <div className="rounded-3xl p-6 bg-white/70 backdrop-blur-sm border border-sky-200/80 text-slate-800 flex flex-col md:flex-row items-start md:items-center gap-5 shadow-sm">
+          <div className="w-12 h-12 rounded-2xl bg-sky-100 text-sky-700 flex items-center justify-center shrink-0">
             <Scale className="w-6 h-6" />
           </div>
           <div className="flex-1">
-            <h4 className="font-bold text-base text-foreground flex items-center gap-2">
-              <ShieldAlert className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+            <h4 className="font-bold text-sm sm:text-base text-slate-900 flex items-center gap-2">
+              <ShieldAlert className="w-4 h-4 text-sky-700" />
               Abandono e Maus-Tratos é Crime (Lei Federal nº 9.605/98 - Art. 32)
             </h4>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-1 leading-relaxed">
-              Pena de reclusão de 2 a 5 anos, multa e proibição da guarda quando se tratar de cão ou gato. Adotar é um compromisso vitalício de amor, saúde, segurança e dedicação integral.
+            <p className="text-xs text-slate-600 mt-1 leading-relaxed">
+              Pena de reclusão de 2 a 5 anos, multa e proibição da guarda. Adotar é um compromisso vitalício de amor, segurança e dedicação integral.
             </p>
           </div>
           <div className="shrink-0">
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full bg-amber-500/20 text-amber-700 dark:text-amber-300">
-              <CheckCircle className="w-3.5 h-3.5" /> Posse Responsável
+            <span className="inline-flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full bg-sky-100 text-sky-800 border border-sky-200">
+              <CheckCircle className="w-3.5 h-3.5 text-sky-600" /> Posse Responsável
             </span>
           </div>
         </div>
 
-        {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          
-          {/* Brand info */}
-          <div className="space-y-4 md:col-span-1">
-            <Link href="/" className="flex items-center gap-2.5">
-              <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-primary text-primary-foreground shadow-sm">
-                <PawPrint className="h-5 w-5 fill-current" />
-              </div>
-              <span className="font-serif font-bold text-xl tracking-tight text-foreground">
-                ConnectPet
-              </span>
-            </Link>
-            <p className="text-xs leading-relaxed text-muted-foreground">
-              Plataforma independente de acolhimento e conexão responsável. Nossos animais são resgatados, avaliados clinicamente e encaminhados com triagem ética e transparente.
-            </p>
-            <div className="pt-2 text-[11px] text-muted-foreground flex items-center gap-1.5">
-              <Heart className="w-3.5 h-3.5 text-rose-500 fill-rose-500" /> Feito com carinho para salvar vidas
-            </div>
-          </div>
-
-          {/* Quick Links */}
-          <div className="space-y-3">
-            <h5 className="font-bold text-sm text-foreground uppercase tracking-wider">
-              Navegação
-            </h5>
-            <ul className="space-y-2 text-xs">
-              <li>
-                <Link href="/" className="hover:text-primary transition-colors">
-                  Início
-                </Link>
-              </li>
-              <li>
-                <Link href="/pets" className="hover:text-primary transition-colors">
-                  Animais Disponíveis
-                </Link>
-              </li>
-              <li>
-                <Link href="/match" className="hover:text-primary transition-colors">
-                  Calculadora Smart Match
-                </Link>
-              </li>
-              <li>
-                <Link href="/#como-funciona" className="hover:text-primary transition-colors">
-                  Como Funciona a Triagem
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Guidelines & Safety */}
-          <div className="space-y-3">
-            <h5 className="font-bold text-sm text-foreground uppercase tracking-wider">
-              Diretrizes & Ética
-            </h5>
-            <ul className="space-y-2 text-xs">
-              <li>Regra dos 21 Anos Completos</li>
-              <li>Telas em Janelas / Muros Altos</li>
-              <li>Sem Venda ou Comércio de Vidas</li>
-              <li>Acompanhamento Pós-Adoção</li>
-              <li>Conformidade com a LGPD</li>
-            </ul>
-          </div>
-
-          {/* Contact / Location */}
-          <div className="space-y-3">
-            <h5 className="font-bold text-sm text-foreground uppercase tracking-wider">
-              Central de Acolhimento
-            </h5>
-            <ul className="space-y-2 text-xs">
-              <li className="flex items-center gap-2">
-                <MapPin className="w-4 h-4 text-primary shrink-0" />
-                <span>São Paulo, SP e Regiões Metropolitanas</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Mail className="w-4 h-4 text-primary shrink-0" />
-                <span>contato@connectpet.org.br</span>
-              </li>
-              <li className="text-[11px] text-muted-foreground pt-2">
-                Atendimento de segunda a sábado das 09h às 18h para orientações e suporte às ONGs parceiras.
-              </li>
-            </ul>
-          </div>
-
-        </div>
-
-        {/* Bottom bar */}
-        <div className="pt-8 border-t border-border/40 flex flex-col sm:flex-row items-center justify-between text-xs gap-4">
-          <p>© 2026 ConnectPet (Acolher Pet). Todos os direitos reservados.</p>
-          <div className="flex items-center gap-6">
+        {/* Linha Inferior com Copyright */}
+        <div className="pt-4 border-t border-sky-300/40 flex flex-col sm:flex-row items-center justify-between text-xs text-sky-950 font-medium gap-3">
+          <p>© 2026 ConnectPet (Acolher Pet) • Adoção Consciente e Responsável. Todos os direitos reservados.</p>
+          <div className="flex items-center gap-6 text-[11px] text-sky-900/80">
             <span>Privacidade & LGPD</span>
             <span>Termos de Uso</span>
-            <span>Código de Ética Animal</span>
+            <span className="flex items-center gap-1">
+              <Heart className="w-3 h-3 text-rose-500 fill-rose-500" /> Salve Vidas
+            </span>
           </div>
         </div>
 

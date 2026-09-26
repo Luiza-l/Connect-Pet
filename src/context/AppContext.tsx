@@ -11,7 +11,7 @@ import {
   MatchResult,
   GuardianType
 } from '../types';
-import { mockPets as initialMockPets } from '../data/mockPets';
+import { mockPets as initialMockPets, demoAdopter } from '../data/mockPets';
 import { createClient } from '@/lib/client';
 
 export interface ToastItem {
@@ -65,7 +65,7 @@ interface AppContextType {
 }
 
 const STORAGE_KEYS = {
-  PETS: 'acolher_pets_v1',
+  PETS: 'acolher_pets_v2',
   APPLICATIONS: 'acolher_applications_v1',
   USER: 'acolher_user_v1',
   FAVORITES: 'acolher_favorites_v1',
@@ -252,14 +252,21 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [pets, setPetsState] = useState<Pet[]>(() => {
     if (typeof window !== 'undefined') {
       try {
+        localStorage.removeItem('acolher_pets_v1');
         const savedPets = localStorage.getItem(STORAGE_KEYS.PETS);
         if (savedPets) {
           const parsed = JSON.parse(savedPets);
-          if (Array.isArray(parsed)) return parsed.map(normalizePet);
+          if (Array.isArray(parsed)) {
+            return parsed
+              .filter((p) => p && p.id !== '0ea90e62-d729-4900-bfd7-e5762fe1c9b6' && p.id !== 'pet-7' && p.name !== 'Nina')
+              .map(normalizePet);
+          }
         }
       } catch { }
     }
-    return initialMockPets.map(normalizePet);
+    return initialMockPets
+      .filter((p) => p.name !== 'Nina' && p.id !== '0ea90e62-d729-4900-bfd7-e5762fe1c9b6' && p.id !== 'pet-7')
+      .map(normalizePet);
   });
 
   // 4. Favorites State - Isolado por usuário
@@ -334,6 +341,23 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     async function handleUserSession(sessionUser: SupabaseUser | null) {
       if (!sessionUser) {
         if (isMounted) {
+          // Permite que contas mockadas/teste persistam no localStorage
+          try {
+            const savedUser = localStorage.getItem(STORAGE_KEYS.USER);
+            if (savedUser) {
+              const parsed = JSON.parse(savedUser);
+              if (
+                parsed &&
+                (parsed.id?.startsWith("guardian-") ||
+                  parsed.id?.startsWith("adopter-") ||
+                  parsed.id?.startsWith("mock-"))
+              ) {
+                setCurrentUserState(parsed);
+                return;
+              }
+            }
+          } catch { }
+
           setCurrentUserState(null);
           setFavoritesState([]);
           try {
@@ -455,16 +479,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
             })
           );
 
-          setPetsState((prev) => {
-            // Replace temporary mock pets (pet-1, etc.) with real Supabase records
-            const remoteIds = new Set(mappedPets.map((p) => p.id));
-            const filteredPrev = prev.filter((p) => !remoteIds.has(p.id) && !p.id.startsWith('pet-'));
-            const merged = [...mappedPets, ...filteredPrev];
-            try {
-              localStorage.setItem(STORAGE_KEYS.PETS, JSON.stringify(merged));
-            } catch { }
-            return merged;
-          });
+          setPetsState(mappedPets);
+          try {
+            localStorage.setItem(STORAGE_KEYS.PETS, JSON.stringify(mappedPets));
+          } catch { }
         }
 
         // 2. Fetch Applications with joined pets and messages
@@ -631,9 +649,31 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }, 4500);
   }, [removeToast]);
 
-  // Quick switch demo user (avisa que deve usar autenticação real)
-  const switchUser = useCallback(() => {
-    showToast('Aviso', 'Acesse a tela de login ou cadastro para alternar entre contas reais.', 'info');
+  // Alternar rapidamente para usuário mock de demonstração
+  const switchUser = useCallback((role: 'adopter' | 'guardian' = 'guardian') => {
+    const userToSet: CurrentUser = role === 'guardian' ? {
+      id: 'guardian-esperanca-1',
+      role: 'guardian',
+      guardianType: 'ngo',
+      name: 'ONG Esperança Animal',
+      responsibleName: 'Dra. Helena Silveira',
+      document: '32.184.902/0001-45',
+      email: 'contato@ongesperanca.org.br',
+      primaryPhone: '(11) 97123-9988',
+      city: 'São Paulo',
+      state: 'SP',
+      neighborhood: 'Vila Mariana',
+      description: 'Instituição sem fins lucrativos dedicada ao acolhimento e proteção de animais.',
+      bio: 'Trabalhando pelo bem-estar animal com amor e transparência.',
+      verified: true,
+      avatar: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?q=80&w=400&auto=format&fit=crop'
+    } : demoAdopter;
+
+    setCurrentUserState(userToSet);
+    try {
+      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(userToSet));
+    } catch { }
+    showToast('Conectado como ONG', `${userToSet.name} ativa com dados mockados.`, 'success');
   }, [showToast]);
 
   const logout = useCallback(async () => {

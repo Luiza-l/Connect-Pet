@@ -9,8 +9,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 
 export default function ManagePetsPage() {
-  const { pets, deletePet } = useApp();
+  const { currentUser, pets, deletePet } = useApp();
   const [deleteId, setDeleteId] = useState<string | null>(null);
+
+  const myPets = pets.filter((p) => {
+    if (!currentUser) return false;
+    return p.guardianId === currentUser.id || (currentUser.email && p.guardianEmail === currentUser.email);
+  });
 
   const handleDelete = () => {
     if (deleteId) {
@@ -46,7 +51,7 @@ export default function ManagePetsPage() {
           <CardDescription>Visualize, edite ou remova os animais do sistema.</CardDescription>
         </CardHeader>
         <CardContent>
-          {pets.length === 0 ? (
+          {myPets.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground mb-4">Você ainda não tem nenhum pet cadastrado.</p>
               <Button variant="outline" asChild>
@@ -65,7 +70,7 @@ export default function ManagePetsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/40">
-                  {pets.map((pet) => (
+                  {myPets.map((pet) => (
                     <tr key={pet.id} className="hover:bg-secondary/20 transition-colors">
                       <td className="p-3.5 pl-5 font-bold text-foreground">{pet.name}</td>
                       <td className="p-3.5 text-muted-foreground">{pet.species === "dog" ? "Cachorro" : "Gato"} • {pet.size}</td>

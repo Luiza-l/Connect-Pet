@@ -246,41 +246,6 @@ export const mockPets: Pet[] = [
     createdAt: '2026-01-15T08:00:00Z'
   },
   {
-    id: 'pet-7',
-    name: 'Nina',
-    species: 'cat',
-    breed: 'Frajolinha Charmosa',
-    size: 'small',
-    approximateAge: '7 meses',
-    ageCategory: 'puppy',
-    sex: 'female',
-    status: 'available',
-    vaccinated: true,
-    castrated: true,
-    dewormed: true,
-    vaccinationDetails: 'V4 e Antirrábica aplicadas, vermifugada.',
-    specialNeeds: 'Imprescindível moradia com janelas e sacadas devidamente teladas.',
-    photos: [
-      'https://images.unsplash.com/photo-1543852786-1cf6624b9987?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?q=80&w=1000&auto=format&fit=crop'
-    ],
-    headline: 'Energia jovem, olhar curioso e muita vontade de interagir.',
-    story: 'Nina foi resgatada debaixo do capô de um carro. Curada e castrada, revelou uma simpatia irresistível e busca um lar seguro com humanos carinhosos.',
-    temperament: ['Curiosa', 'Brincalhona', 'Afetuosa', 'Sociável'],
-    temperamentDescription: 'Adora perseguir varinhas com penas e dormir enroladinha em mantas macias.',
-    guardianId: 'guardian-patinhas-1',
-    guardianName: 'ONG Patinhas com Amor',
-    guardianType: 'ngo',
-    guardianPhone: '(11) 97123-9988',
-    guardianEmail: 'contato@patinhascomamor.org.br',
-    location: {
-      city: 'São Paulo',
-      state: 'SP',
-      neighborhood: 'Vila Mariana'
-    },
-    createdAt: '2026-02-20T12:00:00Z'
-  },
-  {
     id: 'pet-8',
     name: 'Amora',
     species: 'dog',

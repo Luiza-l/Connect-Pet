@@ -64,9 +64,7 @@ export function Navbar() {
             <span className="font-serif font-bold text-2xl leading-none text-foreground tracking-tight">
               ConnectPet
             </span>
-            <span className="text-[10px] font-semibold text-primary tracking-wider uppercase mt-1">
-              Acolher Pet • Adoção Consciente
-            </span>
+            
           </div>
         </Link>
 

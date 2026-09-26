@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useApp } from "@/context/AppContext";
@@ -34,6 +34,7 @@ import {
 export function GuardianDashboardView() {
   const {
     currentUser,
+    setCurrentUser,
     pets,
     addPet,
     updatePet,
@@ -46,22 +47,43 @@ export function GuardianDashboardView() {
   } = useApp();
 
   const isGuardian = currentUser?.role === "guardian";
-  const guardianApplications = applications.filter(
-    (a) => !currentUser || a.guardianId === currentUser.id
-  );
-  const guardianPets = pets.filter(
-    (p) => !currentUser || p.guardianId === currentUser.id
-  );
 
-  const [activeTab, setActiveTab] = useState<"animals" | "applications" | "metrics">("applications");
+  const guardianPets = useMemo(() => {
+    if (!currentUser) return [];
+    return pets.filter(
+      (p) =>
+        p.guardianId === currentUser.id ||
+        (currentUser.email ? p.guardianEmail === currentUser.email : false)
+    );
+  }, [pets, currentUser]);
+
+  const guardianPetIds = useMemo(() => new Set(guardianPets.map((p) => p.id)), [guardianPets]);
+
+  const guardianApplications = useMemo(() => {
+    if (!currentUser) return [];
+    return applications.filter(
+      (a) => a.guardianId === currentUser.id || guardianPetIds.has(a.petId)
+    );
+  }, [applications, currentUser, guardianPetIds]);
+
+  const [activeTab, setActiveTab] = useState<"animals" | "applications" | "metrics">("animals");
   const [searchAnimal, setSearchAnimal] = useState("");
-  const [selectedApplicationId, setSelectedApplicationId] = useState<string | null>(
-    guardianApplications[0]?.id || null
-  );
+  const [selectedApplicationId, setSelectedApplicationId] = useState<string | null>(null);
 
-  const selectedApplication = guardianApplications.find((a) => a.id === (selectedApplicationId || guardianApplications[0]?.id)) || guardianApplications[0] || null;
+  const selectedApplication = useMemo(() => {
+    if (guardianApplications.length === 0) return null;
+    if (selectedApplicationId) {
+      const found = guardianApplications.find((a) => a.id === selectedApplicationId);
+      if (found) return found;
+    }
+    return guardianApplications[0] || null;
+  }, [guardianApplications, selectedApplicationId]);
+
   const [chatMessage, setChatMessage] = useState("");
-  const [notesInput, setNotesInput] = useState(selectedApplication?.guardianNotes || "");
+  const [editingNotes, setEditingNotes] = useState<Record<string, string>>({});
+  const activeNote = selectedApplication
+    ? (editingNotes[selectedApplication.id] ?? selectedApplication.guardianNotes ?? "")
+    : "";
 
 
   // Modal State for New Pet
@@ -110,7 +132,8 @@ export function GuardianDashboardView() {
 
   const handleSaveNotes = () => {
     if (!selectedApplication) return;
-    updateGuardianNotes(selectedApplication.id, notesInput);
+    updateGuardianNotes(selectedApplication.id, activeNote);
+    showToast("Anotação Salva", "Anotações internas atualizadas com sucesso.", "success");
   };
 
   const handleCreatePet = (e: React.FormEvent) => {
@@ -177,9 +200,36 @@ export function GuardianDashboardView() {
               Você precisa estar conectado à sua conta de ONG ou Protetor para gerenciar animais e candidaturas.
             </p>
           </div>
-          <Button asChild className="rounded-full bg-primary hover:bg-primary/90 w-full">
-            <Link href="/login?redirect=/dashboard">Entrar como ONG</Link>
-          </Button>
+          <div className="space-y-2.5 pt-2">
+            <Button
+              onClick={() => {
+                setCurrentUser({
+                  id: "guardian-esperanca-1",
+                  role: "guardian",
+                  guardianType: "ngo",
+                  name: "ONG Esperança Animal",
+                  responsibleName: "Dra. Helena Silveira",
+                  document: "32.184.902/0001-45",
+                  email: "contato@ongesperanca.org.br",
+                  primaryPhone: "(11) 97123-9988",
+                  city: "São Paulo",
+                  state: "SP",
+                  neighborhood: "Vila Mariana",
+                  description: "Instituição sem fins lucrativos dedicada ao acolhimento e proteção de animais.",
+                  bio: "Trabalhando pelo bem-estar animal com muito amor e responsabilidade.",
+                  verified: true,
+                  avatar: "https://images.unsplash.com/photo-1548767797-d8c844163c4c?q=80&w=400&auto=format&fit=crop"
+                });
+                showToast("Conectado como ONG", "Acesso liberado com dados mockados.", "success");
+              }}
+              className="rounded-full bg-primary hover:bg-primary/90 w-full"
+            >
+              Entrar como ONG (Dados Mockados)
+            </Button>
+            <Button asChild variant="outline" className="rounded-full w-full">
+              <Link href="/login?redirect=/dashboard">Fazer Login com E-mail e Senha</Link>
+            </Button>
+          </div>
         </div>
       </div>
     );
@@ -232,7 +282,7 @@ export function GuardianDashboardView() {
               : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
         >
-          <FileCheck2 className="w-4 h-4" /> Triagem de Candidaturas ({applications.length})
+          <FileCheck2 className="w-4 h-4" /> Triagem de Candidaturas ({guardianApplications.length})
         </button>
 
         <button
@@ -242,7 +292,7 @@ export function GuardianDashboardView() {
               : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
         >
-          <PawPrint className="w-4 h-4" /> Gestão de Animais ({pets.length})
+          <PawPrint className="w-4 h-4" /> Gestão de Animais ({guardianPets.length})
         </button>
 
         <button
@@ -263,51 +313,62 @@ export function GuardianDashboardView() {
           {/* Applications List (4 Cols) */}
           <div className="lg:col-span-4 space-y-3">
             <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
-              Formulários Recebidos ({applications.length})
+              Formulários Recebidos ({guardianApplications.length})
             </h3>
 
             <div className="space-y-3">
-              {applications.map((app) => {
-                const isSelected = selectedApplication?.id === app.id;
-                const statusInfo = statusConfig[app.status];
+              {guardianApplications.length === 0 ? (
+                <div className="p-8 rounded-3xl border border-dashed border-border/80 bg-card/60 text-center space-y-3">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto">
+                    <FileCheck2 className="w-6 h-6" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-sm font-bold text-foreground">Nenhuma candidatura recebida</p>
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      Quando interessados preencherem formulários para adotar seus animais, as candidaturas aparecerão aqui para triagem.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                guardianApplications.map((app) => {
+                  const isSelected = selectedApplication?.id === app.id;
+                  const statusInfo = statusConfig[app.status];
 
-                return (
-                  <button
-                    key={app.id}
-                    onClick={() => {
-                      setSelectedApplicationId(app.id);
-                      setNotesInput(app.guardianNotes || "");
-                    }}
-                    className={`w-full p-4 rounded-2xl border text-left transition-all ${isSelected
-                        ? "border-primary bg-primary/5 shadow-md"
-                        : "border-border/60 bg-card hover:border-border hover:bg-secondary/40"
-                      }`}
-                  >
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <span className="font-bold text-sm text-foreground block">
-                          {app.candidate.name}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          Pretende adotar: <strong>{app.petName}</strong>
-                        </span>
+                  return (
+                    <button
+                      key={app.id}
+                      onClick={() => setSelectedApplicationId(app.id)}
+                      className={`w-full p-4 rounded-2xl border text-left transition-all ${isSelected
+                          ? "border-primary bg-primary/5 shadow-md"
+                          : "border-border/60 bg-card hover:border-border hover:bg-secondary/40"
+                        }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <span className="font-bold text-sm text-foreground block">
+                            {app.candidate.name}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            Pretende adotar: <strong>{app.petName}</strong>
+                          </span>
+                        </div>
+                        <Badge variant="outline" className={`text-[10px] ${statusInfo.className}`}>
+                          {statusInfo.label}
+                        </Badge>
                       </div>
-                      <Badge variant="outline" className={`text-[10px] ${statusInfo.className}`}>
-                        {statusInfo.label}
-                      </Badge>
-                    </div>
 
-                    <div className="mt-3 pt-2 border-t border-border/40 flex items-center justify-between text-[11px] text-muted-foreground">
-                      <span>{new Date(app.createdAt).toLocaleDateString("pt-BR")}</span>
-                      {app.automatedAnalysis && (
-                        <span className="font-bold text-emerald-600 dark:text-emerald-400">
-                          {app.automatedAnalysis.suitabilityScore}% Aptidão
-                        </span>
-                      )}
-                    </div>
-                  </button>
-                );
-              })}
+                      <div className="mt-3 pt-2 border-t border-border/40 flex items-center justify-between text-[11px] text-muted-foreground">
+                        <span>{new Date(app.createdAt).toLocaleDateString("pt-BR")}</span>
+                        {app.automatedAnalysis && (
+                          <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                            {app.automatedAnalysis.suitabilityScore}% Aptidão
+                          </span>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })
+              )}
             </div>
           </div>
 
@@ -462,8 +523,15 @@ export function GuardianDashboardView() {
                   </div>
                   <textarea
                     rows={2}
-                    value={notesInput}
-                    onChange={(e) => setNotesInput(e.target.value)}
+                    value={activeNote}
+                    onChange={(e) => {
+                      if (selectedApplication) {
+                        setEditingNotes((prev) => ({
+                          ...prev,
+                          [selectedApplication.id]: e.target.value
+                        }));
+                      }
+                    }}
                     placeholder="Adicione observações da entrevista, impressões da visita ou histórico..."
                     className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:ring-2 focus:ring-primary"
                   />
@@ -535,7 +603,9 @@ export function GuardianDashboardView() {
               </div>
             ) : (
               <div className="p-12 text-center text-muted-foreground bg-secondary/20 rounded-3xl border border-border">
-                Selecione uma candidatura na coluna lateral para visualizar o dossiê.
+                {guardianApplications.length === 0
+                  ? "Sua instituição ainda não possui candidaturas registradas para triagem."
+                  : "Selecione uma candidatura na coluna lateral para visualizar o dossiê."}
               </div>
             )}
           </div>
@@ -566,57 +636,81 @@ export function GuardianDashboardView() {
             </Button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredPets.map((pet) => (
-              <div
-                key={pet.id}
-                className="p-4 rounded-3xl bg-card border border-border/60 shadow-sm flex flex-col justify-between space-y-4"
-              >
-                <div className="flex gap-4">
-                  <div className="relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 bg-secondary">
-                    <Image
-                      src={pet.photos[0]}
-                      alt={pet.name}
-                      fill
-                      sizes="96px"
-                      className="object-cover"
-                    />
-                  </div>
-
-                  <div className="space-y-1 flex-1">
-                    <div className="flex items-center justify-between">
-                      <h4 className="font-bold text-base text-foreground">{pet.name}</h4>
-                      <button
-                        onClick={() => deletePet(pet.id)}
-                        className="text-muted-foreground hover:text-rose-500 p-1"
-                        title="Remover animal"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                    <p className="text-xs text-muted-foreground">{pet.breed} &bull; {pet.approximateAge}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {pet.species === "dog" ? "Cachorro" : "Gato"} &bull; {pet.location.city}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Status selector */}
-                <div className="pt-2 border-t border-border/40 flex items-center justify-between">
-                  <span className="text-xs font-semibold text-muted-foreground">Status Atual:</span>
-                  <select
-                    value={pet.status}
-                    onChange={(e) => updatePet(pet.id, { status: e.target.value as PetAdoptionStatus })}
-                    className="px-2.5 py-1 rounded-xl border border-border bg-background text-xs font-bold text-foreground focus:outline-none"
-                  >
-                    <option value="available">Disponível</option>
-                    <option value="in_process">Em Processo</option>
-                    <option value="adopted">Adotado</option>
-                  </select>
-                </div>
+          {guardianPets.length === 0 ? (
+            <div className="p-12 text-center rounded-3xl border border-dashed border-border/80 bg-card/60 space-y-4">
+              <div className="w-14 h-14 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto">
+                <PawPrint className="w-7 h-7" />
               </div>
-            ))}
-          </div>
+              <div className="space-y-1 max-w-md mx-auto">
+                <h3 className="font-bold text-base text-foreground">Nenhum animal cadastrado ainda</h3>
+                <p className="text-xs text-muted-foreground">
+                  Esta conta de ONG ainda não possui pets cadastrados para adoção. Cadastre novos animais para começar a receber candidaturas de adoção responsável.
+                </p>
+              </div>
+              <Button
+                onClick={() => setIsAddPetModalOpen(true)}
+                className="rounded-full text-xs bg-primary hover:bg-primary/90"
+              >
+                <Plus className="w-4 h-4 mr-1.5" /> Cadastrar Primeiro Pet
+              </Button>
+            </div>
+          ) : filteredPets.length === 0 ? (
+            <div className="p-10 text-center rounded-3xl border border-border bg-card/50 text-muted-foreground text-xs">
+              Nenhum animal encontrado com o termo &quot;{searchAnimal}&quot;.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredPets.map((pet) => (
+                <div
+                  key={pet.id}
+                  className="p-4 rounded-3xl bg-card border border-border/60 shadow-sm flex flex-col justify-between space-y-4"
+                >
+                  <div className="flex gap-4">
+                    <div className="relative w-24 h-24 rounded-2xl overflow-hidden shrink-0 bg-secondary">
+                      <Image
+                        src={pet.photos[0]}
+                        alt={pet.name}
+                        fill
+                        sizes="96px"
+                        className="object-cover"
+                      />
+                    </div>
+
+                    <div className="space-y-1 flex-1">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-bold text-base text-foreground">{pet.name}</h4>
+                        <button
+                          onClick={() => deletePet(pet.id)}
+                          className="text-muted-foreground hover:text-rose-500 p-1"
+                          title="Remover animal"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                      <p className="text-xs text-muted-foreground">{pet.breed} &bull; {pet.approximateAge}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {pet.species === "dog" ? "Cachorro" : "Gato"} &bull; {pet.location.city}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Status selector */}
+                  <div className="pt-2 border-t border-border/40 flex items-center justify-between">
+                    <span className="text-xs font-semibold text-muted-foreground">Status Atual:</span>
+                    <select
+                      value={pet.status}
+                      onChange={(e) => updatePet(pet.id, { status: e.target.value as PetAdoptionStatus })}
+                      className="px-2.5 py-1 rounded-xl border border-border bg-background text-xs font-bold text-foreground focus:outline-none"
+                    >
+                      <option value="available">Disponível</option>
+                      <option value="in_process">Em Processo</option>
+                      <option value="adopted">Adotado</option>
+                    </select>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -627,24 +721,30 @@ export function GuardianDashboardView() {
             <div className="p-6 rounded-3xl bg-card border border-border/60 shadow-sm space-y-1">
               <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Pets Acolhidos</span>
               <p className="font-serif text-3xl sm:text-4xl font-bold text-foreground">{totalPets}</p>
-              <p className="text-xs text-emerald-600 font-medium">+2 cadastrados este mês</p>
+              <p className="text-xs text-emerald-600 font-medium">
+                {totalPets > 0 ? "+2 cadastrados este mês" : "Nenhum animal ativo"}
+              </p>
             </div>
 
             <div className="p-6 rounded-3xl bg-card border border-border/60 shadow-sm space-y-1">
               <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Adoções Concluídas</span>
               <p className="font-serif text-3xl sm:text-4xl font-bold text-foreground">{adoptedPets}</p>
-              <p className="text-xs text-emerald-600 font-medium">100% lares seguros</p>
+              <p className="text-xs text-emerald-600 font-medium">
+                {adoptedPets > 0 ? "100% lares seguros" : "Aguardando primeiros resgates"}
+              </p>
             </div>
 
             <div className="p-6 rounded-3xl bg-card border border-border/60 shadow-sm space-y-1">
               <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Triagens em Aberto</span>
               <p className="font-serif text-3xl sm:text-4xl font-bold text-foreground">{inProcessPets + pendingApps}</p>
-              <p className="text-xs text-primary font-medium">Aguardando resposta da ONG</p>
+              <p className="text-xs text-primary font-medium">
+                {inProcessPets + pendingApps > 0 ? "Aguardando resposta da ONG" : "Sem pendências no momento"}
+              </p>
             </div>
 
             <div className="p-6 rounded-3xl bg-card border border-border/60 shadow-sm space-y-1">
               <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Taxa de Sucesso</span>
-              <p className="font-serif text-3xl sm:text-4xl font-bold text-foreground">98.5%</p>
+              <p className="font-serif text-3xl sm:text-4xl font-bold text-foreground">{totalPets > 0 ? "98.5%" : "—"}</p>
               <p className="text-xs text-muted-foreground font-medium">Graças à triagem das telas</p>
             </div>
           </div>

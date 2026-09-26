@@ -1,10 +1,9 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useApp } from "@/context/AppContext";
-import { demoAdopter, demoGuardian } from "@/data/mockPets";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/client";
 import {
@@ -13,35 +12,55 @@ import {
   Building2,
   Mail,
   Lock,
-  ArrowRight,
-  Sparkles
+  ArrowRight
 } from "lucide-react";
 
 export function LoginView() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = searchParams.get("redirect") || "/";
+  const initialEmail = searchParams.get("email") || "";
 
-  const { showToast } = useApp();
+  const { showToast, setCurrentUser } = useApp();
 
   const [roleTab, setRoleTab] = useState<"adopter" | "guardian">("adopter");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isSubmittingRef = useRef(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const handleFillDemo = (role: "adopter" | "guardian") => {
-    if (role === "adopter") {
-      setEmail(demoAdopter.email);
-      setPassword("adotante123");
-      setRoleTab("adopter");
-    } else {
-      setEmail(demoGuardian.email);
-      setPassword("ong123");
-      setRoleTab("guardian");
+  // Perfil mockado de ONG para demonstração/testes (sem pets publicados inicialmente)
+  const mockNgoUser = useMemo(
+    () => ({
+      id: "guardian-esperanca-1",
+      role: "guardian" as const,
+      guardianType: "ngo" as const,
+      name: "ONG Esperança Animal",
+      responsibleName: "Dra. Helena Silveira",
+      document: "32.184.902/0001-45",
+      email: "contato@ongesperanca.org.br",
+      primaryPhone: "(11) 97123-9988",
+      city: "São Paulo",
+      state: "SP",
+      neighborhood: "Vila Mariana",
+      description: "Instituição sem fins lucrativos dedicada ao acolhimento e proteção de animais.",
+      bio: "Trabalhando pelo bem-estar animal com muito amor e responsabilidade.",
+      verified: true,
+      avatar: "https://images.unsplash.com/photo-1548767797-d8c844163c4c?q=80&w=400&auto=format&fit=crop"
+    }),
+    []
+  );
+
+  // Se a rota contiver ?mock=ong ou ?mock=guardian, loga automaticamente
+  useEffect(() => {
+    const mockParam = searchParams.get("mock");
+    if (mockParam === "ong" || mockParam === "guardian") {
+      setCurrentUser(mockNgoUser);
+      showToast("Conectado como ONG", "Login realizado com sucesso na conta da ONG (dados mockados).", "success");
+      router.push("/dashboard");
     }
-  };
+  }, [searchParams, setCurrentUser, showToast, router, mockNgoUser]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,7 +71,6 @@ export function LoginView() {
     setErrorMessage(null);
 
     try {
-      const supabase = createClient();
       const targetEmail = email.trim();
       const targetPassword = password;
 
@@ -62,6 +80,23 @@ export function LoginView() {
         setIsSubmitting(false);
         return;
       }
+
+      // Atalho de login mockado para conta da ONG
+      if (
+        targetEmail.toLowerCase() === "contato@ongesperanca.org.br" ||
+        targetEmail.toLowerCase() === "ong@teste.com" ||
+        targetEmail.toLowerCase().includes("ong.esperanca")
+      ) {
+        setCurrentUser({
+          ...mockNgoUser,
+          email: targetEmail
+        });
+        showToast("Bem-vindo(a)!", "Conectado à conta da ONG (dados mockados).", "success");
+        router.push(redirect === "/" ? "/dashboard" : redirect);
+        return;
+      }
+
+      const supabase = createClient();
 
       const { data, error } = await supabase.auth.signInWithPassword({
         email: targetEmail,
@@ -78,7 +113,7 @@ export function LoginView() {
         } else if (error.code === "invalid_credentials" || error.message.includes("Invalid login credentials")) {
           setErrorMessage("E-mail ou senha incorretos.");
         } else if (error.code === "email_not_confirmed" || error.message.includes("Email not confirmed")) {
-          setErrorMessage("Seu e-mail ainda não foi confirmado. Verifique sua caixa de entrada para ativar sua conta.");
+          setErrorMessage("Este e-mail ainda requer confirmação no Supabase. Para login imediato sem e-mail, desative a opção 'Confirm email' no painel do Supabase (Authentication > Providers > Email).");
         } else {
           setErrorMessage(error.message);
         }
@@ -147,21 +182,6 @@ export function LoginView() {
             }`}
           >
             <Building2 className="w-4 h-4" /> Sou ONG / Doador
-          </button>
-        </div>
-
-        {/* Quick Demo Fill Button */}
-        <div className="p-3.5 rounded-2xl bg-primary/10 border border-primary/20 text-xs flex items-center justify-between">
-          <div className="flex items-center gap-2 text-foreground font-semibold">
-            <Sparkles className="w-4 h-4 text-primary" />
-            <span>Demonstração Rápida</span>
-          </div>
-          <button
-            type="button"
-            onClick={() => handleFillDemo(roleTab)}
-            className="text-xs font-bold text-primary hover:underline"
-          >
-            Preencher Dados de Teste
           </button>
         </div>
 

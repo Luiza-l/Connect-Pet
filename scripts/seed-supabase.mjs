@@ -213,37 +213,6 @@ const mockPets = [
     neighborhood: 'Vila Mariana'
   },
   {
-    name: 'Nina',
-    species: 'cat',
-    breed: 'Frajolinha Charmosa',
-    size: 'small',
-    approximate_age: '7 meses',
-    age_category: 'puppy',
-    sex: 'female',
-    status: 'available',
-    vaccinated: true,
-    castrated: true,
-    dewormed: true,
-    vaccination_details: 'V4 e Antirrábica aplicadas, vermifugada.',
-    special_needs: 'Imprescindível moradia com janelas e sacadas devidamente teladas.',
-    photos: [
-      'https://images.unsplash.com/photo-1543852786-1cf6624b9987?q=80&w=1000&auto=format&fit=crop',
-      'https://images.unsplash.com/photo-1518791841217-8f162f1e1131?q=80&w=1000&auto=format&fit=crop'
-    ],
-    headline: 'Energia jovem, olhar curioso e muita vontade de interagir.',
-    story: 'Nina foi resgatada debaixo do capô de um carro. Curada e castrada, revelou uma simpatia irresistível e busca um lar seguro com humanos carinhosos.',
-    temperament: ['Curiosa', 'Brincalhona', 'Afetuosa', 'Sociável'],
-    temperament_description: 'Adora perseguir varinhas com penas e dormir enroladinha em mantas macias.',
-    guardian_id: 'guardian-patinhas-1',
-    guardian_name: 'ONG Patinhas com Amor',
-    guardian_type: 'ngo',
-    guardian_phone: '(11) 97123-9988',
-    guardian_email: 'contato@patinhascomamor.org.br',
-    city: 'São Paulo',
-    state: 'SP',
-    neighborhood: 'Vila Mariana'
-  },
-  {
     name: 'Amora',
     species: 'dog',
     breed: 'Pastor Mestiço Fêmea',

@@ -13,7 +13,6 @@ import {
   Mail,
   Lock,
   ArrowRight,
-  Sparkles,
   Phone,
   User,
   MapPin,
@@ -124,26 +123,6 @@ export function RegisterView() {
   const [ngoDocument, setNgoDocument] = useState("");
   const [ngoCity, setNgoCity] = useState("São Paulo");
   const [ngoPassword, setNgoPassword] = useState("");
-
-  const handleFillDemo = () => {
-    const uniqueSuffix = Math.floor(1000 + Math.random() * 9000);
-    if (roleTab === "adopter") {
-      setAdopterName("Mariana Silva");
-      setAdopterBirthDate("1996-08-14");
-      setAdopterCpf("111.444.777-35");
-      setAdopterSocialMedia("@mariana.pets");
-      setAdopterProfession("Designer Gráfica");
-      setAdopterPhone("(11) 98111-2233");
-      setAdopterEmail(`mariana.silva+teste${uniqueSuffix}@gmail.com`);
-      setAdopterPassword("segredo123");
-    } else {
-      setNgoName("Associação Vira-Lata Feliz");
-      setNgoEmail(`contato+teste${uniqueSuffix}@viralatafeliz.org`);
-      setNgoDocument("45.192.831/0001-90");
-      setNgoCity("Campinas");
-      setNgoPassword("segredo123");
-    }
-  };
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isSubmittingRef = useRef(false);
@@ -341,16 +320,26 @@ export function RegisterView() {
           console.warn("Supabase profiles upsert skipped:", dbErr);
         }
 
-        // Se o Supabase já abriu sessão (confirmação desativada ou automática)
-        if (data.session) {
+        // 3. Login automático imediato sem depender de confirmação de e-mail
+        let activeSession = data.session;
+        if (!activeSession) {
+          try {
+            const { data: loginData } = await supabase.auth.signInWithPassword({
+              email: targetEmail,
+              password: targetPassword,
+            });
+            activeSession = loginData?.session || null;
+          } catch {
+            // Continua para o redirecionamento
+          }
+        }
+
+        if (activeSession) {
           showToast("Cadastro realizado com sucesso!", `Bem-vindo(a), ${metadata.name}!`, "success");
           router.push(isAdopterRole ? "/pets" : "/dashboard");
         } else {
-          // Supabase exige confirmação de e-mail por link
-          setSuccessInfo(
-            `Cadastro realizado com sucesso! Enviamos um link de confirmação para ${targetEmail}. Por favor, confirme seu e-mail para poder acessar sua conta.`
-          );
-          showToast("Confirme seu e-mail", "Verifique sua caixa de entrada para ativar a conta.", "info");
+          showToast("Cadastro realizado com sucesso!", "Sua conta foi criada com sucesso.", "success");
+          router.push(`/login?email=${encodeURIComponent(targetEmail)}`);
         }
       }
     } catch (err: unknown) {
@@ -420,21 +409,6 @@ export function RegisterView() {
             }`}
           >
             <Building2 className="w-4 h-4" /> Sou ONG / Doador
-          </button>
-        </div>
-
-        {/* Quick Demo Fill Button */}
-        <div className="p-3 rounded-2xl bg-primary/10 border border-primary/20 text-xs flex items-center justify-between">
-          <div className="flex items-center gap-2 text-foreground font-semibold">
-            <Sparkles className="w-4 h-4 text-primary" />
-            <span>Demonstração Rápida</span>
-          </div>
-          <button
-            type="button"
-            onClick={handleFillDemo}
-            className="text-xs font-bold text-primary hover:underline"
-          >
-            Preencher com Dados de Teste
           </button>
         </div>
 
