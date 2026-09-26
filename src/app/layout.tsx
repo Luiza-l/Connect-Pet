@@ -6,6 +6,7 @@ import { AppProvider } from "@/context/AppContext";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ToastContainer } from "@/components/ui/ToastContainer";
+import { Analytics } from '@vercel/analytics/next';
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -58,6 +59,7 @@ export default function RootLayout({
             <ToastContainer />
           </AppProvider>
         </ThemeProvider>
+        <Analytics />
       </body>
     </html>
   );
