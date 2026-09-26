@@ -341,8 +341,9 @@ export function HomeView() {
       {/* 4. SEÇÃO: DICAS PARA CUIDAR DO SEU PET (AZUL COM ONDA EM NUVEM E DICAS)  */}
       {/* ========================================================================= */}
       <section id="dicas" className="relative w-full bg-[#AEE0FF] pt-12 sm:pt-16 pb-0 overflow-hidden">
-        {/* Patinhas decorativas distribuídas organicamente e de forma assimétrica pelo fundo azul */}
-        {/* 1. Esquerda alta, inclinada perto da curva da nuvem */}
+
+        {/* Patinhas decorativas distribuídas organicamente e de forma assimétrica pelo fundo azul
+        {/* 1. Esquerda alta, inclinada perto da curva da nuvem *
         <div className="absolute left-[7%] sm:left-[11%] lg:left-[13%] top-16 sm:top-20 z-10">
           <PawWatermark
             rotate={-32}
@@ -350,7 +351,7 @@ export function HomeView() {
           />
         </div>
 
-        {/* 2. Esquerda intermediária mais interna */}
+        {/* 2. Esquerda intermediária mais interna 
         <div className="absolute left-[16%] sm:left-[20%] lg:left-[23%] top-36 sm:top-40 z-10 hidden sm:block">
           <PawWatermark
             rotate={14}
@@ -358,7 +359,7 @@ export function HomeView() {
           />
         </div>
 
-        {/* 3. Esquerda na borda extrema média-baixa */}
+        {/* 3. Esquerda na borda extrema média-baixa 
         <div className="absolute left-[2%] sm:left-[4%] lg:left-[6%] top-[56%] -translate-y-1/2 z-10">
           <PawWatermark
             rotate={-18}
@@ -366,7 +367,7 @@ export function HomeView() {
           />
         </div>
 
-        {/* 4. Esquerda inferior caminhando para o centro */}
+        {/* 4. Esquerda inferior caminhando para o centro 
         <div className="absolute left-[12%] sm:left-[15%] lg:left-[18%] bottom-20 sm:bottom-24 z-10">
           <PawWatermark
             rotate={26}
@@ -374,7 +375,7 @@ export function HomeView() {
           />
         </div>
 
-        {/* 5. Canto inferior esquerdo perto da onda */}
+        {/* 5. Canto inferior esquerdo perto da onda 
         <div className="absolute left-[4%] sm:left-[7%] bottom-8 sm:bottom-10 z-10">
           <PawWatermark
             rotate={-8}
@@ -382,7 +383,7 @@ export function HomeView() {
           />
         </div>
 
-        {/* 6. Centro-topo suave esquerdo */}
+        {/* 6. Centro-topo suave esquerdo 
         <div className="absolute left-[33%] top-8 sm:top-12 z-10 hidden md:block">
           <PawWatermark
             rotate={-12}
@@ -390,7 +391,7 @@ export function HomeView() {
           />
         </div>
 
-        {/* 7. Direita alta bem perto do topo */}
+        {/* 7. Direita alta bem perto do topo 
         <div className="absolute right-[14%] sm:right-[18%] lg:right-[21%] top-12 sm:top-14 z-10">
           <PawWatermark
             rotate={20}
@@ -398,7 +399,7 @@ export function HomeView() {
           />
         </div>
 
-        {/* 8. Direita externa superior */}
+        {/* 8. Direita externa superior 
         <div className="absolute right-[3%] sm:right-[5%] lg:right-[8%] top-28 sm:top-32 z-10">
           <PawWatermark
             rotate={-25}
@@ -406,7 +407,7 @@ export function HomeView() {
           />
         </div>
 
-        {/* 9. Direita média mais recolhida para dentro */}
+        {/* 9. Direita média mais recolhida para dentro 
         <div className="absolute right-[11%] sm:right-[14%] lg:right-[16%] top-[50%] -translate-y-1/2 z-10">
           <PawWatermark
             rotate={12}
@@ -414,7 +415,7 @@ export function HomeView() {
           />
         </div>
 
-        {/* 10. Direita borda extrema inferior */}
+        {/* 10. Direita borda extrema inferior  
         <div className="absolute right-[2%] sm:right-[4%] lg:right-[6%] bottom-28 sm:bottom-32 z-10">
           <PawWatermark
             rotate={-16}
@@ -422,7 +423,7 @@ export function HomeView() {
           />
         </div>
 
-        {/* 11. Direita inferior caminhando para a onda de baixo */}
+        {/* 11. Direita inferior caminhando para a onda de baixo 
         <div className="absolute right-[18%] sm:right-[22%] lg:right-[25%] bottom-10 sm:bottom-14 z-10">
           <PawWatermark
             rotate={30}
@@ -430,13 +431,13 @@ export function HomeView() {
           />
         </div>
 
-        {/* 12. Centro-inferior direito perto da borda da onda */}
+        {/* 12. Centro-inferior direito perto da borda da onda  
         <div className="absolute right-[34%] bottom-6 sm:bottom-8 z-10 hidden md:block">
           <PawWatermark
             rotate={16}
             className="w-8 h-8 sm:w-10 sm:h-10 text-sky-600/35 dark:text-sky-300/20"
           />
-        </div>
+        </div>  */}
         
         {/* Onda Superior Estilo Nuvem Conectando 'Como Funciona' e 'Dicas' */}
         <div className="w-full overflow-hidden leading-none absolute top-0 left-0 right-0 z-10 -mt-0.5">
