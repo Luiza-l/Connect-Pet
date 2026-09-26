@@ -7,6 +7,10 @@ export type PetSex = 'male' | 'female';
 export type PetAdoptionStatus = 'available' | 'in_process' | 'adopted';
 export type ApplicationStatus = 'pending' | 'under_review' | 'approved' | 'rejected' | 'completed';
 
+export type HousingType = 'casa' | 'apartamento' | 'sitio_chacara' | 'outro';
+export type SpeciesPreference = 'dog' | 'cat' | 'both';
+export type SizePreference = 'small' | 'medium' | 'large' | 'any';
+
 export interface AdopterProfile {
   id: string;
   role: 'adopter';
@@ -19,7 +23,19 @@ export interface AdopterProfile {
   email: string;
   profession?: string;
   socialMedia?: string;
-  avatar?: string;
+  avatar?: string | null;
+
+  // Novos campos relevantes para o processo de adoção
+  city?: string;
+  state?: string;
+  housingType?: HousingType;
+  hasAdequateSpace?: boolean;
+  hasOtherPets?: boolean;
+  otherPetsDetails?: string;
+  hasChildren?: boolean;
+  speciesPreference?: SpeciesPreference;
+  sizePreference?: SizePreference;
+  bio?: string;
 }
 
 export interface GuardianProfile {
@@ -36,8 +52,9 @@ export interface GuardianProfile {
   neighborhood: string;
   description?: string;
   bio?: string;
+  socialMedia?: string;
   verified?: boolean;
-  avatar?: string;
+  avatar?: string | null;
 }
 
 export type CurrentUser = AdopterProfile | GuardianProfile;

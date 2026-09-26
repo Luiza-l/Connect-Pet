@@ -97,7 +97,14 @@ create table if not exists public.profiles (
   birth_date text,
   profession text,
   social_media text,
-  -- Campos específicos de Guardião / ONG
+  housing_type text,
+  has_adequate_space boolean,
+  has_other_pets boolean,
+  other_pets_details text,
+  has_children boolean,
+  species_preference text,
+  size_preference text,
+  -- Campos comuns e de Guardião / ONG
   guardian_type text check (guardian_type in ('individual', 'ngo')),
   responsible_name text,
   document text,
@@ -110,6 +117,16 @@ create table if not exists public.profiles (
   created_at timestamp with time zone not null default timezone('utc'::text, now()),
   updated_at timestamp with time zone not null default timezone('utc'::text, now())
 );
+
+-- Garantir que colunas recentes existam mesmo se a tabela já foi criada anteriormente
+alter table public.profiles add column if not exists avatar text;
+alter table public.profiles add column if not exists housing_type text;
+alter table public.profiles add column if not exists has_adequate_space boolean;
+alter table public.profiles add column if not exists has_other_pets boolean;
+alter table public.profiles add column if not exists other_pets_details text;
+alter table public.profiles add column if not exists has_children boolean;
+alter table public.profiles add column if not exists species_preference text;
+alter table public.profiles add column if not exists size_preference text;
 
 create index if not exists idx_profiles_role on public.profiles (role);
 create index if not exists idx_profiles_email on public.profiles (email);
@@ -134,71 +151,84 @@ alter table public.profiles enable row level security;
 alter table public.favorites enable row level security;
 
 -- Políticas para Pets (catálogo é público para leitura; gerenciamento por autenticados)
+drop policy if exists "Allow public read access for pets" on public.pets;
 create policy "Allow public read access for pets"
   on public.pets for select
   to anon, authenticated
   using (true);
 
+drop policy if exists "Allow insert for pets" on public.pets;
 create policy "Allow insert for pets"
   on public.pets for insert
   to authenticated
   with check (guardian_id = (select auth.uid())::text);
 
+drop policy if exists "Allow update for pets" on public.pets;
 create policy "Allow update for pets"
   on public.pets for update
   to authenticated
   using (guardian_id = (select auth.uid())::text)
   with check (guardian_id = (select auth.uid())::text);
 
+drop policy if exists "Allow delete for pets" on public.pets;
 create policy "Allow delete for pets"
   on public.pets for delete
   to authenticated
   using (guardian_id = (select auth.uid())::text);
 
 -- Políticas para Profiles
+drop policy if exists "Allow user to read own profile or public guardian profiles" on public.profiles;
 create policy "Allow user to read own profile or public guardian profiles"
   on public.profiles for select
   to authenticated
   using ((select auth.uid()) = id or role = 'guardian');
 
+drop policy if exists "Allow public read for guardian profiles" on public.profiles;
 create policy "Allow public read for guardian profiles"
   on public.profiles for select
   to anon
   using (role = 'guardian');
 
+drop policy if exists "Allow user to insert own profile" on public.profiles;
 create policy "Allow user to insert own profile"
   on public.profiles for insert
   to authenticated
   with check ((select auth.uid()) = id);
 
+drop policy if exists "Allow user to update own profile" on public.profiles;
 create policy "Allow user to update own profile"
   on public.profiles for update
   to authenticated
   using ((select auth.uid()) = id)
   with check ((select auth.uid()) = id);
 
+drop policy if exists "Allow user to delete own profile" on public.profiles;
 create policy "Allow user to delete own profile"
   on public.profiles for delete
   to authenticated
   using ((select auth.uid()) = id);
 
 -- Políticas para Favorites (apenas o próprio usuário acessa seus favoritos)
+drop policy if exists "Allow user to read own favorites" on public.favorites;
 create policy "Allow user to read own favorites"
   on public.favorites for select
   to authenticated
   using ((select auth.uid()) = user_id);
 
+drop policy if exists "Allow user to insert own favorites" on public.favorites;
 create policy "Allow user to insert own favorites"
   on public.favorites for insert
   to authenticated
   with check ((select auth.uid()) = user_id);
 
+drop policy if exists "Allow user to delete own favorites" on public.favorites;
 create policy "Allow user to delete own favorites"
   on public.favorites for delete
   to authenticated
   using ((select auth.uid()) = user_id);
 
 -- Políticas para Candidaturas (Adotante vê as suas, Guardião vê as recebidas)
+drop policy if exists "Allow participants to view applications" on public.applications;
 create policy "Allow participants to view applications"
   on public.applications for select
   to authenticated
@@ -208,6 +238,7 @@ create policy "Allow participants to view applications"
     or (candidate ->> 'id') = (select auth.uid())::text
   );
 
+drop policy if exists "Allow candidate to insert application" on public.applications;
 create policy "Allow candidate to insert application"
   on public.applications for insert
   to authenticated
@@ -216,6 +247,7 @@ create policy "Allow candidate to insert application"
     or (candidate ->> 'id') = (select auth.uid())::text
   );
 
+drop policy if exists "Allow guardian to update application" on public.applications;
 create policy "Allow guardian to update application"
   on public.applications for update
   to authenticated
@@ -223,6 +255,7 @@ create policy "Allow guardian to update application"
   with check (guardian_id = (select auth.uid())::text);
 
 -- Políticas para Mensagens de Candidatura
+drop policy if exists "Allow participants to read application messages" on public.application_messages;
 create policy "Allow participants to read application messages"
   on public.application_messages for select
   to authenticated
@@ -238,6 +271,7 @@ create policy "Allow participants to read application messages"
     )
   );
 
+drop policy if exists "Allow participants to insert application messages" on public.application_messages;
 create policy "Allow participants to insert application messages"
   on public.application_messages for insert
   to authenticated

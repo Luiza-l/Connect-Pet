@@ -48,7 +48,7 @@ export function Footer() {
             <Link href="/match" className="hover:text-sky-700 transition-colors">
               SmartMatch
             </Link>
-            <Link href="/login" className="hover:text-sky-700 transition-colors">
+            <Link href="/perfil" className="hover:text-sky-700 transition-colors">
               Perfil
             </Link>
           </nav>

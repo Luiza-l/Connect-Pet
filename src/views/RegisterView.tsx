@@ -241,8 +241,7 @@ export function RegisterView() {
             cpf: adopterCpf.trim(),
             socialMedia: adopterSocialMedia.trim() || undefined,
             profession: adopterProfession.trim(),
-            primaryPhone: adopterPhone.trim(),
-            avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&auto=format&fit=crop"
+            primaryPhone: adopterPhone.trim()
           }
         : {
             role: "guardian",
@@ -253,8 +252,7 @@ export function RegisterView() {
             city: ngoCity.trim(),
             state: "SP",
             neighborhood: "Centro",
-            verified: true,
-            avatar: "https://images.unsplash.com/photo-1548767797-d8c844163c4c?q=80&w=200&auto=format&fit=crop"
+            verified: true
           };
 
       // 1. Criar usuário no Supabase Auth (apenas uma chamada única)
@@ -305,7 +303,7 @@ export function RegisterView() {
             name: isAdopterRole ? adopterName.trim() : ngoName.trim(),
             email: targetEmail,
             primary_phone: isAdopterRole ? adopterPhone.trim() : "(11) 99888-7766",
-            avatar: metadata.avatar,
+            avatar: null,
             cpf: isAdopterRole ? adopterCpf.trim() : undefined,
             birth_date: isAdopterRole ? adopterBirthDate : undefined,
             profession: isAdopterRole ? adopterProfession.trim() : undefined,

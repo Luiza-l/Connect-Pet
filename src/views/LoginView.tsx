@@ -47,7 +47,7 @@ export function LoginView() {
       description: "Instituição sem fins lucrativos dedicada ao acolhimento e proteção de animais.",
       bio: "Trabalhando pelo bem-estar animal com muito amor e responsabilidade.",
       verified: true,
-      avatar: "https://images.unsplash.com/photo-1548767797-d8c844163c4c?q=80&w=400&auto=format&fit=crop"
+      avatar: undefined
     }),
     []
   );

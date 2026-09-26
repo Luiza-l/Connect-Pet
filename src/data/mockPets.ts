@@ -12,7 +12,17 @@ export const demoAdopter: AdopterProfile = {
   email: 'camila.rodrigues.arq@gmail.com',
   profession: 'Arquiteta e Urbanista',
   socialMedia: '@camila.arq.design',
-  avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop',
+  avatar: undefined,
+  city: 'São Paulo',
+  state: 'SP',
+  housingType: 'apartamento',
+  hasAdequateSpace: true,
+  hasOtherPets: true,
+  otherPetsDetails: '1 gatinho idoso e castrado',
+  hasChildren: false,
+  speciesPreference: 'both',
+  sizePreference: 'small',
+  bio: 'Amo animais desde a infância. Trabalho em formato híbrido e procuro um companheiro para compartilhar momentos e passeios diários.'
 };
 
 export const demoGuardian: GuardianProfile = {
@@ -30,7 +40,7 @@ export const demoGuardian: GuardianProfile = {
   description: 'Instituição sem fins lucrativos dedicada ao resgate, reabilitação e encaminhamento responsável de cães e gatos em situação de vulnerabilidade.',
   bio: 'Mais de 1.200 vidas transformadas desde 2018. Cada animal é castrado, microchipado, vacinado e acolhido em lar temporário com amor.',
   verified: true,
-  avatar: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?q=80&w=400&auto=format&fit=crop',
+  avatar: undefined,
 };
 
 export const mockPets: Pet[] = [

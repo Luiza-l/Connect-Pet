@@ -18,7 +18,9 @@ import {
   ChevronDown,
   Compass,
   FileCheck2,
-  LayoutDashboard
+  LayoutDashboard,
+  User,
+  UserCog
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -172,14 +174,18 @@ export function Navbar() {
                 }}
                 className="flex items-center gap-2.5 p-1.5 pr-3 rounded-full border border-border/60 bg-card hover:border-primary/40 shadow-sm transition-all text-left"
               >
-                <div className="w-8 h-8 rounded-full overflow-hidden relative border border-primary/20 bg-secondary">
-                  <Image
-                    src={currentUser.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop"}
-                    alt={currentUser.name}
-                    fill
-                    sizes="32px"
-                    className="object-cover"
-                  />
+                <div className="w-8 h-8 rounded-full overflow-hidden relative border border-primary/25 bg-sky-100 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300 flex items-center justify-center font-bold text-xs shrink-0">
+                  {currentUser.avatar ? (
+                    <Image
+                      src={currentUser.avatar}
+                      alt={currentUser.name}
+                      fill
+                      sizes="32px"
+                      className="object-cover"
+                    />
+                  ) : (
+                    <User className="w-4 h-4 text-sky-700 dark:text-sky-300" />
+                  )}
                 </div>
                 <div className="hidden md:flex flex-col">
                   <span className="text-xs font-bold text-foreground leading-tight truncate max-w-[130px]">
@@ -201,6 +207,15 @@ export function Navbar() {
                       {isAdopter ? "Candidato a Tutor" : "ONG / Protetor"}
                     </span>
                   </div>
+
+                  {/* Editar Perfil */}
+                  <Link
+                    href="/perfil"
+                    onClick={() => setProfileDropdownOpen(false)}
+                    className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-foreground rounded-xl hover:bg-secondary transition-colors"
+                  >
+                    <UserCog className="w-4 h-4 text-primary" /> Editar Perfil
+                  </Link>
 
                   {/* Panel Shortcut */}
                   {isAdopter && (
@@ -310,20 +325,36 @@ export function Navbar() {
             {currentUser ? (
               <div className="space-y-3">
                 <div className="flex items-center gap-3 p-3 bg-secondary/40 rounded-2xl">
-                  <div className="w-9 h-9 rounded-full overflow-hidden relative border border-primary/20 bg-secondary">
-                    <Image
-                      src={currentUser.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop"}
-                      alt={currentUser.name}
-                      fill
-                      sizes="36px"
-                      className="object-cover"
-                    />
+                  <div className="w-9 h-9 rounded-full overflow-hidden relative border border-primary/25 bg-sky-100 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300 flex items-center justify-center font-bold text-xs shrink-0">
+                    {currentUser.avatar ? (
+                      <Image
+                        src={currentUser.avatar}
+                        alt={currentUser.name}
+                        fill
+                        sizes="36px"
+                        className="object-cover"
+                      />
+                    ) : (
+                      <User className="w-4.5 h-4.5 text-sky-700 dark:text-sky-300" />
+                    )}
                   </div>
                   <div className="flex-1 truncate">
                     <p className="text-xs font-bold text-foreground">{currentUser.name}</p>
                     <p className="text-[11px] text-muted-foreground truncate">{currentUser.email}</p>
                   </div>
                 </div>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  asChild
+                  className="w-full text-xs font-medium rounded-xl"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Link href="/perfil" className="flex items-center justify-center gap-2">
+                    <UserCog className="w-3.5 h-3.5" /> Editar Perfil
+                  </Link>
+                </Button>
                 <Button
                   variant="outline"
                   size="sm"

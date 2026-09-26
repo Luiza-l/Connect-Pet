@@ -296,24 +296,24 @@ export function HomeView() {
       </section>
 
       {/* ========================================================================= */}
-      {/* 4. SEÇÃO: DICAS PARA CUIDAR DO SEU PET (AZUL COM ONDA E COMPOSIÇÃO)       */}
+      {/* 4. SEÇÃO: DICAS PARA CUIDAR DO SEU PET (AZUL COM ONDA EM NUVEM E DICAS)  */}
       {/* ========================================================================= */}
-      <section id="dicas" className="relative w-full bg-[#AEE0FF] pt-8 sm:pt-12 pb-0 mt-8 overflow-hidden">
+      <section id="dicas" className="relative w-full bg-[#AEE0FF] pt-12 sm:pt-16 pb-0 overflow-hidden">
         
-        {/* Onda Superior Transição -> Azul */}
-        <div className="w-full overflow-hidden leading-none absolute top-0 left-0 right-0 z-10 -mt-1">
+        {/* Onda Superior Estilo Nuvem Conectando 'Como Funciona' e 'Dicas' */}
+        <div className="w-full overflow-hidden leading-none absolute top-0 left-0 right-0 z-10 -mt-0.5">
           <svg
-            viewBox="0 0 1440 80"
+            viewBox="0 0 1440 120"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            className="w-full h-8 sm:h-14 text-white dark:text-[#080E1A] fill-current block transition-colors duration-300"
+            className="w-full h-12 sm:h-20 md:h-28 text-white dark:text-[#080E1A] fill-current block transition-colors duration-300"
             preserveAspectRatio="none"
           >
-            <path d="M0,0 L1440,0 L1440,30 C1120,75 880,10 540,55 C260,90 80,40 0,60 Z" />
+            <path d="M 0,0 L 1440,0 L 1440,30 C 1370,90 1290,115 1200,115 C 1110,115 1030,90 960,25 C 890,90 810,120 720,120 C 630,120 550,90 480,25 C 410,90 330,115 240,115 C 150,115 70,90 0,30 Z" />
           </svg>
         </div>
 
-        <div className="container mx-auto px-4 sm:px-6 pt-10 sm:pt-14 relative z-20 max-w-4xl text-center">
+        <div className="container mx-auto px-4 sm:px-6 pt-12 sm:pt-16 md:pt-20 relative z-20 max-w-4xl text-center">
           
           {/* Composição Ilustrada com Fundo Transparente (Dachshund, Setas e Dicas) */}
           <div className="relative w-full max-w-2xl mx-auto my-2 sm:my-4 px-2 select-none">

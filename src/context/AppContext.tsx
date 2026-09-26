@@ -9,7 +9,10 @@ import {
   ApplicationStatus,
   SmartMatchQuizData,
   MatchResult,
-  GuardianType
+  GuardianType,
+  HousingType,
+  SpeciesPreference,
+  SizePreference
 } from '../types';
 import { mockPets as initialMockPets, demoAdopter } from '../data/mockPets';
 import { createClient } from '@/lib/client';
@@ -31,6 +34,7 @@ interface AppContextType {
   // Current User
   currentUser: CurrentUser | null;
   setCurrentUser: (user: CurrentUser | null) => void;
+  updateUserProfile: (updates: Partial<CurrentUser> & { avatar?: string | null }) => Promise<void>;
   switchUser: (role: 'adopter' | 'guardian') => void;
   logout: () => void | Promise<void>;
 
@@ -137,6 +141,13 @@ function normalizePet(raw: unknown): Pet {
   };
 }
 
+function cleanAvatar(val: unknown): string | undefined {
+  if (typeof val === 'string' && val.trim().length > 0 && val !== 'null' && val !== 'undefined') {
+    return val.trim();
+  }
+  return undefined;
+}
+
 async function fetchUserProfile(supabaseClient: ReturnType<typeof createClient>, sessionUser: SupabaseUser): Promise<CurrentUser> {
   const meta = (sessionUser.user_metadata || {}) as Record<string, unknown>;
   const isGuardian = meta.role === 'guardian';
@@ -149,6 +160,11 @@ async function fetchUserProfile(supabaseClient: ReturnType<typeof createClient>,
       .maybeSingle();
 
     if (!error && profile) {
+      // Se profile.avatar foi explicitamente setado como null ou vazio, a foto foi removida do cadastro
+      const resolvedAvatar = (profile.avatar === null || profile.avatar === '')
+        ? undefined
+        : (cleanAvatar(profile.avatar) || cleanAvatar(meta.avatar));
+
       if (profile.role === 'guardian') {
         return {
           id: profile.id,
@@ -165,7 +181,7 @@ async function fetchUserProfile(supabaseClient: ReturnType<typeof createClient>,
           description: profile.description || undefined,
           bio: profile.bio || undefined,
           verified: profile.verified ?? false,
-          avatar: profile.avatar || (meta.avatar as string | undefined)
+          avatar: resolvedAvatar
         };
       } else {
         return {
@@ -180,7 +196,17 @@ async function fetchUserProfile(supabaseClient: ReturnType<typeof createClient>,
           email: profile.email || sessionUser.email || '',
           profession: profile.profession || undefined,
           socialMedia: profile.social_media || undefined,
-          avatar: profile.avatar || (meta.avatar as string | undefined)
+          avatar: resolvedAvatar,
+          city: profile.city || (meta.city as string | undefined) || '',
+          state: profile.state || (meta.state as string | undefined) || '',
+          housingType: (profile.housing_type as HousingType) || (meta.housingType as HousingType | undefined),
+          hasAdequateSpace: profile.has_adequate_space ?? (meta.hasAdequateSpace as boolean | undefined),
+          hasOtherPets: profile.has_other_pets ?? (meta.hasOtherPets as boolean | undefined),
+          otherPetsDetails: profile.other_pets_details || (meta.otherPetsDetails as string | undefined),
+          hasChildren: profile.has_children ?? (meta.hasChildren as boolean | undefined),
+          speciesPreference: (profile.species_preference as SpeciesPreference) || (meta.speciesPreference as SpeciesPreference | undefined),
+          sizePreference: (profile.size_preference as SizePreference) || (meta.sizePreference as SizePreference | undefined),
+          bio: profile.bio || (meta.bio as string | undefined)
         };
       }
     }
@@ -204,8 +230,9 @@ async function fetchUserProfile(supabaseClient: ReturnType<typeof createClient>,
       neighborhood: String(meta.neighborhood || 'Centro'),
       description: meta.description ? String(meta.description) : undefined,
       bio: meta.bio ? String(meta.bio) : undefined,
+      socialMedia: meta.socialMedia ? String(meta.socialMedia) : undefined,
       verified: !!meta.verified,
-      avatar: meta.avatar ? String(meta.avatar) : undefined
+      avatar: cleanAvatar(meta.avatar)
     };
   }
 
@@ -221,7 +248,17 @@ async function fetchUserProfile(supabaseClient: ReturnType<typeof createClient>,
     email: sessionUser.email || '',
     profession: meta.profession ? String(meta.profession) : undefined,
     socialMedia: meta.socialMedia ? String(meta.socialMedia) : undefined,
-    avatar: meta.avatar ? String(meta.avatar) : undefined
+    avatar: cleanAvatar(meta.avatar),
+    city: String(meta.city || ''),
+    state: String(meta.state || ''),
+    housingType: (meta.housingType as HousingType | undefined),
+    hasAdequateSpace: (meta.hasAdequateSpace as boolean | undefined),
+    hasOtherPets: (meta.hasOtherPets as boolean | undefined),
+    otherPetsDetails: meta.otherPetsDetails ? String(meta.otherPetsDetails) : undefined,
+    hasChildren: (meta.hasChildren as boolean | undefined),
+    speciesPreference: (meta.speciesPreference as SpeciesPreference | undefined),
+    sizePreference: (meta.sizePreference as SizePreference | undefined),
+    bio: meta.bio ? String(meta.bio) : undefined
   };
 }
 
@@ -666,7 +703,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       description: 'Instituição sem fins lucrativos dedicada ao acolhimento e proteção de animais.',
       bio: 'Trabalhando pelo bem-estar animal com amor e transparência.',
       verified: true,
-      avatar: 'https://images.unsplash.com/photo-1548767797-d8c844163c4c?q=80&w=400&auto=format&fit=crop'
+      avatar: undefined
     } : demoAdopter;
 
     setCurrentUserState(userToSet);
@@ -692,6 +729,74 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     } catch { }
     showToast('Sessão encerrada', 'Você saiu da sua conta com sucesso.', 'info');
   }, [supabase, showToast]);
+
+  // Atualizar perfil do usuário com sincronização no Supabase e persistência local
+  const updateUserProfile = useCallback(async (updates: Partial<CurrentUser> & { avatar?: string | null }) => {
+    if (!currentUser) return;
+    const isRemovingAvatar = updates.avatar === null || updates.avatar === '';
+    const newAvatar = isRemovingAvatar ? undefined : (updates.avatar ?? currentUser.avatar);
+
+    const updatedUser = {
+      ...currentUser,
+      ...updates,
+      avatar: newAvatar
+    } as CurrentUser;
+
+    setCurrentUserState(updatedUser);
+    try {
+      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(updatedUser));
+    } catch { }
+
+    if (supabase) {
+      try {
+        await supabase.auth.updateUser({
+          data: {
+            ...updates,
+            avatar: newAvatar || null
+          }
+        });
+
+        const dbUpdates: Record<string, unknown> = {
+          name: updatedUser.name,
+          primary_phone: updatedUser.primaryPhone,
+          avatar: newAvatar || null
+        };
+
+        if (updatedUser.role === 'adopter') {
+          if (updatedUser.birthDate) dbUpdates.birth_date = updatedUser.birthDate;
+          if (updatedUser.profession) dbUpdates.profession = updatedUser.profession;
+          if (updatedUser.socialMedia !== undefined) dbUpdates.social_media = updatedUser.socialMedia;
+          if (updatedUser.city !== undefined) dbUpdates.city = updatedUser.city;
+          if (updatedUser.state !== undefined) dbUpdates.state = updatedUser.state;
+          if (updatedUser.housingType !== undefined) dbUpdates.housing_type = updatedUser.housingType;
+          if (updatedUser.hasAdequateSpace !== undefined) dbUpdates.has_adequate_space = updatedUser.hasAdequateSpace;
+          if (updatedUser.hasOtherPets !== undefined) dbUpdates.has_other_pets = updatedUser.hasOtherPets;
+          if (updatedUser.otherPetsDetails !== undefined) dbUpdates.other_pets_details = updatedUser.otherPetsDetails;
+          if (updatedUser.hasChildren !== undefined) dbUpdates.has_children = updatedUser.hasChildren;
+          if (updatedUser.speciesPreference !== undefined) dbUpdates.species_preference = updatedUser.speciesPreference;
+          if (updatedUser.sizePreference !== undefined) dbUpdates.size_preference = updatedUser.sizePreference;
+          if (updatedUser.bio !== undefined) dbUpdates.bio = updatedUser.bio;
+        } else {
+          if (updatedUser.city !== undefined) dbUpdates.city = updatedUser.city;
+          if (updatedUser.state !== undefined) dbUpdates.state = updatedUser.state;
+          if (updatedUser.neighborhood !== undefined) dbUpdates.neighborhood = updatedUser.neighborhood;
+          if (updatedUser.responsibleName !== undefined) dbUpdates.responsible_name = updatedUser.responsibleName;
+          if (updatedUser.bio !== undefined) dbUpdates.bio = updatedUser.bio;
+          if (updatedUser.description !== undefined) dbUpdates.description = updatedUser.description;
+          if (updatedUser.socialMedia !== undefined) dbUpdates.social_media = updatedUser.socialMedia;
+        }
+
+        await supabase
+          .from('profiles')
+          .update(dbUpdates)
+          .eq('id', updatedUser.id);
+      } catch (err) {
+        console.warn('Supabase profile update note:', err);
+      }
+    }
+
+    showToast('Perfil atualizado com sucesso!', 'Suas informações foram salvas.', 'success');
+  }, [currentUser, showToast, supabase]);
 
   // Pets Management
   const addPet = useCallback((newPetData: Omit<Pet, 'id' | 'createdAt'>) => {
@@ -1394,6 +1499,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setTheme,
     currentUser,
     setCurrentUser,
+    updateUserProfile,
     switchUser,
     logout,
     pets,
@@ -1420,6 +1526,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setTheme,
     currentUser,
     setCurrentUser,
+    updateUserProfile,
     switchUser,
     logout,
     pets,
