@@ -12,6 +12,7 @@ import {
   PawPrint,
   ArrowRight
 } from "lucide-react";
+import { PawWatermark } from "@/components/ui/PawWatermark";
 
 export function HomeView() {
   const { pets, isFavorite, toggleFavorite } = useApp();
@@ -26,6 +27,47 @@ export function HomeView() {
       {/* 1. SEÇÃO HERO (AZUL-CLARA COM ANIMAIS NAS LATERAIS E DIVISÃO EM ONDA)     */}
       {/* ========================================================================= */}
       <section className="relative w-full bg-[#AEE0FF] pt-12 sm:pt-16 pb-0 overflow-hidden">
+        {/* Patinhas Decorativas no Banner em tom de azul levemente mais escuro */}
+        {/* Patinha Superior Esquerda (acima do Dálmata) */}
+        <div className="absolute left-[10%] sm:left-[14%] md:left-[18%] lg:left-[21%] top-6 sm:top-8 md:top-10 z-0">
+          <PawWatermark
+            rotate={-20}
+            className="w-10 h-10 sm:w-14 sm:h-14 lg:w-16 lg:h-16 text-sky-600/55 dark:text-sky-300/35"
+          />
+        </div>
+
+        {/* Nova Patinha Meio Esquerda (posicionada mais para baixo) */}
+        <div className="absolute left-[19%] sm:left-[22%] md:left-[25%] lg:left-[27%] bottom-14 sm:bottom-18 md:bottom-22 z-0">
+          <PawWatermark
+            rotate={14}
+            className="w-9 h-9 sm:w-12 sm:h-12 lg:w-14 lg:h-14 text-sky-600/50 dark:text-sky-300/30"
+          />
+        </div>
+
+        {/* Patinha Inferior Esquerda (próxima à lateral do Dálmata) */}
+        <div className="absolute left-[4%] sm:left-[7%] lg:left-[9%] bottom-20 sm:bottom-24 z-0">
+          <PawWatermark
+            rotate={24}
+            className="w-8 h-8 sm:w-11 sm:h-11 lg:w-13 lg:h-13 text-sky-600/45 dark:text-sky-300/25"
+          />
+        </div>
+
+        {/* Patinha Lateral Direita (perto do Border Collie) */}
+        <div className="absolute right-[10%] sm:right-[14%] md:right-[18%] lg:right-[19%] top-20 sm:top-24 md:top-50 z-0">
+          <PawWatermark
+            rotate={18}
+            className="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 text-sky-600/55 dark:text-sky-300/35"
+          />
+        </div>
+
+        {/* Patinha Suave Superior Direita */}
+        <div className="absolute right-[32%] top-4 sm:top-6 z-0 hidden sm:block">
+          <PawWatermark
+            rotate={-12}
+            className="w-7 h-7 sm:w-9 sm:h-9 text-sky-600/40 dark:text-sky-300/25"
+          />
+        </div>
+
         {/* Animal da Lateral Esquerda (Dálmata inclinado) */}
         <div className="absolute left-0 bottom-6 sm:bottom-10 md:bottom-12 z-10 w-32 sm:w-48 md:w-64 lg:w-72 max-w-[32vw] select-none pointer-events-none transition-transform duration-300 hover:scale-105">
           <Image
@@ -299,6 +341,102 @@ export function HomeView() {
       {/* 4. SEÇÃO: DICAS PARA CUIDAR DO SEU PET (AZUL COM ONDA EM NUVEM E DICAS)  */}
       {/* ========================================================================= */}
       <section id="dicas" className="relative w-full bg-[#AEE0FF] pt-12 sm:pt-16 pb-0 overflow-hidden">
+        {/* Patinhas decorativas distribuídas organicamente e de forma assimétrica pelo fundo azul */}
+        {/* 1. Esquerda alta, inclinada perto da curva da nuvem */}
+        <div className="absolute left-[7%] sm:left-[11%] lg:left-[13%] top-16 sm:top-20 z-10">
+          <PawWatermark
+            rotate={-32}
+            className="w-12 h-12 sm:w-15 sm:h-15 lg:w-17 lg:h-17 text-sky-600/55 dark:text-sky-300/35"
+          />
+        </div>
+
+        {/* 2. Esquerda intermediária mais interna */}
+        <div className="absolute left-[16%] sm:left-[20%] lg:left-[23%] top-36 sm:top-40 z-10 hidden sm:block">
+          <PawWatermark
+            rotate={14}
+            className="w-8 h-8 sm:w-11 sm:h-11 text-sky-600/40 dark:text-sky-300/25"
+          />
+        </div>
+
+        {/* 3. Esquerda na borda extrema média-baixa */}
+        <div className="absolute left-[2%] sm:left-[4%] lg:left-[6%] top-[56%] -translate-y-1/2 z-10">
+          <PawWatermark
+            rotate={-18}
+            className="w-10 h-10 sm:w-13 sm:h-13 lg:w-15 lg:h-15 text-sky-600/50 dark:text-sky-300/30"
+          />
+        </div>
+
+        {/* 4. Esquerda inferior caminhando para o centro */}
+        <div className="absolute left-[12%] sm:left-[15%] lg:left-[18%] bottom-20 sm:bottom-24 z-10">
+          <PawWatermark
+            rotate={26}
+            className="w-9 h-9 sm:w-12 sm:h-12 text-sky-600/45 dark:text-sky-300/30"
+          />
+        </div>
+
+        {/* 5. Canto inferior esquerdo perto da onda */}
+        <div className="absolute left-[4%] sm:left-[7%] bottom-8 sm:bottom-10 z-10">
+          <PawWatermark
+            rotate={-8}
+            className="w-11 h-11 sm:w-14 sm:h-14 text-sky-600/45 dark:text-sky-300/25"
+          />
+        </div>
+
+        {/* 6. Centro-topo suave esquerdo */}
+        <div className="absolute left-[33%] top-8 sm:top-12 z-10 hidden md:block">
+          <PawWatermark
+            rotate={-12}
+            className="w-7 h-7 sm:w-9 sm:h-9 text-sky-600/35 dark:text-sky-300/20"
+          />
+        </div>
+
+        {/* 7. Direita alta bem perto do topo */}
+        <div className="absolute right-[14%] sm:right-[18%] lg:right-[21%] top-12 sm:top-14 z-10">
+          <PawWatermark
+            rotate={20}
+            className="w-9 h-9 sm:w-12 sm:h-12 text-sky-600/45 dark:text-sky-300/30"
+          />
+        </div>
+
+        {/* 8. Direita externa superior */}
+        <div className="absolute right-[3%] sm:right-[5%] lg:right-[8%] top-28 sm:top-32 z-10">
+          <PawWatermark
+            rotate={-25}
+            className="w-12 h-12 sm:w-15 sm:h-15 lg:w-17 lg:h-17 text-sky-600/55 dark:text-sky-300/35"
+          />
+        </div>
+
+        {/* 9. Direita média mais recolhida para dentro */}
+        <div className="absolute right-[11%] sm:right-[14%] lg:right-[16%] top-[50%] -translate-y-1/2 z-10">
+          <PawWatermark
+            rotate={12}
+            className="w-10 h-10 sm:w-13 sm:h-13 text-sky-600/45 dark:text-sky-300/30"
+          />
+        </div>
+
+        {/* 10. Direita borda extrema inferior */}
+        <div className="absolute right-[2%] sm:right-[4%] lg:right-[6%] bottom-28 sm:bottom-32 z-10">
+          <PawWatermark
+            rotate={-16}
+            className="w-8 h-8 sm:w-11 sm:h-11 text-sky-600/40 dark:text-sky-300/25"
+          />
+        </div>
+
+        {/* 11. Direita inferior caminhando para a onda de baixo */}
+        <div className="absolute right-[18%] sm:right-[22%] lg:right-[25%] bottom-10 sm:bottom-14 z-10">
+          <PawWatermark
+            rotate={30}
+            className="w-11 h-11 sm:w-14 sm:h-14 text-sky-600/50 dark:text-sky-300/30"
+          />
+        </div>
+
+        {/* 12. Centro-inferior direito perto da borda da onda */}
+        <div className="absolute right-[34%] bottom-6 sm:bottom-8 z-10 hidden md:block">
+          <PawWatermark
+            rotate={16}
+            className="w-8 h-8 sm:w-10 sm:h-10 text-sky-600/35 dark:text-sky-300/20"
+          />
+        </div>
         
         {/* Onda Superior Estilo Nuvem Conectando 'Como Funciona' e 'Dicas' */}
         <div className="w-full overflow-hidden leading-none absolute top-0 left-0 right-0 z-10 -mt-0.5">
