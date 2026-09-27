@@ -14,3 +14,4 @@ O projeto busca tornar o processo de adoção mais **humanizado, seguro e respon
 - [Tailwind CSS](https://tailwindcss.com/) — Estilização
 - [shadcn/ui](https://ui.shadcn.com/) — Componentes de interface
 - [Motion](https://motion.dev/) — Animações e microinterações
+- [Supabase](https://supabase.com/) — Banco de dados e autenticação
