@@ -1,4 +1,4 @@
-# 🐾 Plataforma de Adoção de Pets
+# 🐾 ConnectPet - Plataforma de Adoção de Pets
 
 Plataforma web desenvolvida para conectar pessoas interessadas em adotar animais a tutores, protetores e ONGs que disponibilizam pets para adoção.
 
