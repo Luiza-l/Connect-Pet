@@ -444,6 +444,9 @@ export function RegisterView() {
                       className="w-full pl-10 pr-3 py-2.5 rounded-xl border border-border bg-background text-xs"
                     />
                   </div>
+                  <p className="text-[10px] text-muted-foreground">
+                    Definida uma única vez no cadastro; não poderá ser alterada no dossiê de adoção.
+                  </p>
                 </div>
 
                 <div className="space-y-1">

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import confetti from "canvas-confetti";
-import { Pet, PreAdoptionApplication } from "@/types";
+import { Pet, PreAdoptionApplication, AdopterProfile } from "@/types";
 import { useApp } from "@/context/AppContext";
 import {
   X,
@@ -33,16 +33,17 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
 
   // Form state initialized with current user if adopter
   const isAdopter = currentUser?.role === "adopter";
-  const adopterData = isAdopter ? currentUser : null;
+  const adopterData = isAdopter ? (currentUser as AdopterProfile) : null;
+  const initialBirthDate = adopterData?.birthDate || "1998-01-01";
 
   const [formData, setFormData] = useState({
     // Step 1: Candidate
-    name: adopterData?.name || "",
-    birthDate: adopterData?.birthDate || "1998-01-01",
+    name: adopterData?.name || currentUser?.name || "",
+    birthDate: initialBirthDate,
     profession: adopterData?.profession || "",
-    primaryPhone: adopterData?.primaryPhone || "",
-    email: adopterData?.email || "",
-    socialMedia: adopterData?.socialMedia || "",
+    primaryPhone: adopterData?.primaryPhone || currentUser?.primaryPhone || "",
+    email: adopterData?.email || currentUser?.email || "",
+    socialMedia: adopterData?.socialMedia || currentUser?.socialMedia || "",
     cpf: adopterData?.cpf || "",
     rg: adopterData?.rg || "",
 
@@ -86,8 +87,10 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
 
   if (!isOpen) return null;
 
-  const currentAge = calculateAge(formData.birthDate);
-  const isCandidateAdultEnough = isAgeAllowed(formData.birthDate);
+  // A data de nascimento no dossiê é estritamente a data definida na conta
+  const candidateBirthDate = adopterData?.birthDate || formData.birthDate;
+  const currentAge = calculateAge(candidateBirthDate);
+  const isCandidateAdultEnough = isAgeAllowed(candidateBirthDate);
 
   const handleNext = () => {
     setValidationError(null);
@@ -104,8 +107,8 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
         setValidationError("Por favor, informe seu nome completo.");
         return;
       }
-      if (!formData.birthDate) {
-        setValidationError("Por favor, informe sua data de nascimento.");
+      if (!candidateBirthDate) {
+        setValidationError("Data de nascimento obrigatória. Cadastre sua data de nascimento no seu perfil para continuar.");
         return;
       }
       if (!isCandidateAdultEnough) {
@@ -169,7 +172,7 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
         candidateId: currentUser?.id || "guest-adopter",
         candidate: {
           name: formData.name,
-          birthDate: formData.birthDate,
+          birthDate: candidateBirthDate,
           profession: formData.profession,
           primaryPhone: formData.primaryPhone,
           email: formData.email,
@@ -315,8 +318,14 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
 
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-foreground flex items-center justify-between">
-                    <span>Data de Nascimento *</span>
-                    {formData.birthDate && (
+                    <span className="flex items-center gap-1.5">
+                      <span>Data de Nascimento *</span>
+                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-full border border-border">
+                        <Lock className="w-3 h-3 text-amber-500" />
+                        Bloqueada para alteração
+                      </span>
+                    </span>
+                    {candidateBirthDate && (
                       <span className={`text-[11px] font-bold ${isCandidateAdultEnough ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600"}`}>
                         {currentAge} anos ({isCandidateAdultEnough ? "Permitido 21+" : "Menor de 21 anos"})
                       </span>
@@ -325,15 +334,17 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
                   <div className="relative">
                     <input
                       type="date"
-                      value={formData.birthDate}
-                      onChange={(e) => setFormData({ ...formData, birthDate: e.target.value })}
-                      className={`w-full px-3.5 py-2.5 rounded-xl border text-sm bg-background focus:outline-none focus:ring-2 ${
-                        isCandidateAdultEnough
-                          ? "border-border focus:ring-primary"
-                          : "border-rose-500 text-rose-600 focus:ring-rose-500"
-                      }`}
+                      value={candidateBirthDate}
+                      readOnly
+                      disabled
+                      aria-readonly="true"
+                      className="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-border bg-muted/60 dark:bg-muted/40 text-muted-foreground text-sm cursor-not-allowed select-none opacity-85 focus:outline-none"
                     />
+                    <Lock className="w-4 h-4 text-muted-foreground absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    A data de nascimento é vinculada ao cadastro da sua conta e não pode ser modificada no dossiê de adoção.
+                  </p>
                   {!isCandidateAdultEnough && (
                     <p className="text-[11px] text-rose-600 font-medium">
                       Bloqueado: Para submeter formulário de adoção responsável você precisa ter 21 anos completos.

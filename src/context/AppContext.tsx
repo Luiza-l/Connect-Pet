@@ -5,6 +5,7 @@ import type { User as SupabaseUser } from '@supabase/supabase-js';
 import {
   Pet,
   CurrentUser,
+  AdopterProfile,
   PreAdoptionApplication,
   ApplicationStatus,
   SmartMatchQuizData,
@@ -739,9 +740,16 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const isRemovingAvatar = updates.avatar === null || updates.avatar === '';
     const newAvatar = isRemovingAvatar ? undefined : (updates.avatar ?? currentUser.avatar);
 
+    // Regra estrita: a data de nascimento só pode ser preenchida uma única vez no cadastro
+    // Se o usuário atual já tiver birthDate registrado, ele não pode ser sobrescrito
+    const currentBirthDate = currentUser.role === 'adopter' ? (currentUser as AdopterProfile).birthDate : undefined;
+    const incomingBirthDate = 'birthDate' in updates ? (updates as { birthDate?: string }).birthDate : undefined;
+    const safeBirthDate = currentBirthDate || incomingBirthDate;
+
     const updatedUser = {
       ...currentUser,
       ...updates,
+      ...(safeBirthDate && currentUser.role === 'adopter' ? { birthDate: safeBirthDate } : {}),
       avatar: newAvatar
     } as CurrentUser;
 
@@ -766,7 +774,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         };
 
         if (updatedUser.role === 'adopter') {
-          if (updatedUser.birthDate) dbUpdates.birth_date = updatedUser.birthDate;
+          if (safeBirthDate) dbUpdates.birth_date = safeBirthDate;
           if (updatedUser.profession) dbUpdates.profession = updatedUser.profession;
           if (updatedUser.socialMedia !== undefined) dbUpdates.social_media = updatedUser.socialMedia;
           if (updatedUser.city !== undefined) dbUpdates.city = updatedUser.city;
@@ -1242,9 +1250,20 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   // Applications
   const submitApplication = useCallback((data: Omit<PreAdoptionApplication, 'id' | 'createdAt' | 'status' | 'notes' | 'messages' | 'automatedAnalysis'>): PreAdoptionApplication => {
-    const analysis = analyzeDossier(data);
-    const newApp: PreAdoptionApplication = {
+    // Garantir imutabilidade da data de nascimento no dossiê de adoção
+    const userBirthDate = currentUser?.role === 'adopter' ? (currentUser as AdopterProfile).birthDate : undefined;
+    const effectiveBirthDate = userBirthDate || data.candidate.birthDate;
+    const sanitizedData = {
       ...data,
+      candidate: {
+        ...data.candidate,
+        birthDate: effectiveBirthDate
+      }
+    };
+
+    const analysis = analyzeDossier(sanitizedData);
+    const newApp: PreAdoptionApplication = {
+      ...sanitizedData,
       id: `app-${Date.now()}`,
       createdAt: new Date().toISOString(),
       status: 'pending',
@@ -1349,7 +1368,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
 
     return newApp;
-  }, [analyzeDossier, showToast, supabase]);
+  }, [analyzeDossier, currentUser, showToast, supabase]);
 
   const updateApplicationStatus = useCallback((appId: string, status: ApplicationStatus) => {
     setApplicationsState((prev) => {

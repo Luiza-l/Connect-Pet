@@ -23,7 +23,8 @@ import {
   ShieldCheck,
   CheckCircle2,
   Building,
-  FileText
+  FileText,
+  Lock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,6 +46,7 @@ function ProfileForm({ user }: { user: CurrentUser }) {
   const isAdopter = user.role === "adopter";
   const adopterUser = isAdopter ? (user as AdopterProfile) : null;
   const guardianUser = !isAdopter ? (user as GuardianProfile) : null;
+  const isBirthDateLocked = Boolean(adopterUser?.birthDate);
 
   // Form states inicializados diretamente das props
   const [name, setName] = useState(user.name || "");
@@ -162,10 +164,11 @@ function ProfileForm({ user }: { user: CurrentUser }) {
     setIsSaving(true);
     try {
       if (isAdopter) {
+        const finalBirthDate = isBirthDateLocked ? (adopterUser?.birthDate || birthDate) : birthDate;
         await updateUserProfile({
           name: name.trim(),
           primaryPhone: primaryPhone.trim(),
-          birthDate,
+          birthDate: finalBirthDate,
           profession: profession.trim(),
           socialMedia: socialMedia.trim() || undefined,
           avatar: avatar ? avatar : null,
@@ -387,7 +390,15 @@ function ProfileForm({ user }: { user: CurrentUser }) {
               {isAdopter && (
                 <div className="space-y-2">
                   <Label htmlFor="birthDate" className="text-xs font-bold text-foreground flex items-center justify-between">
-                    <span>Data de Nascimento</span>
+                    <span className="flex items-center gap-1.5">
+                      <span>Data de Nascimento</span>
+                      {isBirthDateLocked && (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-full border border-border">
+                          <Lock className="w-3 h-3 text-amber-500" />
+                          Definida no cadastro
+                        </span>
+                      )}
+                    </span>
                     {age !== null && (
                       <span className="text-[11px] font-bold text-primary">
                         {age} anos {age >= 21 ? "• Apto para adotar" : "• Mínimo 21 anos"}
@@ -399,11 +410,29 @@ function ProfileForm({ user }: { user: CurrentUser }) {
                       id="birthDate"
                       type="date"
                       value={birthDate}
-                      onChange={(e) => setBirthDate(e.target.value)}
-                      className="rounded-xl border-border bg-background pl-9"
+                      disabled={isBirthDateLocked}
+                      readOnly={isBirthDateLocked}
+                      onChange={(e) => !isBirthDateLocked && setBirthDate(e.target.value)}
+                      className={`min-h-[44px] rounded-xl border-border pl-9 ${
+                        isBirthDateLocked
+                          ? "bg-muted/60 dark:bg-muted/40 text-muted-foreground cursor-not-allowed opacity-85 select-none"
+                          : "bg-background"
+                      }`}
                     />
-                    <Calendar className="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
+                    <Calendar className="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    {isBirthDateLocked && (
+                      <Lock className="w-4 h-4 text-muted-foreground absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none" />
+                    )}
                   </div>
+                  {isBirthDateLocked ? (
+                    <p className="text-[11px] text-muted-foreground">
+                      A data de nascimento só pode ser definida uma única vez na criação da conta e não pode ser modificada por motivos de segurança e integridade do dossiê.
+                    </p>
+                  ) : (
+                    <p className="text-[11px] text-amber-600 dark:text-amber-400">
+                      Atenção: A data de nascimento só poderá ser informada uma única vez e será bloqueada para futuras alterações.
+                    </p>
+                  )}
                 </div>
               )}
 
