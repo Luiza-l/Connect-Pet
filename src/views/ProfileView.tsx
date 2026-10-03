@@ -799,7 +799,7 @@ function ProfileForm({ user }: { user: CurrentUser }) {
                     id="state"
                     value={state}
                     onChange={(e) => setState(e.target.value)}
-                    className="w-full h-9 rounded-xl border border-border bg-background px-3 text-xs text-foreground"
+                    className="w-full min-h-[44px] rounded-xl border border-border bg-background px-3 text-xs text-foreground cursor-pointer"
                   >
                     {BRAZILIAN_STATES.map((uf) => (
                       <option key={uf} value={uf}>{uf}</option>
@@ -814,7 +814,7 @@ function ProfileForm({ user }: { user: CurrentUser }) {
                     type="text"
                     value={neighborhood}
                     onChange={(e) => setNeighborhood(e.target.value)}
-                    className="rounded-xl border-border bg-background"
+                    className="rounded-xl border-border bg-background min-h-[44px]"
                   />
                 </div>
 
@@ -839,7 +839,7 @@ function ProfileForm({ user }: { user: CurrentUser }) {
               type="button"
               variant="outline"
               onClick={() => router.push(isAdopter ? "/pets" : "/dashboard")}
-              className="w-full sm:w-auto rounded-full px-6"
+              className="w-full sm:w-auto rounded-full px-6 min-h-[44px]"
             >
               Cancelar
             </Button>
@@ -847,7 +847,7 @@ function ProfileForm({ user }: { user: CurrentUser }) {
             <Button
               type="submit"
               disabled={isSaving}
-              className="w-full sm:w-auto rounded-full px-8 bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-md hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+              className="w-full sm:w-auto rounded-full px-8 bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-md hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2 min-h-[44px]"
             >
               <Save className="w-4 h-4" />
               <span>{isSaving ? "Salvando..." : "Salvar Alterações"}</span>
@@ -879,10 +879,10 @@ export function ProfileView() {
           </p>
         </div>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
-          <Button asChild className="w-full sm:w-auto rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-8">
+          <Button asChild className="w-full sm:w-auto rounded-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-8 min-h-[44px]">
             <Link href="/login">Entrar</Link>
           </Button>
-          <Button asChild variant="outline" className="w-full sm:w-auto rounded-full px-8">
+          <Button asChild variant="outline" className="w-full sm:w-auto rounded-full px-8 min-h-[44px]">
             <Link href="/cadastro">Criar Conta</Link>
           </Button>
         </div>

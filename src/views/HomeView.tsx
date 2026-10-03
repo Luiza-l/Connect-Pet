@@ -69,7 +69,7 @@ export function HomeView() {
         </div>
 
         {/* Animal da Lateral Esquerda (Dálmata inclinado) */}
-        <div className="absolute left-0 bottom-6 sm:bottom-10 md:bottom-12 z-10 w-32 sm:w-48 md:w-64 lg:w-72 max-w-[32vw] select-none pointer-events-none transition-transform duration-300 hover:scale-105">
+        <div className="absolute left-0 bottom-6 sm:bottom-10 md:bottom-12 z-10 w-24 sm:w-44 md:w-60 lg:w-72 max-w-[22vw] sm:max-w-[28vw] md:max-w-[32vw] select-none pointer-events-none transition-transform duration-300 hover:scale-105">
           <Image
             src="/images/home/hero-dog-left.png"
             alt="Cachorro Dálmata espiando"
@@ -81,7 +81,7 @@ export function HomeView() {
         </div>
 
         {/* Animal da Lateral Direita (Border Collie espiando da margem) */}
-        <div className="absolute right-0 bottom-6 sm:bottom-10 md:bottom-12 z-10 w-24 sm:w-36 md:w-48 lg:w-56 max-w-[28vw] select-none pointer-events-none transition-transform duration-300 hover:scale-105">
+        <div className="absolute right-0 bottom-6 sm:bottom-10 md:bottom-12 z-10 w-20 sm:w-32 md:w-44 lg:w-56 max-w-[18vw] sm:max-w-[24vw] md:max-w-[28vw] select-none pointer-events-none transition-transform duration-300 hover:scale-105">
           <Image
             src="/images/home/hero-dog-right.png"
             alt="Cachorro Border Collie espiando pela borda"
@@ -94,10 +94,10 @@ export function HomeView() {
 
         {/* Conteúdo central respirável do Hero */}
         <div className="container mx-auto px-4 sm:px-6 relative z-10 text-center min-h-[160px] sm:min-h-[220px] md:min-h-[280px] flex flex-col items-center justify-center">
-          <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/75 backdrop-blur-md border border-white/80 text-sky-800 text-xs sm:text-sm font-bold shadow-sm mb-3 animate-in fade-in">
+          <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-white/75 backdrop-blur-md border border-white/80 text-sky-800 text-xs sm:text-sm font-bold shadow-sm mb-3 animate-in fade-in">
             <Sparkles className="w-4 h-4 text-sky-600" /> Acolhimento & Adoção Responsável
           </span>
-          <h1 className="font-serif text-3xl sm:text-5xl lg:text-6xl font-extrabold text-sky-950 tracking-tight max-w-2xl leading-tight drop-shadow-sm">
+          <h1 className="font-serif text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-sky-950 tracking-tight max-w-2xl leading-tight drop-shadow-sm">
             Encontre o novo membro da sua família
           </h1>
           <p className="text-sky-900/80 text-xs sm:text-base font-medium max-w-lg mt-2 leading-relaxed">
@@ -526,10 +526,10 @@ export function HomeView() {
                         toggleFavorite(pet.id);
                       }}
                       aria-label={favorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
-                      className="absolute top-3 right-3 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-white/95 dark:bg-slate-900/90 border border-transparent dark:border-white/10 backdrop-blur-sm flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-rose-500 shadow-md hover:scale-110 active:scale-95 transition-all"
+                      className="absolute top-2.5 right-2.5 min-h-[44px] min-w-[44px] rounded-full bg-white/95 dark:bg-slate-900/90 border border-transparent dark:border-white/10 backdrop-blur-sm flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-rose-500 shadow-md hover:scale-110 active:scale-95 transition-all"
                     >
                       <Heart
-                        className={`w-4 h-4 sm:w-4.5 sm:h-4.5 transition-colors ${
+                        className={`w-5 h-5 transition-colors ${
                           favorite ? "fill-rose-500 text-rose-500" : ""
                         }`}
                       />

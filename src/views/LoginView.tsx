@@ -143,8 +143,8 @@ export function LoginView() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-16 min-h-[85vh] flex items-center justify-center">
-      <div className="w-full max-w-md bg-card rounded-3xl border border-border shadow-xl p-8 space-y-6 animate-in fade-in">
+    <div className="container mx-auto px-4 py-12 sm:py-16 min-h-[85vh] flex items-center justify-center">
+      <div className="w-full max-w-md bg-card rounded-3xl border border-border shadow-xl p-5 sm:p-8 space-y-6 animate-in fade-in">
         
         {/* Header */}
         <div className="text-center space-y-2">
@@ -164,7 +164,7 @@ export function LoginView() {
           <button
             type="button"
             onClick={() => setRoleTab("adopter")}
-            className={`py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+            className={`py-2 rounded-xl text-xs font-bold transition-all min-h-[44px] flex items-center justify-center gap-1.5 ${
               roleTab === "adopter"
                 ? "bg-background text-primary shadow-sm"
                 : "text-muted-foreground hover:text-foreground"
@@ -175,7 +175,7 @@ export function LoginView() {
           <button
             type="button"
             onClick={() => setRoleTab("guardian")}
-            className={`py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
+            className={`py-2 rounded-xl text-xs font-bold transition-all min-h-[44px] flex items-center justify-center gap-1.5 ${
               roleTab === "guardian"
                 ? "bg-background text-primary shadow-sm"
                 : "text-muted-foreground hover:text-foreground"

@@ -263,10 +263,10 @@ export function GuardianDashboardView() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-full sm:w-auto">
           <Button
             onClick={() => setIsAddPetModalOpen(true)}
-            className="rounded-full text-xs font-bold bg-primary hover:bg-primary/90 shadow-md"
+            className="rounded-full text-xs font-bold bg-primary hover:bg-primary/90 shadow-md min-h-[44px] w-full sm:w-auto"
           >
             <Plus className="w-4 h-4 mr-1.5" /> Cadastrar Novo Pet
           </Button>
@@ -274,10 +274,10 @@ export function GuardianDashboardView() {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="flex border-b border-border/60 gap-4">
+      <div className="flex border-b border-border/60 gap-4 overflow-x-auto whitespace-nowrap no-scrollbar pb-1">
         <button
           onClick={() => setActiveTab("applications")}
-          className={`pb-3 text-xs sm:text-sm font-bold flex items-center gap-2 border-b-2 transition-all ${activeTab === "applications"
+          className={`pb-3 min-h-[44px] shrink-0 text-xs sm:text-sm font-bold flex items-center gap-2 border-b-2 transition-all ${activeTab === "applications"
               ? "border-primary text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
@@ -287,7 +287,7 @@ export function GuardianDashboardView() {
 
         <button
           onClick={() => setActiveTab("animals")}
-          className={`pb-3 text-xs sm:text-sm font-bold flex items-center gap-2 border-b-2 transition-all ${activeTab === "animals"
+          className={`pb-3 min-h-[44px] shrink-0 text-xs sm:text-sm font-bold flex items-center gap-2 border-b-2 transition-all ${activeTab === "animals"
               ? "border-primary text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
@@ -297,7 +297,7 @@ export function GuardianDashboardView() {
 
         <button
           onClick={() => setActiveTab("metrics")}
-          className={`pb-3 text-xs sm:text-sm font-bold flex items-center gap-2 border-b-2 transition-all ${activeTab === "metrics"
+          className={`pb-3 min-h-[44px] shrink-0 text-xs sm:text-sm font-bold flex items-center gap-2 border-b-2 transition-all ${activeTab === "metrics"
               ? "border-primary text-primary"
               : "border-transparent text-muted-foreground hover:text-foreground"
             }`}
@@ -768,14 +768,15 @@ export function GuardianDashboardView() {
               <h3 className="font-serif text-2xl font-bold text-foreground">Cadastrar Novo Pet</h3>
               <button
                 onClick={() => setIsAddPetModalOpen(false)}
-                className="p-1.5 rounded-full hover:bg-secondary text-muted-foreground"
+                className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full hover:bg-secondary text-muted-foreground"
+                aria-label="Fechar cadastro"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <form onSubmit={handleCreatePet} className="space-y-4 text-xs">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <label className="font-bold text-foreground">Nome do Animal *</label>
                   <input
@@ -784,7 +785,7 @@ export function GuardianDashboardView() {
                     value={newPetForm.name}
                     onChange={(e) => setNewPetForm({ ...newPetForm, name: e.target.value })}
                     placeholder="Ex: Tobi"
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-xs"
+                    className="w-full px-3 py-2.5 min-h-[44px] rounded-xl border border-border bg-background text-xs"
                   />
                 </div>
 
@@ -793,7 +794,7 @@ export function GuardianDashboardView() {
                   <select
                     value={newPetForm.species}
                     onChange={(e) => setNewPetForm({ ...newPetForm, species: e.target.value as PetSpecies })}
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-xs"
+                    className="w-full px-3 py-2.5 min-h-[44px] rounded-xl border border-border bg-background text-xs cursor-pointer"
                   >
                     <option value="dog">Cachorro</option>
                     <option value="cat">Gato</option>
@@ -801,14 +802,14 @@ export function GuardianDashboardView() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="space-y-1">
                   <label className="font-bold text-foreground">Raça</label>
                   <input
                     type="text"
                     value={newPetForm.breed}
                     onChange={(e) => setNewPetForm({ ...newPetForm, breed: e.target.value })}
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-xs"
+                    className="w-full px-3 py-2.5 min-h-[44px] rounded-xl border border-border bg-background text-xs"
                   />
                 </div>
 
@@ -817,7 +818,7 @@ export function GuardianDashboardView() {
                   <select
                     value={newPetForm.size}
                     onChange={(e) => setNewPetForm({ ...newPetForm, size: e.target.value as PetSize })}
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-xs"
+                    className="w-full px-3 py-2.5 min-h-[44px] rounded-xl border border-border bg-background text-xs cursor-pointer"
                   >
                     <option value="small">Pequeno</option>
                     <option value="medium">Médio</option>
@@ -830,7 +831,7 @@ export function GuardianDashboardView() {
                   <select
                     value={newPetForm.sex}
                     onChange={(e) => setNewPetForm({ ...newPetForm, sex: e.target.value as PetSex })}
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-xs"
+                    className="w-full px-3 py-2.5 min-h-[44px] rounded-xl border border-border bg-background text-xs cursor-pointer"
                   >
                     <option value="male">Macho</option>
                     <option value="female">Fêmea</option>
@@ -838,7 +839,7 @@ export function GuardianDashboardView() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <label className="font-bold text-foreground">Idade Aproximada</label>
                   <input
@@ -846,7 +847,7 @@ export function GuardianDashboardView() {
                     value={newPetForm.approximateAge}
                     onChange={(e) => setNewPetForm({ ...newPetForm, approximateAge: e.target.value })}
                     placeholder="Ex: 1 ano e meio"
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-xs"
+                    className="w-full px-3 py-2.5 min-h-[44px] rounded-xl border border-border bg-background text-xs"
                   />
                 </div>
 
@@ -855,7 +856,7 @@ export function GuardianDashboardView() {
                   <select
                     value={newPetForm.ageCategory}
                     onChange={(e) => setNewPetForm({ ...newPetForm, ageCategory: e.target.value as PetAgeCategory })}
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-background text-xs"
+                    className="w-full px-3 py-2.5 min-h-[44px] rounded-xl border border-border bg-background text-xs cursor-pointer"
                   >
                     <option value="puppy">Filhote</option>
                     <option value="young">Jovem</option>
@@ -865,8 +866,8 @@ export function GuardianDashboardView() {
                 </div>
               </div>
 
-              <div className="flex gap-4 p-3 rounded-2xl bg-secondary/50">
-                <label className="flex items-center gap-1.5 cursor-pointer">
+              <div className="flex flex-wrap gap-4 p-3 rounded-2xl bg-secondary/50">
+                <label className="flex items-center gap-2 cursor-pointer min-h-[38px]">
                   <input
                     type="checkbox"
                     checked={newPetForm.vaccinated}
@@ -875,7 +876,7 @@ export function GuardianDashboardView() {
                   />
                   Vacinado
                 </label>
-                <label className="flex items-center gap-1.5 cursor-pointer">
+                <label className="flex items-center gap-2 cursor-pointer min-h-[38px]">
                   <input
                     type="checkbox"
                     checked={newPetForm.castrated}
@@ -884,7 +885,7 @@ export function GuardianDashboardView() {
                   />
                   Castrado
                 </label>
-                <label className="flex items-center gap-1.5 cursor-pointer">
+                <label className="flex items-center gap-2 cursor-pointer min-h-[38px]">
                   <input
                     type="checkbox"
                     checked={newPetForm.dewormed}
@@ -912,7 +913,7 @@ export function GuardianDashboardView() {
                   type="text"
                   value={newPetForm.headline}
                   onChange={(e) => setNewPetForm({ ...newPetForm, headline: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl border border-border bg-background text-xs"
+                  className="w-full px-3 py-2.5 min-h-[44px] rounded-xl border border-border bg-background text-xs"
                 />
               </div>
 
@@ -933,20 +934,20 @@ export function GuardianDashboardView() {
                   value={newPetForm.temperament}
                   onChange={(e) => setNewPetForm({ ...newPetForm, temperament: e.target.value })}
                   placeholder="Dócil, Brincalhão, Calmo"
-                  className="w-full px-3 py-2 rounded-xl border border-border bg-background text-xs"
+                  className="w-full px-3 py-2.5 min-h-[44px] rounded-xl border border-border bg-background text-xs"
                 />
               </div>
 
-              <div className="pt-2 flex justify-end gap-2">
+              <div className="pt-2 flex flex-col sm:flex-row justify-end gap-2">
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setIsAddPetModalOpen(false)}
-                  className="rounded-full"
+                  className="rounded-full min-h-[44px]"
                 >
                   Cancelar
                 </Button>
-                <Button type="submit" className="rounded-full bg-primary hover:bg-primary/90">
+                <Button type="submit" className="rounded-full bg-primary hover:bg-primary/90 min-h-[44px]">
                   Salvar e Publicar
                 </Button>
               </div>

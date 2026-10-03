@@ -154,7 +154,7 @@ export function SmartMatchView() {
           <div className="pt-4">
             <button
               onClick={() => setHasStarted(true)}
-              className="px-8 py-4 rounded-full bg-primary text-primary-foreground font-bold text-base shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all hover:scale-105 inline-flex items-center gap-2"
+              className="px-8 py-4 min-h-[44px] rounded-full bg-primary text-primary-foreground font-bold text-base shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all hover:scale-105 inline-flex items-center justify-center gap-2 w-full sm:w-auto"
             >
               Iniciar Questionário Inteligente <ArrowRight className="w-5 h-5" />
             </button>
@@ -198,7 +198,7 @@ export function SmartMatchView() {
                   <button
                     key={String(option.value)}
                     onClick={() => handleOptionSelect(questions[currentStep].field as keyof SmartMatchQuizData, option.value)}
-                    className="w-full p-4 rounded-2xl border border-border/70 hover:border-primary/50 hover:bg-primary/5 text-left transition-all flex items-center justify-between group"
+                    className="w-full p-4 min-h-[44px] rounded-2xl border border-border/70 hover:border-primary/50 hover:bg-primary/5 text-left transition-all flex items-center justify-between group"
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-xl bg-secondary group-hover:bg-primary/10 text-primary flex items-center justify-center shrink-0">
@@ -218,7 +218,7 @@ export function SmartMatchView() {
               <div className="pt-2">
                 <button
                   onClick={() => setCurrentStep(currentStep - 1)}
-                  className="text-xs font-semibold text-muted-foreground hover:text-foreground"
+                  className="text-xs font-semibold text-muted-foreground hover:text-foreground min-h-[44px] inline-flex items-center py-2"
                 >
                   ← Voltar à pergunta anterior
                 </button>
@@ -248,7 +248,7 @@ export function SmartMatchView() {
 
             <button
               onClick={restartQuiz}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-border text-xs font-semibold hover:bg-secondary transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2 min-h-[44px] rounded-full border border-border text-xs font-semibold hover:bg-secondary transition-colors w-full sm:w-auto"
             >
               <RotateCcw className="w-3.5 h-3.5" /> Refazer Questionário
             </button>
@@ -329,7 +329,7 @@ export function SmartMatchView() {
                   <div className="shrink-0 w-full lg:w-auto pt-2 lg:pt-0">
                     <Link
                       href={`/pets/${pet.id}`}
-                      className="w-full lg:w-auto px-6 py-3 rounded-full bg-primary text-primary-foreground font-bold text-xs inline-flex items-center justify-center gap-2 shadow-md hover:bg-primary/90 transition-colors"
+                      className="w-full lg:w-auto px-6 py-3 min-h-[44px] rounded-full bg-primary text-primary-foreground font-bold text-xs inline-flex items-center justify-center gap-2 shadow-md hover:bg-primary/90 transition-colors"
                     >
                       Ver Perfil & Adotar <ArrowRight className="w-4 h-4" />
                     </Link>

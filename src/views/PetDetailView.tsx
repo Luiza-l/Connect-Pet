@@ -75,9 +75,9 @@ export function PetDetailView({ pet }: PetDetailViewProps) {
   return (
     <div className="container mx-auto px-4 sm:px-8 py-10 md:py-16 min-h-screen space-y-10">
       
-      {/* Back Button */}
-      <div className="flex items-center justify-between">
-        <Button variant="ghost" asChild className="rounded-full text-xs hover:bg-secondary">
+      {/* Back Button & Actions */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <Button variant="ghost" asChild className="rounded-full text-xs hover:bg-secondary min-h-[44px] justify-start sm:justify-center w-fit">
           <Link href="/pets">
             <ArrowLeft className="w-4 h-4 mr-2" /> Voltar ao Catálogo
           </Link>
@@ -88,7 +88,7 @@ export function PetDetailView({ pet }: PetDetailViewProps) {
             variant="outline"
             size="sm"
             onClick={handleShare}
-            className="rounded-full text-xs"
+            className="rounded-full text-xs min-h-[44px] flex-1 sm:flex-none"
           >
             <Share2 className="w-3.5 h-3.5 mr-1.5" /> Compartilhar
           </Button>
@@ -97,7 +97,7 @@ export function PetDetailView({ pet }: PetDetailViewProps) {
             variant="outline"
             size="sm"
             onClick={() => toggleFavorite(pet.id)}
-            className={`rounded-full text-xs ${favorite ? "text-rose-500 border-rose-500/30 bg-rose-500/10" : ""}`}
+            className={`rounded-full text-xs min-h-[44px] flex-1 sm:flex-none ${favorite ? "text-rose-500 border-rose-500/30 bg-rose-500/10" : ""}`}
           >
             <Heart className={`w-3.5 h-3.5 mr-1.5 ${favorite ? "fill-rose-500" : ""}`} />
             {favorite ? "Favoritado" : "Favoritar"}

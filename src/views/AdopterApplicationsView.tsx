@@ -199,7 +199,7 @@ export function AdopterApplicationsView() {
                     Linha do Tempo da Triagem
                   </h4>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                     {stepsList.map((st, idx) => {
                       const currentIdx = getStepIndex(selectedApp.status);
                       const isPastOrCurrent = currentIdx >= idx;
@@ -283,9 +283,9 @@ export function AdopterApplicationsView() {
                       value={chatMessage}
                       onChange={(e) => setChatMessage(e.target.value)}
                       placeholder="Envie uma mensagem ou tire dúvidas sobre a visita..."
-                      className="flex-1 px-4 py-2.5 rounded-full border border-border bg-background text-xs focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="flex-1 px-4 py-2.5 min-h-[44px] rounded-full border border-border bg-background text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                     />
-                    <Button type="submit" className="rounded-full px-5 text-xs bg-primary hover:bg-primary/90">
+                    <Button type="submit" className="rounded-full px-5 text-xs bg-primary hover:bg-primary/90 min-h-[44px]">
                       <Send className="w-3.5 h-3.5 mr-1" /> Enviar
                     </Button>
                   </form>

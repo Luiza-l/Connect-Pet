@@ -118,7 +118,7 @@ export function Navbar() {
           <Link
             href="/pets?favoritos=true"
             onClick={handleFavoritesClick}
-            className={`relative p-2.5 rounded-full border transition-all ${
+            className={`relative p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full border transition-all ${
               isCatalog && showFavoritesOnly
                 ? "bg-rose-500/15 border-rose-500/40 text-rose-500 shadow-sm"
                 : "border-border/50 bg-card hover:bg-secondary/50 text-muted-foreground hover:text-rose-500"
@@ -140,7 +140,7 @@ export function Navbar() {
                 setThemeDropdownOpen(!themeDropdownOpen);
                 setProfileDropdownOpen(false);
               }}
-              className="p-2.5 rounded-full border border-border/50 bg-card hover:bg-secondary/50 text-muted-foreground transition-colors"
+              className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full border border-border/50 bg-card hover:bg-secondary/50 text-muted-foreground transition-colors"
               title="Mudar Tema"
               aria-label="Mudar Tema"
             >
@@ -196,7 +196,7 @@ export function Navbar() {
                   setProfileDropdownOpen(!profileDropdownOpen);
                   setThemeDropdownOpen(false);
                 }}
-                className="flex items-center gap-2.5 p-1.5 pr-3 rounded-full border border-border/60 bg-card hover:border-primary/40 shadow-sm transition-all text-left"
+                className="flex items-center gap-2.5 p-1.5 pr-3 min-h-[44px] rounded-full border border-border/60 bg-card hover:border-primary/40 shadow-sm transition-all text-left"
               >
                 <div className="w-8 h-8 rounded-full overflow-hidden relative border border-primary/25 bg-sky-100 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300 flex items-center justify-center font-bold text-xs shrink-0">
                   {currentUser.avatar ? (
@@ -280,11 +280,11 @@ export function Navbar() {
               )}
             </div>
           ) : (
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" asChild className="rounded-full text-xs">
+            <div className="hidden sm:flex items-center gap-2">
+              <Button variant="ghost" size="sm" asChild className="rounded-full text-xs min-h-[38px]">
                 <Link href="/login">Entrar</Link>
               </Button>
-              <Button size="sm" asChild className="rounded-full text-xs bg-primary hover:bg-primary/90">
+              <Button size="sm" asChild className="rounded-full text-xs bg-primary hover:bg-primary/90 min-h-[38px]">
                 <Link href="/cadastro">Cadastrar</Link>
               </Button>
             </div>
@@ -293,7 +293,7 @@ export function Navbar() {
           {/* Mobile Menu Hamburger */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2.5 rounded-full border border-border/60 bg-card text-foreground"
+            className="lg:hidden p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full border border-border/60 bg-card text-foreground"
             aria-label="Abrir Menu"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -372,7 +372,7 @@ export function Navbar() {
                   variant="outline"
                   size="sm"
                   asChild
-                  className="w-full text-xs font-medium rounded-xl"
+                  className="w-full text-xs font-medium rounded-xl min-h-[44px]"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   <Link href="/perfil" className="flex items-center justify-center gap-2">
@@ -382,7 +382,7 @@ export function Navbar() {
                 <Button
                   variant="outline"
                   size="sm"
-                  className="w-full text-xs font-medium text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-900 rounded-xl"
+                  className="w-full text-xs font-medium text-rose-600 dark:text-rose-400 border-rose-200 dark:border-rose-900 rounded-xl min-h-[44px]"
                   onClick={() => {
                     logout();
                     setMobileMenuOpen(false);
@@ -393,10 +393,10 @@ export function Navbar() {
               </div>
             ) : (
               <div className="grid grid-cols-2 gap-2">
-                <Button variant="outline" size="sm" asChild className="rounded-xl text-xs" onClick={() => setMobileMenuOpen(false)}>
+                <Button variant="outline" size="sm" asChild className="rounded-xl text-xs min-h-[44px]" onClick={() => setMobileMenuOpen(false)}>
                   <Link href="/login">Entrar</Link>
                 </Button>
-                <Button size="sm" asChild className="rounded-xl text-xs bg-primary hover:bg-primary/90" onClick={() => setMobileMenuOpen(false)}>
+                <Button size="sm" asChild className="rounded-xl text-xs bg-primary hover:bg-primary/90 min-h-[44px]" onClick={() => setMobileMenuOpen(false)}>
                   <Link href="/cadastro">Cadastrar</Link>
                 </Button>
               </div>

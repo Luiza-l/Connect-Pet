@@ -76,10 +76,10 @@ export function PetCard({ pet, priority = false }: PetCardProps) {
             toggleFavorite(pet.id);
           }}
           aria-label={favorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
-          className="absolute top-3.5 right-3.5 w-9 h-9 rounded-full bg-white/90 dark:bg-black/80 backdrop-blur-md flex items-center justify-center text-foreground hover:scale-110 active:scale-95 transition-all shadow-md"
+          className="absolute top-2.5 right-2.5 min-h-[44px] min-w-[44px] rounded-full bg-white/90 dark:bg-black/80 backdrop-blur-md flex items-center justify-center text-foreground hover:scale-110 active:scale-95 transition-all shadow-md"
         >
           <Heart
-            className={`w-4 h-4 transition-colors ${favorite ? "fill-rose-500 text-rose-500" : "text-muted-foreground hover:text-rose-500"
+            className={`w-5 h-5 transition-colors ${favorite ? "fill-rose-500 text-rose-500" : "text-muted-foreground hover:text-rose-500"
               }`}
           />
         </button>
@@ -154,7 +154,7 @@ export function PetCard({ pet, priority = false }: PetCardProps) {
 
           <Link
             href={`/pets/${pet.id}`}
-            className="inline-flex items-center gap-1 font-bold text-xs text-primary group-hover:translate-x-0.5 transition-transform hover:underline"
+            className="inline-flex items-center gap-1 font-bold text-xs text-primary group-hover:translate-x-0.5 transition-transform hover:underline min-h-[44px] py-2"
           >
             Ver Detalhes
             <ArrowRight className="w-3.5 h-3.5" />

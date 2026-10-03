@@ -230,7 +230,7 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
 
           <button
             onClick={onClose}
-            className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+            className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
             aria-label="Fechar formulário"
           >
             <X className="w-5 h-5" />
@@ -756,7 +756,7 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
                   setValidationError(null);
                   setStep(step - 1);
                 }}
-                className="rounded-full text-xs"
+                className="rounded-full text-xs min-h-[44px] px-4"
               >
                 <ArrowLeft className="w-4 h-4 mr-1.5" /> Voltar
               </Button>
@@ -766,7 +766,7 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
 
             <Button
               onClick={handleNext}
-              className="rounded-full px-6 text-xs sm:text-sm bg-primary hover:bg-primary/90 shadow-md"
+              className="rounded-full px-6 text-xs sm:text-sm bg-primary hover:bg-primary/90 shadow-md min-h-[44px]"
             >
               {step === 0 && "Começar Dossiê"}
               {step > 0 && step < 4 && (
