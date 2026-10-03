@@ -34,12 +34,18 @@ export function Navbar() {
     theme,
     setTheme,
     showFavoritesOnly,
-    setShowFavoritesOnly
+    setShowFavoritesOnly,
+    requireAuth
   } = useApp();
 
   const isCatalog = pathname === "/pets";
 
   const handleFavoritesClick = (e: React.MouseEvent) => {
+    if (!currentUser) {
+      e.preventDefault();
+      requireAuth("favorites", { redirectTo: "/pets?favoritos=true" });
+      return;
+    }
     if (isCatalog) {
       e.preventDefault();
       setShowFavoritesOnly((prev) => !prev);

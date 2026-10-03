@@ -17,6 +17,7 @@ import {
 } from '../types';
 import { mockPets as initialMockPets, demoAdopter } from '../data/mockPets';
 import { createClient } from '@/lib/client';
+import type { AuthFeature, AuthPromptState } from '@/components/auth/auth-features';
 
 export interface ToastItem {
   id: string;
@@ -38,6 +39,11 @@ interface AppContextType {
   updateUserProfile: (updates: Partial<CurrentUser> & { avatar?: string | null }) => Promise<void>;
   switchUser: (role: 'adopter' | 'guardian') => void;
   logout: () => void | Promise<void>;
+
+  // Controle de acesso: retorna true se autenticado; caso contrário abre o modal de acesso restrito
+  requireAuth: (feature?: AuthFeature, options?: { redirectTo?: string }) => boolean;
+  authPrompt: AuthPromptState | null;
+  closeAuthPrompt: () => void;
 
   // Pets
   pets: Pet[];
@@ -326,6 +332,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   // 6. Toasts State
   const [toasts, setToasts] = useState<ToastItem[]>([]);
+
+  // 7. Prompt de acesso restrito (modal global)
+  const [authPrompt, setAuthPrompt] = useState<AuthPromptState | null>(null);
 
   // Theme synchronization with HTML .dark class
   useEffect(() => {
@@ -942,12 +951,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   }, [pets, showToast, supabase]);
 
+  // Controle de acesso reutilizável
+  const requireAuth = useCallback((feature: AuthFeature = 'default', options?: { redirectTo?: string }) => {
+    if (currentUser) return true;
+    setAuthPrompt({ feature, redirectTo: options?.redirectTo });
+    return false;
+  }, [currentUser]);
+
+  const closeAuthPrompt = useCallback(() => setAuthPrompt(null), []);
+
   // Favorites
   const toggleFavorite = useCallback(async (petId: string) => {
-    if (!currentUser) {
-      showToast('Acesso necessário', 'Faça login ou cadastre-se para favoritar animais.', 'info');
-      return;
-    }
+    if (!requireAuth('favorites')) return;
+    if (!currentUser) return;
 
     const isCurrentlyFav = validFavorites.includes(petId);
     const updated = isCurrentlyFav
@@ -988,7 +1004,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     } else {
       showToast('Adicionado aos favoritos!', 'Você pode acompanhar seus pets favoritos.', 'success');
     }
-  }, [currentUser, validFavorites, showToast, supabase]);
+  }, [currentUser, requireAuth, validFavorites, showToast, supabase]);
 
   const isFavorite = useCallback((petId: string) => {
     if (!currentUser) return false;
@@ -1524,6 +1540,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     updateUserProfile,
     switchUser,
     logout,
+    requireAuth,
+    authPrompt,
+    closeAuthPrompt,
     pets,
     addPet,
     updatePet,
@@ -1553,6 +1572,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     updateUserProfile,
     switchUser,
     logout,
+    requireAuth,
+    authPrompt,
+    closeAuthPrompt,
     pets,
     addPet,
     updatePet,

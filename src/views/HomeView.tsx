@@ -15,7 +15,7 @@ import {
 import { PawWatermark } from "@/components/ui/PawWatermark";
 
 export function HomeView() {
-  const { pets, isFavorite, toggleFavorite } = useApp();
+  const { pets, isFavorite, toggleFavorite, currentUser, requireAuth } = useApp();
 
   // 5 animais dinâmicos do catálogo real (Supabase / AppContext)
   const dynamicPets = pets.slice(0, 5);
@@ -32,7 +32,7 @@ export function HomeView() {
         <div className="absolute left-[10%] sm:left-[14%] md:left-[18%] lg:left-[21%] top-6 sm:top-8 md:top-10 z-0">
           <PawWatermark
             rotate={-20}
-            className="w-10 h-10 sm:w-14 sm:h-14 lg:w-16 lg:h-16 text-sky-600/55 dark:text-sky-300/35"
+            className="w-10 h-10 sm:w-14 sm:h-14 lg:w-16 lg:h-16 text-sky-600/55 dark:text-sky-600/55"
           />
         </div>
 
@@ -40,7 +40,7 @@ export function HomeView() {
         <div className="absolute left-[19%] sm:left-[22%] md:left-[25%] lg:left-[27%] bottom-14 sm:bottom-18 md:bottom-22 z-0">
           <PawWatermark
             rotate={14}
-            className="w-9 h-9 sm:w-12 sm:h-12 lg:w-14 lg:h-14 text-sky-600/50 dark:text-sky-300/30"
+            className="w-9 h-9 sm:w-12 sm:h-12 lg:w-14 lg:h-14 text-sky-600/50 dark:text-sky-600/50"
           />
         </div>
 
@@ -48,7 +48,7 @@ export function HomeView() {
         <div className="absolute left-[4%] sm:left-[7%] lg:left-[9%] bottom-20 sm:bottom-24 z-0">
           <PawWatermark
             rotate={24}
-            className="w-8 h-8 sm:w-11 sm:h-11 lg:w-13 lg:h-13 text-sky-600/45 dark:text-sky-300/25"
+            className="w-8 h-8 sm:w-11 sm:h-11 lg:w-13 lg:h-13 text-sky-600/45 dark:text-sky-600/45"
           />
         </div>
 
@@ -56,7 +56,7 @@ export function HomeView() {
         <div className="absolute right-[10%] sm:right-[14%] md:right-[18%] lg:right-[19%] top-20 sm:top-24 md:top-50 z-0">
           <PawWatermark
             rotate={18}
-            className="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 text-sky-600/55 dark:text-sky-300/35"
+            className="w-12 h-12 sm:w-16 sm:h-16 lg:w-20 lg:h-20 text-sky-600/55 dark:text-sky-600/55"
           />
         </div>
 
@@ -64,7 +64,7 @@ export function HomeView() {
         <div className="absolute right-[32%] top-4 sm:top-6 z-0 hidden sm:block">
           <PawWatermark
             rotate={-12}
-            className="w-7 h-7 sm:w-9 sm:h-9 text-sky-600/40 dark:text-sky-300/25"
+            className="w-7 h-7 sm:w-9 sm:h-9 text-sky-600/40 dark:text-sky-600/40"
           />
         </div>
 
@@ -203,6 +203,12 @@ export function HomeView() {
             {/* Card 3: Salve seus favoritos (Dachshund) */}
             <Link
               href="/pets?favoritos=true"
+              onClick={(e) => {
+                if (!currentUser) {
+                  e.preventDefault();
+                  requireAuth("favorites", { redirectTo: "/pets?favoritos=true" });
+                }
+              }}
               className="group relative flex flex-col items-center justify-between bg-gradient-to-b from-[#BEE5FE]/90 to-[#BEE5FE]/50 hover:from-[#BAE6FD] hover:to-[#BEE5FE] dark:from-[#BEE5FE] dark:to-[#BAE6FD]/90 border-2 border-sky-200/90 hover:border-sky-400/80 dark:border-sky-300 dark:hover:border-sky-400 rounded-3xl pt-14 sm:pt-16 pb-6 px-5 sm:px-6 shadow-sm hover:shadow-xl dark:shadow-[0_8px_25px_rgba(56,189,248,0.15)] hover:-translate-y-2 transition-all duration-300 text-center min-h-[290px]"
             >
               {/* Pet Sobreposto no Topo */}

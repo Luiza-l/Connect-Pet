@@ -2,8 +2,9 @@
 
 import React, { useState, useRef } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useApp } from "@/context/AppContext";
+import { sanitizeRedirect } from "@/components/auth/auth-features";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/client";
 import {
@@ -103,6 +104,9 @@ function isValidEmail(email: string): boolean {
 
 export function RegisterView() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectParam = searchParams.get("redirect");
+  const safeRedirect = redirectParam ? sanitizeRedirect(redirectParam, "") : "";
   const { showToast } = useApp();
 
   const [roleTab, setRoleTab] = useState<"adopter" | "guardian">("adopter");
@@ -334,10 +338,11 @@ export function RegisterView() {
 
         if (activeSession) {
           showToast("Cadastro realizado com sucesso!", `Bem-vindo(a), ${metadata.name}!`, "success");
-          router.push(isAdopterRole ? "/pets" : "/dashboard");
+          router.push(isAdopterRole ? (safeRedirect || "/pets") : "/dashboard");
         } else {
           showToast("Cadastro realizado com sucesso!", "Sua conta foi criada com sucesso.", "success");
-          router.push(`/login?email=${encodeURIComponent(targetEmail)}`);
+          const redirectQuery = safeRedirect ? `&redirect=${encodeURIComponent(safeRedirect)}` : "";
+          router.push(`/login?email=${encodeURIComponent(targetEmail)}${redirectQuery}`);
         }
       }
     } catch (err: unknown) {

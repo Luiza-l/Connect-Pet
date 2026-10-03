@@ -248,7 +248,7 @@ function FilterPanel({
 
 export function CatalogView() {
   const searchParams = useSearchParams();
-  const { pets, favorites, showFavoritesOnly, setShowFavoritesOnly } = useApp();
+  const { pets, favorites, showFavoritesOnly, setShowFavoritesOnly, currentUser, requireAuth } = useApp();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [species, setSpecies] = useState("all");
@@ -261,12 +261,22 @@ export function CatalogView() {
   const [onlyVaccinated, setOnlyVaccinated] = useState(false);
 
   const isFavoritosUrl = searchParams.get("favoritos") === "true";
+  const isAuthenticated = Boolean(currentUser);
+
+  // Filtro de favoritos só pode ser ativado por usuários autenticados
+  const handleSetOnlyFavorites = (value: boolean) => {
+    if (value && !requireAuth("favorites", { redirectTo: "/pets?favoritos=true" })) return;
+    setShowFavoritesOnly(value);
+  };
 
   useEffect(() => {
-    if (isFavoritosUrl) {
+    if (!isFavoritosUrl) return;
+    if (isAuthenticated) {
       setShowFavoritesOnly(true);
+    } else {
+      requireAuth("favorites", { redirectTo: "/pets?favoritos=true" });
     }
-  }, [isFavoritosUrl, setShowFavoritesOnly]);
+  }, [isFavoritosUrl, isAuthenticated, requireAuth, setShowFavoritesOnly]);
 
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
 
@@ -428,7 +438,7 @@ export function CatalogView() {
             onlyVaccinated={onlyVaccinated}
             setOnlyVaccinated={setOnlyVaccinated}
             onlyFavorites={showFavoritesOnly}
-            setOnlyFavorites={setShowFavoritesOnly}
+            setOnlyFavorites={handleSetOnlyFavorites}
             availableCities={availableCities}
             resetFilters={resetFilters}
           />
@@ -466,7 +476,7 @@ export function CatalogView() {
                 onlyVaccinated={onlyVaccinated}
                 setOnlyVaccinated={setOnlyVaccinated}
                 onlyFavorites={showFavoritesOnly}
-                setOnlyFavorites={setShowFavoritesOnly}
+                setOnlyFavorites={handleSetOnlyFavorites}
                 availableCities={availableCities}
                 resetFilters={resetFilters}
               />
