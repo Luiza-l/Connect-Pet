@@ -77,15 +77,14 @@ export function Navbar() {
       <div className="container mx-auto flex h-20 items-center justify-between px-4 sm:px-8">
         
         {/* Logo */}
-        <Link href="/" className="group flex items-center gap-3">
-          <div className="flex items-center justify-center w-11 h-11 rounded-2xl bg-primary text-primary-foreground shadow-md shadow-primary/20 transition-transform duration-300 group-hover:scale-105">
-            <PawPrint className="h-6 w-6 fill-current" />
+        <Link href="/" className="group flex items-center gap-2 sm:gap-3 shrink-0">
+          <div className="flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-primary text-primary-foreground shadow-md shadow-primary/20 transition-transform duration-300 group-hover:scale-105">
+            <PawPrint className="h-5 w-5 sm:h-6 sm:w-6 fill-current" />
           </div>
           <div className="flex flex-col">
-            <span className="font-serif font-bold text-2xl leading-none text-foreground tracking-tight">
+            <span className="font-serif font-bold text-xl sm:text-2xl leading-none text-foreground tracking-tight">
               ConnectPet
             </span>
-            
           </div>
         </Link>
 
@@ -112,7 +111,7 @@ export function Navbar() {
         </nav>
 
         {/* Right Section: Favorites, Theme & User Profile */}
-        <div className="flex items-center gap-2.5 sm:gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
           
           {/* Favorites Button */}
           <Link

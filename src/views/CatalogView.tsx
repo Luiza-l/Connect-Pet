@@ -368,15 +368,15 @@ export function CatalogView() {
   ]);
 
   return (
-    <div className="container mx-auto px-4 sm:px-8 py-10 md:py-16 min-h-screen space-y-8">
+    <div className="container mx-auto px-4 sm:px-6 md:px-8 py-6 sm:py-10 md:py-16 min-h-screen space-y-6 sm:space-y-8">
       
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-6 border-b border-border/60">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pb-5 sm:pb-6 border-b border-border/60">
         <div>
           <span className="text-xs font-bold text-primary uppercase tracking-wider">
             Adoção Responsável
           </span>
-          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-foreground mt-1">
+          <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mt-1">
             Catálogo de Animais para Adoção
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">
@@ -417,7 +417,7 @@ export function CatalogView() {
       </div>
 
       {/* Main Catalog Layout: Sidebar + Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8 items-start">
         
         {/* Desktop Sticky Sidebar */}
         <aside className="hidden lg:block lg:col-span-1 p-6 rounded-3xl bg-card border border-border/60 shadow-sm sticky top-28">
@@ -448,7 +448,7 @@ export function CatalogView() {
         {/* Mobile Drawer */}
         {isMobileDrawerOpen && (
           <div className="lg:hidden fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm flex justify-end animate-in fade-in">
-            <div className="w-full max-w-xs sm:max-w-sm bg-card h-full p-5 sm:p-6 overflow-y-auto space-y-6 shadow-2xl animate-in slide-in-from-right">
+            <div className="w-full max-w-xs sm:max-w-sm bg-card h-full p-5 sm:p-6 pb-12 overflow-y-auto space-y-6 shadow-2xl animate-in slide-in-from-right">
               <div className="flex items-center justify-between border-b border-border pb-4">
                 <h3 className="font-bold text-lg text-foreground">Filtros</h3>
                 <button

@@ -45,7 +45,7 @@ export function PetCard({ pet, priority = false }: PetCardProps) {
   const cityText = pet.location ? `${pet.location.city || "São Paulo"}, ${pet.location.state || "SP"}` : "São Paulo, SP";
 
   return (
-    <div className="group relative flex flex-col rounded-3xl border border-border/50 bg-card overflow-hidden shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300">
+    <div className="group relative flex flex-col rounded-3xl border border-border/50 bg-card overflow-hidden shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300 max-w-md mx-auto sm:max-w-none w-full">
 
       {/* Top Image Section */}
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-secondary">
@@ -101,7 +101,7 @@ export function PetCard({ pet, priority = false }: PetCardProps) {
       </div>
 
       {/* Body Content */}
-      <div className="flex flex-1 flex-col p-5 space-y-4">
+      <div className="flex flex-1 flex-col p-4 sm:p-5 space-y-3.5 sm:space-y-4">
 
         {/* Attributes row */}
         <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">

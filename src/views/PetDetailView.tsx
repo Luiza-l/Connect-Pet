@@ -73,7 +73,7 @@ export function PetDetailView({ pet }: PetDetailViewProps) {
   const currentStatus = statusMap[pet.status] || statusMap.available;
 
   return (
-    <div className="container mx-auto px-4 sm:px-8 py-10 md:py-16 min-h-screen space-y-10">
+    <div className="container mx-auto px-4 sm:px-6 md:px-8 py-6 sm:py-10 md:py-16 min-h-screen space-y-6 sm:space-y-8 md:space-y-10">
       
       {/* Back Button & Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -106,7 +106,7 @@ export function PetDetailView({ pet }: PetDetailViewProps) {
       </div>
 
       {/* Main Grid: Gallery + Core Info */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-10">
         
         {/* Left: Gallery (7 Cols) */}
         <div className="lg:col-span-7 space-y-4">
@@ -129,12 +129,12 @@ export function PetDetailView({ pet }: PetDetailViewProps) {
 
           {/* Thumbnails */}
           {pet.photos.length > 1 && (
-            <div className="flex gap-3 overflow-x-auto pb-2">
+            <div className="flex gap-2.5 sm:gap-3 overflow-x-auto pb-2 no-scrollbar">
               {pet.photos.map((photo, index) => (
                 <button
                   key={photo}
                   onClick={() => setSelectedPhotoIndex(index)}
-                  className={`relative w-24 h-20 rounded-2xl overflow-hidden border-2 shrink-0 transition-all ${
+                  className={`relative w-20 sm:w-24 h-16 sm:h-20 rounded-2xl overflow-hidden border-2 shrink-0 transition-all ${
                     selectedPhotoIndex === index ? "border-primary scale-95 shadow-md" : "border-transparent opacity-70 hover:opacity-100"
                   }`}
                 >
@@ -152,14 +152,14 @@ export function PetDetailView({ pet }: PetDetailViewProps) {
         </div>
 
         {/* Right: Overview & CTA (5 Cols) */}
-        <div className="lg:col-span-5 space-y-6 flex flex-col justify-between">
+        <div className="lg:col-span-5 space-y-5 sm:space-y-6 flex flex-col justify-between">
           
           <div className="space-y-4">
             <div>
               <span className="text-xs font-bold text-primary uppercase tracking-wider">
                 {pet.species === "dog" ? "Cão Resgatado" : "Gato Resgatado"} • {pet.breed}
               </span>
-              <h1 className="font-serif text-4xl sm:text-5xl font-bold text-foreground mt-1">
+              <h1 className="font-serif text-3xl sm:text-5xl font-bold text-foreground mt-1">
                 {pet.name}
               </h1>
               <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
@@ -169,52 +169,52 @@ export function PetDetailView({ pet }: PetDetailViewProps) {
             </div>
 
             {/* Badges */}
-            <div className="flex flex-wrap gap-2 pt-1">
-              <Badge variant="secondary" className="rounded-xl px-3 py-1 text-xs">
+            <div className="flex flex-wrap gap-1.5 sm:gap-2 pt-1">
+              <Badge variant="secondary" className="rounded-xl px-2.5 py-1 text-xs">
                 {sizeLabels[pet.size]}
               </Badge>
-              <Badge variant="secondary" className="rounded-xl px-3 py-1 text-xs">
+              <Badge variant="secondary" className="rounded-xl px-2.5 py-1 text-xs">
                 {sexLabels[pet.sex]}
               </Badge>
-              <Badge variant="secondary" className="rounded-xl px-3 py-1 text-xs">
+              <Badge variant="secondary" className="rounded-xl px-2.5 py-1 text-xs">
                 {pet.approximateAge}
               </Badge>
             </div>
 
             {/* Headline */}
-            <div className="p-4 rounded-2xl bg-secondary/50 border border-border/60">
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-secondary/50 border border-border/60">
               <p className="text-xs sm:text-sm font-medium text-foreground italic leading-relaxed">
                 &ldquo;{pet.headline}&rdquo;
               </p>
             </div>
 
             {/* Quick Health Status Highlights */}
-            <div className="grid grid-cols-3 gap-2 text-center text-xs">
-              <div className={`p-3 rounded-2xl border ${pet.vaccinated ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300" : "bg-secondary border-border text-muted-foreground"}`}>
+            <div className="grid grid-cols-3 gap-1.5 sm:gap-2 text-center text-xs">
+              <div className={`p-2.5 sm:p-3 rounded-2xl border ${pet.vaccinated ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300" : "bg-secondary border-border text-muted-foreground"}`}>
                 <CheckCircle2 className="w-4 h-4 mx-auto mb-1 text-emerald-600 dark:text-emerald-400" />
-                <span className="font-bold block">Vacinado</span>
+                <span className="font-bold block text-[11px] sm:text-xs">Vacinado</span>
               </div>
 
-              <div className={`p-3 rounded-2xl border ${pet.castrated ? "bg-primary/10 border-primary/30 text-primary" : "bg-secondary border-border text-muted-foreground"}`}>
+              <div className={`p-2.5 sm:p-3 rounded-2xl border ${pet.castrated ? "bg-primary/10 border-primary/30 text-primary" : "bg-secondary border-border text-muted-foreground"}`}>
                 <Sparkles className="w-4 h-4 mx-auto mb-1 text-primary" />
-                <span className="font-bold block">Castrado</span>
+                <span className="font-bold block text-[11px] sm:text-xs">Castrado</span>
               </div>
 
-              <div className={`p-3 rounded-2xl border ${pet.dewormed ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300" : "bg-secondary border-border text-muted-foreground"}`}>
+              <div className={`p-2.5 sm:p-3 rounded-2xl border ${pet.dewormed ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300" : "bg-secondary border-border text-muted-foreground"}`}>
                 <ShieldCheck className="w-4 h-4 mx-auto mb-1 text-emerald-600 dark:text-emerald-400" />
-                <span className="font-bold block">Vermifugado</span>
+                <span className="font-bold block text-[11px] sm:text-xs">Vermifugado</span>
               </div>
             </div>
 
           </div>
 
           {/* Action Button: Quero Adotar */}
-          <div className="pt-4 border-t border-border/60 space-y-3">
+          <div className="pt-3 sm:pt-4 border-t border-border/60 space-y-2.5 sm:space-y-3">
             <Button
               size="lg"
               onClick={handleAdoptClick}
               disabled={pet.status === "adopted"}
-              className="w-full h-14 rounded-full text-base font-bold bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20 transition-all hover:scale-[1.01]"
+              className="w-full h-12 sm:h-14 rounded-full text-sm sm:text-base font-bold bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20 transition-all hover:scale-[1.01]"
             >
               <Heart className="w-5 h-5 mr-2 fill-current" />
               {pet.status === "adopted" ? "Animal Já Adotado" : `Quero Adotar ${pet.name}`}
@@ -229,27 +229,27 @@ export function PetDetailView({ pet }: PetDetailViewProps) {
       </div>
 
       {/* Deep Details: Story, Medical Record, Behavior & Guardian Info */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pt-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-10 pt-4 sm:pt-6">
         
         {/* Story & Behavior (7 Cols) */}
-        <div className="lg:col-span-7 space-y-8">
+        <div className="lg:col-span-7 space-y-6 sm:space-y-8">
           
           {/* Rescue Story */}
-          <div className="p-6 sm:p-8 rounded-3xl bg-card border border-border/60 shadow-sm space-y-4">
-            <h3 className="font-serif text-2xl font-bold text-foreground flex items-center gap-2">
+          <div className="p-4 sm:p-6 md:p-8 rounded-3xl bg-card border border-border/60 shadow-sm space-y-4">
+            <h3 className="font-serif text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2">
               História de Resgate
             </h3>
-            <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
+            <p className="text-xs sm:text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
               {pet.story}
             </p>
           </div>
 
           {/* Behavior & Temperament */}
-          <div className="p-6 sm:p-8 rounded-3xl bg-card border border-border/60 shadow-sm space-y-4">
-            <h3 className="font-serif text-2xl font-bold text-foreground">
+          <div className="p-4 sm:p-6 md:p-8 rounded-3xl bg-card border border-border/60 shadow-sm space-y-4">
+            <h3 className="font-serif text-xl sm:text-2xl font-bold text-foreground">
               Comportamento e Convivência
             </h3>
-            <p className="text-sm leading-relaxed text-muted-foreground">
+            <p className="text-xs sm:text-sm leading-relaxed text-muted-foreground">
               {pet.temperamentDescription}
             </p>
 
@@ -257,11 +257,11 @@ export function PetDetailView({ pet }: PetDetailViewProps) {
               <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground block mb-2">
                 Traços Marcantes:
               </span>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2">
                 {pet.temperament.map((trait) => (
                   <span
                     key={trait}
-                    className="px-3 py-1 rounded-xl bg-secondary font-semibold text-xs text-foreground"
+                    className="px-2.5 sm:px-3 py-1 rounded-xl bg-secondary font-semibold text-xs text-foreground"
                   >
                     #{trait}
                   </span>
@@ -271,19 +271,19 @@ export function PetDetailView({ pet }: PetDetailViewProps) {
           </div>
 
           {/* Medical Record */}
-          <div className="p-6 sm:p-8 rounded-3xl bg-card border border-border/60 shadow-sm space-y-4">
-            <h3 className="font-serif text-2xl font-bold text-foreground">
+          <div className="p-4 sm:p-6 md:p-8 rounded-3xl bg-card border border-border/60 shadow-sm space-y-4">
+            <h3 className="font-serif text-xl sm:text-2xl font-bold text-foreground">
               Ficha Médica & Cuidados Veterinários
             </h3>
 
             <div className="space-y-3 text-xs sm:text-sm">
-              <div className="p-3.5 rounded-2xl bg-secondary/50 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+              <div className="p-3 sm:p-3.5 rounded-2xl bg-secondary/50 flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                 <span className="font-semibold text-foreground">Vacinação Aplicada:</span>
                 <span className="text-muted-foreground">{pet.vaccinationDetails || "Vacinação em dia."}</span>
               </div>
 
               {pet.specialNeeds && (
-                <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex flex-col sm:flex-row sm:items-start gap-2 text-foreground">
+                <div className="p-3 sm:p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex flex-col sm:flex-row sm:items-start gap-2 text-foreground">
                   <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                   <div>
                     <span className="font-bold block">Observações e Necessidades Especiais:</span>
@@ -298,7 +298,7 @@ export function PetDetailView({ pet }: PetDetailViewProps) {
 
         {/* Guardian Institutional Card (5 Cols) */}
         <div className="lg:col-span-5 space-y-6">
-          <div className="p-6 sm:p-8 rounded-3xl bg-secondary/30 border border-border/60 shadow-sm space-y-5">
+          <div className="p-4 sm:p-6 md:p-8 rounded-3xl bg-secondary/30 border border-border/60 shadow-sm space-y-4 sm:space-y-5">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center font-bold text-lg">
                 <Building2 className="w-6 h-6" />

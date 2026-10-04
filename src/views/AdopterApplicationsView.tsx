@@ -60,7 +60,7 @@ export function AdopterApplicationsView() {
   };
 
   return (
-    <div className="container mx-auto px-4 sm:px-8 py-10 md:py-16 min-h-screen space-y-8">
+    <div className="container mx-auto px-4 sm:px-8 py-6 sm:py-10 md:py-16 min-h-screen space-y-6 sm:space-y-8">
 
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border/60">
@@ -68,7 +68,7 @@ export function AdopterApplicationsView() {
           <span className="text-xs font-bold text-primary uppercase tracking-wider">
             Área do Tutor Candidato
           </span>
-          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-foreground mt-1">
+          <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mt-1">
             Minhas Candidaturas de Pré-Adoção
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">
@@ -76,7 +76,7 @@ export function AdopterApplicationsView() {
           </p>
         </div>
 
-        <Button asChild variant="outline" className="rounded-full text-xs font-semibold">
+        <Button asChild variant="outline" className="rounded-full text-xs font-semibold w-full sm:w-auto min-h-[44px]">
           <Link href="/pets">
             Explorar Mais Pets <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
           </Link>
@@ -167,10 +167,10 @@ export function AdopterApplicationsView() {
           {/* Details & Timeline & Chat on right (8 cols) */}
           <div className="lg:col-span-8 space-y-6">
             {selectedApp && (
-              <div className="p-6 sm:p-8 rounded-3xl bg-card border border-border/60 shadow-sm space-y-8">
+              <div className="p-4 sm:p-8 rounded-3xl bg-card border border-border/60 shadow-sm space-y-6 sm:space-y-8">
 
                 {/* Pet summary */}
-                <div className="flex items-center gap-4 pb-6 border-b border-border/60">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3.5 sm:gap-4 pb-5 sm:pb-6 border-b border-border/60">
                   <div className="relative w-16 h-16 rounded-2xl overflow-hidden shrink-0 bg-secondary">
                     <Image
                       src={selectedApp.petPhoto}
@@ -184,7 +184,7 @@ export function AdopterApplicationsView() {
                     <span className="text-[10px] font-bold text-primary uppercase tracking-wider">
                       Candidatura #{selectedApp.id}
                     </span>
-                    <h3 className="font-serif text-2xl font-bold text-foreground">
+                    <h3 className="font-serif text-xl sm:text-2xl font-bold text-foreground">
                       Pré-Adoção de {selectedApp.petName}
                     </h3>
                     <p className="text-xs text-muted-foreground">

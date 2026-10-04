@@ -68,8 +68,8 @@ export function HomeView() {
           />
         </div>
 
-        {/* Animal da Lateral Esquerda (Dálmata inclinado) */}
-        <div className="absolute left-0 bottom-6 sm:bottom-10 md:bottom-12 z-10 w-24 sm:w-44 md:w-60 lg:w-72 max-w-[22vw] sm:max-w-[28vw] md:max-w-[32vw] select-none pointer-events-none transition-transform duration-300 hover:scale-105">
+        {/* Animal da Lateral Esquerda (Dálmata espiando no canto inferior esquerdo, apoiado na onda) */}
+        <div className="absolute left-0 bottom-3 sm:bottom-5 md:bottom-8 lg:bottom-10 z-10 w-32 sm:w-44 md:w-56 lg:w-72 max-w-[34vw] sm:max-w-none select-none pointer-events-none transition-transform duration-300 hover:scale-105">
           <Image
             src="/images/home/hero-dog-left.png"
             alt="Cachorro Dálmata espiando"
@@ -80,8 +80,8 @@ export function HomeView() {
           />
         </div>
 
-        {/* Animal da Lateral Direita (Border Collie espiando da margem) */}
-        <div className="absolute right-0 bottom-6 sm:bottom-10 md:bottom-12 z-10 w-20 sm:w-32 md:w-44 lg:w-56 max-w-[18vw] sm:max-w-[24vw] md:max-w-[28vw] select-none pointer-events-none transition-transform duration-300 hover:scale-105">
+        {/* Animal da Lateral Direita (Border Collie espiando colado na borda direita com focinho 100% visível) */}
+        <div className="absolute right-0 bottom-6 sm:bottom-8 md:bottom-10 lg:bottom-12 z-10 w-24 sm:w-32 md:w-44 lg:w-56 max-w-[28vw] sm:max-w-none select-none pointer-events-none transition-transform duration-300 hover:scale-105">
           <Image
             src="/images/home/hero-dog-right.png"
             alt="Cachorro Border Collie espiando pela borda"
@@ -92,26 +92,26 @@ export function HomeView() {
           />
         </div>
 
-        {/* Conteúdo central respirável do Hero */}
-        <div className="container mx-auto px-4 sm:px-6 relative z-10 text-center min-h-[160px] sm:min-h-[220px] md:min-h-[280px] flex flex-col items-center justify-center">
-          <span className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 rounded-full bg-white/75 backdrop-blur-md border border-white/80 text-sky-800 text-xs sm:text-sm font-bold shadow-sm mb-3 animate-in fade-in">
-            <Sparkles className="w-4 h-4 text-sky-600" /> Acolhimento & Adoção Responsável
+        {/* Conteúdo Central Exclusivo do Hero (100% livre e sem sobreposição com os mascotes) */}
+        <div className="container mx-auto px-4 sm:px-6 relative z-10 text-center flex flex-col items-center justify-center pt-2 sm:pt-4 pb-20 sm:pb-28 md:py-6">
+          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-white/90 dark:border-white/10 text-sky-900 dark:text-sky-200 text-xs sm:text-sm font-bold shadow-sm mb-3 sm:mb-4 animate-in fade-in">
+            <Sparkles className="w-4 h-4 text-sky-600 dark:text-sky-400" /> Acolhimento & Adoção Responsável
           </span>
-          <h1 className="font-serif text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-sky-950 tracking-tight max-w-2xl leading-tight drop-shadow-sm">
+          <h1 className="font-serif text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-sky-950 dark:text-sky-950 tracking-tight max-w-xs sm:max-w-md md:max-w-2xl leading-tight drop-shadow-sm px-2">
             Encontre o novo membro da sua família
           </h1>
-          <p className="text-sky-900/80 text-xs sm:text-base font-medium max-w-lg mt-2 leading-relaxed">
+          <p className="text-sky-900/85 dark:text-sky-950/85 text-xs sm:text-sm md:text-base font-medium max-w-xs sm:max-w-sm md:max-w-lg mt-2.5 sm:mt-3 leading-relaxed px-2">
             Conectamos protetores e adotantes conscientes em uma jornada transparente e cheia de afeto.
           </p>
         </div>
 
-        {/* Divisão Ondulada Suave para a próxima seção (Transição do azul #AEE0FF para o fundo da próxima seção) */}
+        {/* Divisão Ondulada Suave para a próxima seção */}
         <div className="w-full overflow-hidden leading-none z-20 relative -mb-1">
           <svg
             viewBox="0 0 1440 120"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
-            className="w-full h-12 sm:h-20 md:h-28 text-white dark:text-[#080E1A] fill-current block transition-colors duration-300"
+            className="w-full h-10 sm:h-14 md:h-24 lg:h-28 text-white dark:text-[#080E1A] fill-current block transition-colors duration-300"
             preserveAspectRatio="none"
           >
             <path d="M0,32 C280,105 480,15 760,65 C1040,115 1280,25 1440,45 L1440,120 L0,120 Z" />
@@ -129,7 +129,7 @@ export function HomeView() {
             {/* Card 1: Encontre seu companheiro (Beagle) */}
             <Link
               href="/pets"
-              className="group relative flex flex-col items-center justify-between bg-gradient-to-b from-[#BEE5FE]/90 to-[#BEE5FE]/50 hover:from-[#BAE6FD] hover:to-[#BEE5FE] dark:from-[#BEE5FE] dark:to-[#BAE6FD]/90 border-2 border-sky-200/90 hover:border-sky-400/80 dark:border-sky-300 dark:hover:border-sky-400 rounded-3xl pt-14 sm:pt-16 pb-6 px-5 sm:px-6 shadow-sm hover:shadow-xl dark:shadow-[0_8px_25px_rgba(56,189,248,0.15)] hover:-translate-y-2 transition-all duration-300 text-center min-h-[290px]"
+              className="group relative flex flex-col items-center justify-between bg-gradient-to-b from-[#BEE5FE]/90 to-[#BEE5FE]/50 hover:from-[#BAE6FD] hover:to-[#BEE5FE] dark:from-[#BEE5FE] dark:to-[#BAE6FD]/90 border-2 border-sky-200/90 hover:border-sky-400/80 dark:border-sky-300 dark:hover:border-sky-400 rounded-3xl pt-14 sm:pt-16 pb-6 px-5 sm:px-6 shadow-sm hover:shadow-xl dark:shadow-[0_8px_25px_rgba(56,189,248,0.15)] hover:-translate-y-2 transition-all duration-300 text-center min-h-[290px] max-w-sm mx-auto sm:max-w-none w-full"
             >
               {/* Pet Sobreposto no Topo */}
               <div className="absolute -top-12 sm:-top-16 left-1/2 -translate-x-1/2 w-32 sm:w-40 pointer-events-none select-none transition-transform duration-300 group-hover:scale-105">
@@ -166,7 +166,7 @@ export function HomeView() {
             {/* Card 2: Conheça antes de adotar (Gatinho Laranja) */}
             <Link
               href="/#como-funciona"
-              className="group relative flex flex-col items-center justify-between bg-gradient-to-b from-[#BEE5FE]/90 to-[#BEE5FE]/50 hover:from-[#BAE6FD] hover:to-[#BEE5FE] dark:from-[#BEE5FE] dark:to-[#BAE6FD]/90 border-2 border-sky-200/90 hover:border-sky-400/80 dark:border-sky-300 dark:hover:border-sky-400 rounded-3xl pt-14 sm:pt-16 pb-6 px-5 sm:px-6 shadow-sm hover:shadow-xl dark:shadow-[0_8px_25px_rgba(56,189,248,0.15)] hover:-translate-y-2 transition-all duration-300 text-center min-h-[290px]"
+              className="group relative flex flex-col items-center justify-between bg-gradient-to-b from-[#BEE5FE]/90 to-[#BEE5FE]/50 hover:from-[#BAE6FD] hover:to-[#BEE5FE] dark:from-[#BEE5FE] dark:to-[#BAE6FD]/90 border-2 border-sky-200/90 hover:border-sky-400/80 dark:border-sky-300 dark:hover:border-sky-400 rounded-3xl pt-14 sm:pt-16 pb-6 px-5 sm:px-6 shadow-sm hover:shadow-xl dark:shadow-[0_8px_25px_rgba(56,189,248,0.15)] hover:-translate-y-2 transition-all duration-300 text-center min-h-[290px] max-w-sm mx-auto sm:max-w-none w-full"
             >
               {/* Pet Sobreposto no Topo */}
               <div className="absolute -top-14 sm:-top-20 left-1/2 -translate-x-1/2 w-32 sm:w-40 pointer-events-none select-none transition-transform duration-300 group-hover:scale-105">
@@ -209,7 +209,7 @@ export function HomeView() {
                   requireAuth("favorites", { redirectTo: "/pets?favoritos=true" });
                 }
               }}
-              className="group relative flex flex-col items-center justify-between bg-gradient-to-b from-[#BEE5FE]/90 to-[#BEE5FE]/50 hover:from-[#BAE6FD] hover:to-[#BEE5FE] dark:from-[#BEE5FE] dark:to-[#BAE6FD]/90 border-2 border-sky-200/90 hover:border-sky-400/80 dark:border-sky-300 dark:hover:border-sky-400 rounded-3xl pt-14 sm:pt-16 pb-6 px-5 sm:px-6 shadow-sm hover:shadow-xl dark:shadow-[0_8px_25px_rgba(56,189,248,0.15)] hover:-translate-y-2 transition-all duration-300 text-center min-h-[290px]"
+              className="group relative flex flex-col items-center justify-between bg-gradient-to-b from-[#BEE5FE]/90 to-[#BEE5FE]/50 hover:from-[#BAE6FD] hover:to-[#BEE5FE] dark:from-[#BEE5FE] dark:to-[#BAE6FD]/90 border-2 border-sky-200/90 hover:border-sky-400/80 dark:border-sky-300 dark:hover:border-sky-400 rounded-3xl pt-14 sm:pt-16 pb-6 px-5 sm:px-6 shadow-sm hover:shadow-xl dark:shadow-[0_8px_25px_rgba(56,189,248,0.15)] hover:-translate-y-2 transition-all duration-300 text-center min-h-[290px] max-w-sm mx-auto sm:max-w-none w-full"
             >
               {/* Pet Sobreposto no Topo */}
               <div className="absolute -top-12 sm:-top-16 left-1/2 -translate-x-1/2 w-32 sm:w-44 pointer-events-none select-none transition-transform duration-300 group-hover:scale-105">
@@ -246,7 +246,7 @@ export function HomeView() {
             {/* Card 4: Seu próximo melhor amigo (Gatinho Rajado) */}
             <Link
               href="/pets"
-              className="group relative flex flex-col items-center justify-between bg-gradient-to-b from-[#BEE5FE]/90 to-[#BEE5FE]/50 hover:from-[#BAE6FD] hover:to-[#BEE5FE] dark:from-[#BEE5FE] dark:to-[#BAE6FD]/90 border-2 border-sky-200/90 hover:border-sky-400/80 dark:border-sky-300 dark:hover:border-sky-400 rounded-3xl pt-14 sm:pt-16 pb-6 px-5 sm:px-6 shadow-sm hover:shadow-xl dark:shadow-[0_8px_25px_rgba(56,189,248,0.15)] hover:-translate-y-2 transition-all duration-300 text-center min-h-[290px]"
+              className="group relative flex flex-col items-center justify-between bg-gradient-to-b from-[#BEE5FE]/90 to-[#BEE5FE]/50 hover:from-[#BAE6FD] hover:to-[#BEE5FE] dark:from-[#BEE5FE] dark:to-[#BAE6FD]/90 border-2 border-sky-200/90 hover:border-sky-400/80 dark:border-sky-300 dark:hover:border-sky-400 rounded-3xl pt-14 sm:pt-16 pb-6 px-5 sm:px-6 shadow-sm hover:shadow-xl dark:shadow-[0_8px_25px_rgba(56,189,248,0.15)] hover:-translate-y-2 transition-all duration-300 text-center min-h-[290px] max-w-sm mx-auto sm:max-w-none w-full"
             >
               {/* Pet Sobreposto no Topo */}
               <div className="absolute -top-12 sm:-top-16 left-1/2 -translate-x-1/2 w-32 sm:w-40 pointer-events-none select-none transition-transform duration-300 group-hover:scale-105">
@@ -308,9 +308,12 @@ export function HomeView() {
           </div>
 
           {/* 3 Colunas de Texto com os Títulos e Descrições de Cada Pilar */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-6 mt-4 text-center">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-6 mt-4 text-center">
             {/* Pilar 1 */}
-            <div className="flex flex-col items-center px-4">
+            <div className="flex flex-col items-center px-4 p-4 rounded-2xl bg-sky-50/50 dark:bg-sky-950/20 md:bg-transparent md:dark:bg-transparent">
+              <span className="w-7 h-7 rounded-full bg-sky-100 dark:bg-sky-900/60 text-sky-700 dark:text-sky-300 font-bold text-xs flex items-center justify-center mb-2">
+                1
+              </span>
               <h3 className="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-100 tracking-tight">
                 Encontre seu Pet
               </h3>
@@ -320,7 +323,10 @@ export function HomeView() {
             </div>
 
             {/* Pilar 2 */}
-            <div className="flex flex-col items-center px-4">
+            <div className="flex flex-col items-center px-4 p-4 rounded-2xl bg-sky-50/50 dark:bg-sky-950/20 md:bg-transparent md:dark:bg-transparent">
+              <span className="w-7 h-7 rounded-full bg-sky-100 dark:bg-sky-900/60 text-sky-700 dark:text-sky-300 font-bold text-xs flex items-center justify-center mb-2">
+                2
+              </span>
               <h3 className="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-100 tracking-tight">
                 Divulgue + Fácil
               </h3>
@@ -330,7 +336,10 @@ export function HomeView() {
             </div>
 
             {/* Pilar 3 */}
-            <div className="flex flex-col items-center px-4">
+            <div className="flex flex-col items-center px-4 p-4 rounded-2xl bg-sky-50/50 dark:bg-sky-950/20 md:bg-transparent md:dark:bg-transparent">
+              <span className="w-7 h-7 rounded-full bg-sky-100 dark:bg-sky-900/60 text-sky-700 dark:text-sky-300 font-bold text-xs flex items-center justify-center mb-2">
+                3
+              </span>
               <h3 className="font-bold text-base sm:text-lg text-slate-900 dark:text-slate-100 tracking-tight">
                 Gestão e Triagem
               </h3>
@@ -506,7 +515,7 @@ export function HomeView() {
               return (
                 <div
                   key={pet.id}
-                  className="group relative flex flex-col bg-white dark:bg-[#0D1726] border-[3px] border-[#BAE6FD] hover:border-sky-400 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl dark:shadow-[0_4px_20px_rgba(0,0,0,0.5)] hover:-translate-y-1.5 transition-all duration-300"
+                  className="group relative flex flex-col bg-white dark:bg-[#0D1726] border-[3px] border-[#BAE6FD] hover:border-sky-400 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl dark:shadow-[0_4px_20px_rgba(0,0,0,0.5)] hover:-translate-y-1.5 transition-all duration-300 max-w-sm mx-auto sm:max-w-none w-full"
                 >
                   {/* Foto do Pet com Moldura Azul Estilo Canva */}
                   <Link href={`/pets/${pet.id}`} className="relative aspect-square w-full overflow-hidden bg-sky-50 dark:bg-sky-950/40 block">

@@ -134,29 +134,29 @@ export function SmartMatchView() {
   };
 
   return (
-    <div className="container mx-auto px-4 sm:px-8 py-10 md:py-16 min-h-screen space-y-12">
+    <div className="container mx-auto px-4 sm:px-8 py-6 sm:py-10 md:py-16 min-h-screen space-y-8 sm:space-y-12">
       
       {/* Intro Hero */}
       {!hasStarted && !showResults && (
-        <div className="max-w-3xl mx-auto text-center space-y-6 py-12">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-wider">
-            <Sparkles className="w-4 h-4" /> Algoritmo Determinístico de Compatibilidade
+        <div className="max-w-3xl mx-auto text-center space-y-4 sm:space-y-6 py-6 sm:py-12">
+          <div className="inline-flex items-center gap-2 px-3.5 sm:px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-[11px] sm:text-xs font-bold uppercase tracking-wider">
+            <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Algoritmo Determinístico de Compatibilidade
           </div>
 
-          <h1 className="font-serif text-4xl sm:text-5xl font-bold text-foreground leading-tight">
+          <h1 className="font-serif text-2xl sm:text-4xl md:text-5xl font-bold text-foreground leading-tight">
             Descubra o Pet Perfeito para o Seu Estilo de Vida
           </h1>
 
-          <p className="text-base text-muted-foreground leading-relaxed max-w-xl mx-auto">
+          <p className="text-xs sm:text-base text-muted-foreground leading-relaxed max-w-xl mx-auto">
             Adoções bem-sucedidas acontecem quando o perfil comportamental do animal se alinha à rotina e ao espaço do tutor. Responda a 7 perguntas rápidas e descubra os animais ideais para o seu lar.
           </p>
 
-          <div className="pt-4">
+          <div className="pt-2 sm:pt-4">
             <button
               onClick={() => setHasStarted(true)}
-              className="px-8 py-4 min-h-[44px] rounded-full bg-primary text-primary-foreground font-bold text-base shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all hover:scale-105 inline-flex items-center justify-center gap-2 w-full sm:w-auto"
+              className="px-6 sm:px-8 py-3.5 sm:py-4 min-h-[44px] rounded-full bg-primary text-primary-foreground font-bold text-sm sm:text-base shadow-xl shadow-primary/20 hover:bg-primary/90 transition-all hover:scale-105 inline-flex items-center justify-center gap-2 w-full sm:w-auto"
             >
-              Iniciar Questionário Inteligente <ArrowRight className="w-5 h-5" />
+              Iniciar Questionário Inteligente <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
         </div>
@@ -263,17 +263,17 @@ export function SmartMatchView() {
               return (
                 <div
                   key={pet.id}
-                  className={`p-6 sm:p-8 rounded-3xl border bg-card shadow-sm transition-all flex flex-col lg:flex-row items-start lg:items-center gap-6 ${
+                  className={`p-4 sm:p-8 rounded-3xl border bg-card shadow-sm transition-all flex flex-col lg:flex-row items-start lg:items-center gap-5 sm:gap-6 ${
                     isTopMatch ? "border-primary/40 shadow-lg bg-primary/[0.02]" : "border-border/60"
                   }`}
                 >
                   {/* Photo with rank badge */}
-                  <div className="relative w-full lg:w-48 h-48 rounded-2xl overflow-hidden shrink-0 bg-secondary">
+                  <div className="relative w-full h-56 sm:h-64 lg:w-48 lg:h-48 rounded-2xl overflow-hidden shrink-0 bg-secondary">
                     <Image
                       src={pet.photos[0]}
                       alt={pet.name}
                       fill
-                      sizes="192px"
+                      sizes="(max-width: 1024px) 100vw, 192px"
                       className="object-cover"
                     />
                     <div className="absolute top-3 left-3 bg-black/70 backdrop-blur-md text-white text-xs font-bold px-2.5 py-1 rounded-full">

@@ -246,11 +246,11 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
         </div>
 
         {/* Scrollable Body Content */}
-        <div className="p-6 sm:p-8 overflow-y-auto flex-1 space-y-6">
+        <div className="p-4 sm:p-8 overflow-y-auto flex-1 space-y-4 sm:space-y-6">
           
           {/* Validation Alert */}
           {validationError && (
-            <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-300 flex items-start gap-3 animate-in shake">
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-300 flex items-start gap-3 animate-in shake">
               <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
               <div className="text-xs sm:text-sm font-medium leading-relaxed">
                 {validationError}
@@ -312,13 +312,13 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="Seu nome completo"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-foreground flex items-center justify-between">
-                    <span className="flex items-center gap-1.5">
+                  <label className="text-xs font-bold text-foreground flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                    <span className="flex items-center gap-1.5 flex-wrap">
                       <span>Data de Nascimento *</span>
                       <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-full border border-border">
                         <Lock className="w-3 h-3 text-amber-500" />
@@ -511,11 +511,11 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
 
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-foreground">Área de circulação do animal na casa:</label>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                   <button
                     type="button"
                     onClick={() => setFormData({ ...formData, accessArea: "livre_total" })}
-                    className={`p-3 rounded-2xl border text-xs font-semibold text-center transition-all ${
+                    className={`p-3 min-h-[44px] rounded-2xl border text-xs font-semibold text-center transition-all flex items-center justify-center ${
                       formData.accessArea === "livre_total"
                         ? "border-primary bg-primary/10 text-primary font-bold shadow-sm"
                         : "border-border bg-card text-muted-foreground hover:bg-secondary"
@@ -526,7 +526,7 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
                   <button
                     type="button"
                     onClick={() => setFormData({ ...formData, accessArea: "area_especifica" })}
-                    className={`p-3 rounded-2xl border text-xs font-semibold text-center transition-all ${
+                    className={`p-3 min-h-[44px] rounded-2xl border text-xs font-semibold text-center transition-all flex items-center justify-center ${
                       formData.accessArea === "area_especifica"
                         ? "border-primary bg-primary/10 text-primary font-bold shadow-sm"
                         : "border-border bg-card text-muted-foreground hover:bg-secondary"
@@ -542,7 +542,7 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
           {/* ETAPA 3: ROTINA & FAMÍLIA */}
           {step === 3 && (
             <div className="space-y-5">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-foreground">Adultos na Residência</label>
                   <input
@@ -550,7 +550,7 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
                     min={1}
                     value={formData.adultsCount}
                     onChange={(e) => setFormData({ ...formData, adultsCount: Number(e.target.value) })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
 
@@ -561,13 +561,13 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
                     min={0}
                     value={formData.childrenCount}
                     onChange={(e) => setFormData({ ...formData, childrenCount: Number(e.target.value) })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
               </div>
 
               <div className="p-4 rounded-2xl bg-secondary/40 border border-border space-y-3">
-                <div className="flex items-center justify-between">
+                <div className="flex items-start sm:items-center justify-between gap-3">
                   <div>
                     <span className="text-xs font-bold text-foreground">
                       Concordância Familiar Unânime *
@@ -580,7 +580,7 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
                     type="checkbox"
                     checked={formData.familyAgreement}
                     onChange={(e) => setFormData({ ...formData, familyAgreement: e.target.checked })}
-                    className="w-4 h-4 rounded text-primary accent-primary"
+                    className="w-4 h-4 rounded text-primary accent-primary mt-1 sm:mt-0 shrink-0"
                   />
                 </div>
 

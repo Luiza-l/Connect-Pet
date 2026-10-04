@@ -242,7 +242,7 @@ export function GuardianDashboardView() {
   const pendingApps = guardianApplications.filter((a) => a.status === "pending").length;
 
   return (
-    <div className="container mx-auto px-4 sm:px-8 py-10 md:py-16 min-h-screen space-y-8">
+    <div className="container mx-auto px-4 sm:px-8 py-6 sm:py-10 md:py-16 min-h-screen space-y-6 sm:space-y-8">
 
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border/60">
@@ -255,7 +255,7 @@ export function GuardianDashboardView() {
               {isGuardian ? "ONG / Protetor" : "Usuário"}
             </span>
           </div>
-          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-foreground mt-1">
+          <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mt-1">
             {currentUser?.name || "Painel da Instituição"}
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">
@@ -375,15 +375,15 @@ export function GuardianDashboardView() {
           {/* Dossier & Chat Viewer (8 Cols) */}
           <div className="lg:col-span-8 space-y-6">
             {selectedApplication ? (
-              <div className="p-6 sm:p-8 rounded-3xl bg-card border border-border/60 shadow-sm space-y-6">
+              <div className="p-4 sm:p-8 rounded-3xl bg-card border border-border/60 shadow-sm space-y-5 sm:space-y-6">
 
                 {/* Application Header with Status Changer */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border/60">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 pb-5 sm:pb-6 border-b border-border/60">
                   <div>
                     <span className="text-[10px] font-bold text-primary uppercase tracking-wider">
                       Dossiê de Pré-Adoção #{selectedApplication.id}
                     </span>
-                    <h2 className="font-serif text-2xl font-bold text-foreground mt-0.5">
+                    <h2 className="font-serif text-xl sm:text-2xl font-bold text-foreground mt-0.5">
                       {selectedApplication.candidate.name} &bull; {selectedApplication.petName}
                     </h2>
                   </div>
@@ -397,7 +397,7 @@ export function GuardianDashboardView() {
                         const newStatus = e.target.value as ApplicationStatus;
                         updateApplicationStatus(selectedApplication.id, newStatus);
                       }}
-                      className="px-3 py-1.5 rounded-xl border border-border bg-background text-xs font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                      className="px-3 py-1.5 min-h-[44px] rounded-xl border border-border bg-background text-xs font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
                     >
                       <option value="pending">Pendente</option>
                       <option value="under_review">Em Avaliação</option>
@@ -716,40 +716,40 @@ export function GuardianDashboardView() {
 
       {/* TAB 3: MÉTRICAS */}
       {activeTab === "metrics" && (
-        <div className="space-y-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="p-6 rounded-3xl bg-card border border-border/60 shadow-sm space-y-1">
+        <div className="space-y-6 sm:space-y-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div className="p-4 sm:p-6 rounded-3xl bg-card border border-border/60 shadow-sm space-y-1">
               <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Pets Acolhidos</span>
-              <p className="font-serif text-3xl sm:text-4xl font-bold text-foreground">{totalPets}</p>
+              <p className="font-serif text-2xl sm:text-4xl font-bold text-foreground">{totalPets}</p>
               <p className="text-xs text-emerald-600 font-medium">
                 {totalPets > 0 ? "+2 cadastrados este mês" : "Nenhum animal ativo"}
               </p>
             </div>
 
-            <div className="p-6 rounded-3xl bg-card border border-border/60 shadow-sm space-y-1">
+            <div className="p-4 sm:p-6 rounded-3xl bg-card border border-border/60 shadow-sm space-y-1">
               <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Adoções Concluídas</span>
-              <p className="font-serif text-3xl sm:text-4xl font-bold text-foreground">{adoptedPets}</p>
+              <p className="font-serif text-2xl sm:text-4xl font-bold text-foreground">{adoptedPets}</p>
               <p className="text-xs text-emerald-600 font-medium">
                 {adoptedPets > 0 ? "100% lares seguros" : "Aguardando primeiros resgates"}
               </p>
             </div>
 
-            <div className="p-6 rounded-3xl bg-card border border-border/60 shadow-sm space-y-1">
+            <div className="p-4 sm:p-6 rounded-3xl bg-card border border-border/60 shadow-sm space-y-1">
               <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Triagens em Aberto</span>
-              <p className="font-serif text-3xl sm:text-4xl font-bold text-foreground">{inProcessPets + pendingApps}</p>
+              <p className="font-serif text-2xl sm:text-4xl font-bold text-foreground">{inProcessPets + pendingApps}</p>
               <p className="text-xs text-primary font-medium">
                 {inProcessPets + pendingApps > 0 ? "Aguardando resposta da ONG" : "Sem pendências no momento"}
               </p>
             </div>
 
-            <div className="p-6 rounded-3xl bg-card border border-border/60 shadow-sm space-y-1">
+            <div className="p-4 sm:p-6 rounded-3xl bg-card border border-border/60 shadow-sm space-y-1">
               <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Taxa de Sucesso</span>
-              <p className="font-serif text-3xl sm:text-4xl font-bold text-foreground">{totalPets > 0 ? "98.5%" : "—"}</p>
+              <p className="font-serif text-2xl sm:text-4xl font-bold text-foreground">{totalPets > 0 ? "98.5%" : "—"}</p>
               <p className="text-xs text-muted-foreground font-medium">Graças à triagem das telas</p>
             </div>
           </div>
 
-          <div className="p-8 rounded-3xl bg-secondary/30 border border-border/60 space-y-4">
+          <div className="p-5 sm:p-8 rounded-3xl bg-secondary/30 border border-border/60 space-y-4">
             <h3 className="font-bold text-lg text-foreground flex items-center gap-2">
               <ShieldCheck className="w-5 h-5 text-primary" /> Conformidade com os Padrões ConnectPet
             </h3>
