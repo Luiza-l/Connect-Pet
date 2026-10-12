@@ -1,5 +1,15 @@
 # Changelog
 
+## [v0.9.19] - 2026-10-12
+### Commit
+`style: ampliar seção sobre horizontalmente`
+
+### Mudanças
+- Alinha a largura da seção sobre ao limite horizontal das demais seções principais da página.
+- Amplia proporcionalmente a ilustração panorâmica, preservando o respiro lateral e a responsividade.
+
+---
+
 ## [v0.9.18] - 2026-10-12
 ### Commit
 `style: aumentar texto da navbar`

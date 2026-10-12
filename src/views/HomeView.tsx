@@ -288,7 +288,7 @@ export function HomeView() {
       {/* 3. SEÇÃO: OS 3 PILARES DA ADOÇÃO NO CONNECTPET                            */}
       {/* ========================================================================= */}
       <section id="como-funciona" className="relative w-full bg-background py-12 sm:py-16 overflow-hidden transition-colors duration-300">
-        <div className="container mx-auto px-4 sm:px-6 max-w-5xl text-center">
+        <div className="container mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
 
           {/* Título Estilizado em Azul Celeste */}
           <h2 className="mx-auto max-w-xl text-balance font-serif text-2xl font-bold leading-tight tracking-tight text-primary sm:text-4xl">
@@ -296,7 +296,7 @@ export function HomeView() {
           </h2>
 
           {/* Ilustração Panorâmica da Trilha com Pins e Patinhas */}
-          <div className="relative mx-auto my-6 aspect-[3/1] w-full max-w-4xl overflow-hidden sm:my-8">
+          <div className="relative mx-auto my-6 aspect-[3/1] w-full max-w-6xl overflow-hidden sm:my-8">
             <Image
               src="/images/imagem-sobre.png"
               alt="Os 3 Pilares da Adoção no ConnectPet"
