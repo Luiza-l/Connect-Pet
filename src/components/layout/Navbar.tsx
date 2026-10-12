@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -24,6 +24,10 @@ import {
   UserCog
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+const assinarHidratacao = () => () => {};
+const obterSnapshotCliente = () => true;
+const obterSnapshotServidor = () => false;
 
 export function Navbar() {
   const pathname = usePathname();
@@ -62,6 +66,12 @@ export function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [themeDropdownOpen, setThemeDropdownOpen] = useState(false);
+  const estaHidratado = useSyncExternalStore(
+    assinarHidratacao,
+    obterSnapshotCliente,
+    obterSnapshotServidor
+  );
+  const temaVisivel = estaHidratado ? theme : "system";
 
   useEffect(() => {
     if (!mobileMenuOpen && !profileDropdownOpen && !themeDropdownOpen) return;
@@ -218,9 +228,9 @@ export function Navbar() {
               aria-haspopup="menu"
               aria-expanded={themeDropdownOpen}
             >
-              {theme === "light" && <Sun className="w-5 h-5 text-amber-500" />}
-              {theme === "dark" && <Moon className="w-5 h-5 text-indigo-400" />}
-              {theme === "system" && <Laptop className="w-5 h-5 text-muted-foreground" />}
+              {temaVisivel === "light" && <Sun className="w-5 h-5 text-amber-500" />}
+              {temaVisivel === "dark" && <Moon className="w-5 h-5 text-indigo-400" />}
+              {temaVisivel === "system" && <Laptop className="w-5 h-5 text-muted-foreground" />}
             </button>
 
             {themeDropdownOpen && (

@@ -1,5 +1,15 @@
 # Changelog
 
+## [v0.9.12] - 2026-10-12
+### Commit
+`fix: corrigir script de tema e hidratação da navbar`
+
+### Mudanças
+- Mantém o script de inicialização do tema executável apenas no HTML do servidor, evitando o erro de script renderizado no cliente com React 19 e Next.js 16.
+- Renderiza um estado estável para o ícone de tema até a hidratação, eliminando a divergência entre os ícones de sistema e do tema salvo.
+
+---
+
 ## [v0.9.11] - 2026-10-12
 ### Commit
 `fix: restaurar abertura da navbar no modo mobile`
