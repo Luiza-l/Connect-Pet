@@ -1,5 +1,14 @@
 # Changelog
 
+## [v0.9.10] - 2026-10-12
+### Commit
+`feat: integrar Vercel Speed Insights no layout global`
+
+### Mudanças
+- Adiciona o componente `SpeedInsights` de `@vercel/speed-insights/next` no layout raiz (`layout.tsx`) para monitoramento de métricas web em produção.
+
+---
+
 ## [v0.9.9] - 2026-10-12
 ### Commit
 `style: aumentar logo redondo na navbar e no rodapé`
