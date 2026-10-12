@@ -1,5 +1,30 @@
 # Changelog
 
+## [v0.9.1] - 2026-10-12
+### Commit
+`fix: simplificar triagem e preservar respostas do dossiê`
+
+### Mudanças
+- Reorganiza cada candidatura em um resumo essencial e grupos recolhíveis de perguntas e respostas, mantendo os textos completos e claramente identificados.
+- Move a análise automática e as anotações internas para áreas sob demanda, reduzindo a poluição visual sem remover recursos de triagem, contato ou conversa.
+- Persiste todas as respostas do formulário também em um snapshot versionado do dossiê e usa esse registro como fallback na leitura das candidaturas.
+- Adiciona filtros recolhíveis no celular, alvos de toque acessíveis e tratamento de quebra de texto para telas a partir de 320 px.
+
+---
+
+## [v0.9.0] - 2026-10-12
+### Commit
+`feat: aprimorar experiência visual e responsiva da plataforma`
+
+### Mudanças
+- Consolida a hierarquia visual, os espaçamentos e as superfícies da home, do catálogo, da autenticação e dos formulários, preservando a identidade azul do ConnectPet.
+- Substitui o painel móvel de filtros por um drawer acessível, adiciona contagem de filtros ativos e melhora a navegação móvel e os menus de conta e tema.
+- Uniformiza cards de animais, estados de foco, áreas de toque, tipografia de formulários e comportamento em telas a partir de 320 px.
+- Sincroniza o rodapé e as principais superfícies de marca nos temas claro e escuro, com contraste e legibilidade aprimorados.
+- Adiciona atalho para o conteúdo principal, suporte a movimento reduzido, semântica de diálogo e melhorias de teclado e acessibilidade em fluxos essenciais.
+
+---
+
 ## [v0.8.0] - 2026-10-11
 ### Commit
 `feat: exibir apresentação pública da ONG no card de responsável do pet`
