@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
@@ -141,7 +142,7 @@ export function Navbar() {
               className="object-contain"
             />
           </div>
-          <div className="flex flex-col">
+          <div className="hidden flex-col sm:flex">
             <span className="font-serif font-bold text-xl sm:text-[1.65rem] leading-none text-foreground tracking-tight">
               ConnectPet
             </span>
@@ -378,7 +379,12 @@ export function Navbar() {
 
           {/* Mobile Menu Hamburger */}
           <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            type="button"
+            onClick={() => {
+              setMobileMenuOpen((menuAberto) => !menuAberto);
+              setProfileDropdownOpen(false);
+              setThemeDropdownOpen(false);
+            }}
             className="lg:hidden p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full border border-border/60 bg-card text-foreground"
             aria-label={mobileMenuOpen ? "Fechar menu" : "Abrir menu"}
             aria-expanded={mobileMenuOpen}
@@ -390,7 +396,7 @@ export function Navbar() {
       </div>
 
       {/* Mobile Menu Dropdown */}
-      {mobileMenuOpen && (
+      {mobileMenuOpen && typeof document !== "undefined" && createPortal(
         <>
           <button
             type="button"
@@ -398,7 +404,10 @@ export function Navbar() {
             onClick={() => setMobileMenuOpen(false)}
             className="fixed inset-x-0 bottom-0 top-16 z-40 cursor-default bg-foreground/30 backdrop-blur-sm sm:top-20 lg:hidden"
           />
-          <div id="menu-movel" className="fixed bottom-0 right-0 top-16 z-50 w-full max-w-sm overflow-y-auto border-l border-border bg-background px-4 py-5 shadow-2xl animate-in slide-in-from-right-4 sm:top-20 sm:px-6 lg:hidden">
+          <div
+            id="menu-movel"
+            className="fixed bottom-0 right-0 top-16 z-50 w-full max-w-sm overflow-y-auto border-l border-border bg-background px-4 py-5 shadow-2xl animate-in slide-in-from-right-4 sm:top-20 sm:px-6 lg:hidden"
+          >
           <nav aria-label="Navegação móvel" className="flex flex-col space-y-1">
             {navLinks.map((link) => {
               const isActive = estaAtivo(link.href);
@@ -499,7 +508,8 @@ export function Navbar() {
             )}
           </div>
           </div>
-        </>
+        </>,
+        document.body
       )}
     </header>
   );

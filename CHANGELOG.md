@@ -1,5 +1,15 @@
 # Changelog
 
+## [v0.9.11] - 2026-10-12
+### Commit
+`fix: restaurar abertura da navbar no modo mobile`
+
+### Mudanças
+- Renderiza o drawer móvel fora do contexto de posicionamento do header com desfoque, permitindo que ele ocupe corretamente a viewport.
+- Mantém o botão do menu acessível a partir de 320px ao compactar o logotipo no mobile, sem alterar a navegação desktop animada.
+
+---
+
 ## [v0.9.10] - 2026-10-12
 ### Commit
 `feat: integrar Vercel Speed Insights no layout global`
