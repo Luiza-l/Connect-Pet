@@ -179,7 +179,7 @@ export function Navbar() {
                   refsLinks.current[link.href] = el;
                 }}
                 aria-current={isActive ? "page" : undefined}
-                className={`relative z-10 flex min-h-[44px] items-center gap-2 rounded-full px-3.5 py-2 text-[0.9375rem] font-semibold transition-colors duration-300 xl:px-5 ${
+                className={`relative z-10 flex min-h-[44px] items-center gap-2 rounded-full px-3.5 py-2 text-[.980rem] font-semibold transition-colors duration-300 xl:px-5 ${
                   isActive
                     ? "text-foreground font-bold"
                     : "text-muted-foreground hover:text-foreground"
