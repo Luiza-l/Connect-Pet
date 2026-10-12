@@ -21,7 +21,7 @@ export function HomeView() {
   const dynamicPets = pets.slice(0, 4);
 
   return (
-    <div className="flex flex-col min-h-screen bg-background text-foreground font-sans overflow-x-hidden selection:bg-sky-200 dark:selection:bg-sky-900 selection:text-sky-900 dark:selection:text-sky-100 transition-colors duration-300">
+    <div className="flex min-h-screen flex-col overflow-x-clip bg-background font-sans text-foreground selection:bg-sky-200 selection:text-sky-900 transition-colors duration-300 dark:selection:bg-sky-900 dark:selection:text-sky-100">
 
       {/* ========================================================================= */}
       {/* 1. SEÇÃO HERO (AZUL-CLARA COM ANIMAIS NAS LATERAIS E DIVISÃO EM ONDA)     */}

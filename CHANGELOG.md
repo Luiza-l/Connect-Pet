@@ -1,5 +1,26 @@
 # Changelog
 
+## [v0.9.4] - 2026-10-12
+### Commit
+`fix: remover rolagem vertical duplicada`
+
+### Mudanças
+- Remove a altura mínima desnecessária do invólucro global de animações, permitindo que o documento mantenha uma única área de rolagem.
+- Troca o recorte horizontal por `overflow-x: clip`, evitando que o navegador crie implicitamente contêineres de rolagem vertical no corpo e na página inicial.
+
+---
+
+## [v0.9.3] - 2026-10-12
+### Commit
+`feat: adicionar animações sutis de entrada e navegação`
+
+### Mudanças
+- Revela cards e seções progressivamente durante a rolagem, combinando opacidade e deslocamento leve com escalonamento discreto entre itens.
+- Adiciona uma transição breve de entrada ao novo conteúdo em cada navegação, sem aguardar animações de saída ou atrasar a troca de página.
+- Usa APIs nativas do navegador, anima apenas propriedades de composição e respeita a preferência de movimento reduzido para preservar desempenho e acessibilidade.
+
+---
+
 ## [v0.9.2] - 2026-10-12
 ### Commit
 `style: suavizar superfícies do modo claro`

@@ -7,6 +7,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { ToastContainer } from "@/components/ui/ToastContainer";
 import { AuthRequiredDialog } from "@/components/auth/AuthRequiredDialog";
+import { AnimacoesDaPagina } from "@/components/layout/AnimacoesDaPagina";
 import { Analytics } from '@vercel/analytics/next';
 
 const playfair = Playfair_Display({
@@ -61,7 +62,9 @@ export default function RootLayout({
         >
           <AppProvider>
             <Navbar />
-            <main id="conteudo-principal" className="flex-1" tabIndex={-1}>{children}</main>
+            <main id="conteudo-principal" className="flex-1" tabIndex={-1}>
+              <AnimacoesDaPagina>{children}</AnimacoesDaPagina>
+            </main>
             <Footer />
             <ToastContainer />
             <AuthRequiredDialog />
