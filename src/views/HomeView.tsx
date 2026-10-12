@@ -18,7 +18,7 @@ export function HomeView() {
   const { pets, petsLoading, petsError, isFavorite, toggleFavorite, currentUser, requireAuth } = useApp();
 
   // 5 animais dinâmicos do catálogo real (Supabase / AppContext)
-  const dynamicPets = pets.slice(0, 5);
+  const dynamicPets = pets.slice(0, 4);
 
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground font-sans overflow-x-hidden selection:bg-sky-200 dark:selection:bg-sky-900 selection:text-sky-900 dark:selection:text-sky-100 transition-colors duration-300">
@@ -26,7 +26,7 @@ export function HomeView() {
       {/* ========================================================================= */}
       {/* 1. SEÇÃO HERO (AZUL-CLARA COM ANIMAIS NAS LATERAIS E DIVISÃO EM ONDA)     */}
       {/* ========================================================================= */}
-      <section className="relative w-full bg-[#AEE0FF] pt-12 sm:pt-16 pb-0 overflow-hidden">
+      <section className="relative w-full overflow-hidden bg-sky-200 pb-0 pt-10 dark:bg-sky-950 sm:pt-16">
         {/* Patinhas Decorativas no Banner em tom de azul levemente mais escuro */}
         {/* Patinha Superior Esquerda (acima do Dálmata) */}
         <div className="absolute left-[10%] sm:left-[14%] md:left-[18%] lg:left-[21%] top-6 sm:top-8 md:top-10 z-0">
@@ -97,10 +97,10 @@ export function HomeView() {
           <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-white/90 dark:border-white/10 text-sky-900 dark:text-sky-200 text-xs sm:text-sm font-bold shadow-sm mb-3 sm:mb-4 animate-in fade-in">
             <Sparkles className="w-4 h-4 text-sky-600 dark:text-sky-400" /> Acolhimento & Adoção Responsável
           </span>
-          <h1 className="font-serif text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-sky-950 dark:text-sky-950 tracking-tight max-w-xs sm:max-w-md md:max-w-2xl leading-tight drop-shadow-sm px-2">
+          <h1 className="max-w-xs px-2 font-serif text-3xl font-extrabold leading-tight tracking-tight text-sky-950 drop-shadow-sm dark:text-sky-50 sm:max-w-md sm:text-4xl md:max-w-2xl md:text-5xl lg:text-6xl">
             Encontre o novo membro da sua família
           </h1>
-          <p className="text-sky-900/85 dark:text-sky-950/85 text-xs sm:text-sm md:text-base font-medium max-w-xs sm:max-w-sm md:max-w-lg mt-2.5 sm:mt-3 leading-relaxed px-2">
+          <p className="mt-2.5 max-w-xs px-2 text-sm font-medium leading-relaxed text-sky-900/85 dark:text-sky-100/85 sm:mt-3 sm:max-w-sm md:max-w-lg md:text-base">
             Conectamos protetores e adotantes conscientes em uma jornada transparente e cheia de afeto.
           </p>
         </div>
@@ -129,7 +129,7 @@ export function HomeView() {
             {/* Card 1: Encontre seu companheiro (Beagle) */}
             <Link
               href="/pets"
-              className="group relative flex flex-col items-center justify-between bg-gradient-to-b from-[#BEE5FE]/90 to-[#BEE5FE]/50 hover:from-[#BAE6FD] hover:to-[#BEE5FE] dark:from-[#BEE5FE] dark:to-[#BAE6FD]/90 border-2 border-sky-200/90 hover:border-sky-400/80 dark:border-sky-300 dark:hover:border-sky-400 rounded-3xl pt-14 sm:pt-16 pb-6 px-5 sm:px-6 shadow-sm hover:shadow-xl dark:shadow-[0_8px_25px_rgba(56,189,248,0.15)] hover:-translate-y-2 transition-all duration-300 text-center min-h-[290px] max-w-sm mx-auto sm:max-w-none w-full"
+              className="group relative mx-auto flex min-h-[290px] w-full max-w-sm flex-col items-center justify-between rounded-3xl border border-primary/20 bg-gradient-to-b from-primary/15 to-primary/5 px-5 pb-6 pt-14 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl dark:from-primary/20 dark:to-card sm:max-w-none sm:px-6 sm:pt-16"
             >
               {/* Pet Sobreposto no Topo */}
               <div className="absolute -top-12 sm:-top-16 left-1/2 -translate-x-1/2 w-32 sm:w-40 pointer-events-none select-none transition-transform duration-300 group-hover:scale-105">
@@ -148,16 +148,16 @@ export function HomeView() {
                   <SlidersHorizontal className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2] text-sky-800" />
                 </div>
 
-                <h2 className="font-bold text-base sm:text-lg text-slate-900 tracking-tight leading-snug group-hover:text-sky-950 transition-colors">
+                <h2 className="text-base font-bold leading-snug tracking-tight text-foreground transition-colors group-hover:text-primary sm:text-lg">
                   Encontre seu companheiro
                 </h2>
 
-                <p className="text-xs sm:text-sm text-slate-700 leading-relaxed mt-2.5">
+                <p className="mt-2.5 text-xs leading-relaxed text-muted-foreground sm:text-sm">
                   Use os filtros para encontrar pets de acordo com espécie, idade, porte e outras características.
                 </p>
               </div>
 
-              <div className="mt-4 pt-3 w-full border-t border-sky-200/60 flex items-center justify-center gap-1.5 text-xs font-bold text-sky-800 group-hover:text-sky-950 transition-colors">
+              <div className="mt-4 flex w-full items-center justify-center gap-1.5 border-t border-border/60 pt-3 text-xs font-bold text-primary transition-colors">
                 <span>Ver catálogo</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -166,7 +166,7 @@ export function HomeView() {
             {/* Card 2: Conheça antes de adotar (Gatinho Laranja) */}
             <Link
               href="/#como-funciona"
-              className="group relative flex flex-col items-center justify-between bg-gradient-to-b from-[#BEE5FE]/90 to-[#BEE5FE]/50 hover:from-[#BAE6FD] hover:to-[#BEE5FE] dark:from-[#BEE5FE] dark:to-[#BAE6FD]/90 border-2 border-sky-200/90 hover:border-sky-400/80 dark:border-sky-300 dark:hover:border-sky-400 rounded-3xl pt-14 sm:pt-16 pb-6 px-5 sm:px-6 shadow-sm hover:shadow-xl dark:shadow-[0_8px_25px_rgba(56,189,248,0.15)] hover:-translate-y-2 transition-all duration-300 text-center min-h-[290px] max-w-sm mx-auto sm:max-w-none w-full"
+              className="group relative mx-auto flex min-h-[290px] w-full max-w-sm flex-col items-center justify-between rounded-3xl border border-primary/20 bg-gradient-to-b from-primary/15 to-primary/5 px-5 pb-6 pt-14 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl dark:from-primary/20 dark:to-card sm:max-w-none sm:px-6 sm:pt-16"
             >
               {/* Pet Sobreposto no Topo */}
               <div className="absolute -top-14 sm:-top-20 left-1/2 -translate-x-1/2 w-32 sm:w-40 pointer-events-none select-none transition-transform duration-300 group-hover:scale-105">
@@ -185,16 +185,16 @@ export function HomeView() {
                   <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2] text-sky-800" />
                 </div>
 
-                <h2 className="font-bold text-base sm:text-lg text-slate-900 tracking-tight leading-snug group-hover:text-sky-950 transition-colors">
+                <h2 className="text-base font-bold leading-snug tracking-tight text-foreground transition-colors group-hover:text-primary sm:text-lg">
                   Conheça antes de adotar
                 </h2>
 
-                <p className="text-xs sm:text-sm text-slate-700 leading-relaxed mt-2.5">
+                <p className="mt-2.5 text-xs leading-relaxed text-muted-foreground sm:text-sm">
                   Veja informações sobre cada pet, conheça sua personalidade e descubra se vocês combinam.
                 </p>
               </div>
 
-              <div className="mt-4 pt-3 w-full border-t border-sky-200/60 flex items-center justify-center gap-1.5 text-xs font-bold text-sky-800 group-hover:text-sky-950 transition-colors">
+              <div className="mt-4 flex w-full items-center justify-center gap-1.5 border-t border-border/60 pt-3 text-xs font-bold text-primary transition-colors">
                 <span>Como funciona</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -209,7 +209,7 @@ export function HomeView() {
                   requireAuth("favorites", { redirectTo: "/pets?favoritos=true" });
                 }
               }}
-              className="group relative flex flex-col items-center justify-between bg-gradient-to-b from-[#BEE5FE]/90 to-[#BEE5FE]/50 hover:from-[#BAE6FD] hover:to-[#BEE5FE] dark:from-[#BEE5FE] dark:to-[#BAE6FD]/90 border-2 border-sky-200/90 hover:border-sky-400/80 dark:border-sky-300 dark:hover:border-sky-400 rounded-3xl pt-14 sm:pt-16 pb-6 px-5 sm:px-6 shadow-sm hover:shadow-xl dark:shadow-[0_8px_25px_rgba(56,189,248,0.15)] hover:-translate-y-2 transition-all duration-300 text-center min-h-[290px] max-w-sm mx-auto sm:max-w-none w-full"
+              className="group relative mx-auto flex min-h-[290px] w-full max-w-sm flex-col items-center justify-between rounded-3xl border border-primary/20 bg-gradient-to-b from-primary/15 to-primary/5 px-5 pb-6 pt-14 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl dark:from-primary/20 dark:to-card sm:max-w-none sm:px-6 sm:pt-16"
             >
               {/* Pet Sobreposto no Topo */}
               <div className="absolute -top-12 sm:-top-16 left-1/2 -translate-x-1/2 w-32 sm:w-44 pointer-events-none select-none transition-transform duration-300 group-hover:scale-105">
@@ -228,16 +228,16 @@ export function HomeView() {
                   <Heart className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2] text-rose-500 fill-rose-100" />
                 </div>
 
-                <h2 className="font-bold text-base sm:text-lg text-slate-900 tracking-tight leading-snug group-hover:text-sky-950 transition-colors">
+                <h2 className="text-base font-bold leading-snug tracking-tight text-foreground transition-colors group-hover:text-primary sm:text-lg">
                   Salve seus favoritos
                 </h2>
 
-                <p className="text-xs sm:text-sm text-slate-700 leading-relaxed mt-2.5">
+                <p className="mt-2.5 text-xs leading-relaxed text-muted-foreground sm:text-sm">
                   Encontrou um pet que chamou sua atenção? Salve seus favoritos para encontrá-los novamente depois.
                 </p>
               </div>
 
-              <div className="mt-4 pt-3 w-full border-t border-sky-200/60 flex items-center justify-center gap-1.5 text-xs font-bold text-sky-800 group-hover:text-sky-950 transition-colors">
+              <div className="mt-4 flex w-full items-center justify-center gap-1.5 border-t border-border/60 pt-3 text-xs font-bold text-primary transition-colors">
                 <span>Ver favoritos</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -246,7 +246,7 @@ export function HomeView() {
             {/* Card 4: Seu próximo melhor amigo (Gatinho Rajado) */}
             <Link
               href="/pets"
-              className="group relative flex flex-col items-center justify-between bg-gradient-to-b from-[#BEE5FE]/90 to-[#BEE5FE]/50 hover:from-[#BAE6FD] hover:to-[#BEE5FE] dark:from-[#BEE5FE] dark:to-[#BAE6FD]/90 border-2 border-sky-200/90 hover:border-sky-400/80 dark:border-sky-300 dark:hover:border-sky-400 rounded-3xl pt-14 sm:pt-16 pb-6 px-5 sm:px-6 shadow-sm hover:shadow-xl dark:shadow-[0_8px_25px_rgba(56,189,248,0.15)] hover:-translate-y-2 transition-all duration-300 text-center min-h-[290px] max-w-sm mx-auto sm:max-w-none w-full"
+              className="group relative mx-auto flex min-h-[290px] w-full max-w-sm flex-col items-center justify-between rounded-3xl border border-primary/20 bg-gradient-to-b from-primary/15 to-primary/5 px-5 pb-6 pt-14 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl dark:from-primary/20 dark:to-card sm:max-w-none sm:px-6 sm:pt-16"
             >
               {/* Pet Sobreposto no Topo */}
               <div className="absolute -top-12 sm:-top-16 left-1/2 -translate-x-1/2 w-32 sm:w-40 pointer-events-none select-none transition-transform duration-300 group-hover:scale-105">
@@ -265,16 +265,16 @@ export function HomeView() {
                   <PawPrint className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2] text-sky-800" />
                 </div>
 
-                <h2 className="font-bold text-base sm:text-lg text-slate-900 tracking-tight leading-snug group-hover:text-sky-950 transition-colors">
+                <h2 className="text-base font-bold leading-snug tracking-tight text-foreground transition-colors group-hover:text-primary sm:text-lg">
                   Seu próximo melhor amigo
                 </h2>
 
-                <p className="text-xs sm:text-sm text-slate-700 leading-relaxed mt-2.5">
+                <p className="mt-2.5 text-xs leading-relaxed text-muted-foreground sm:text-sm">
                   Explore os animais disponíveis e encontre aquele que pode fazer parte da sua família.
                 </p>
               </div>
 
-              <div className="mt-4 pt-3 w-full border-t border-sky-200/60 flex items-center justify-center gap-1.5 text-xs font-bold text-sky-800 group-hover:text-sky-950 transition-colors">
+              <div className="mt-4 flex w-full items-center justify-center gap-1.5 border-t border-border/60 pt-3 text-xs font-bold text-primary transition-colors">
                 <span>Adotar agora</span>
                 <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
               </div>
@@ -291,7 +291,7 @@ export function HomeView() {
         <div className="container mx-auto px-4 sm:px-6 max-w-5xl text-center">
 
           {/* Título Estilizado em Azul Celeste */}
-          <h2 className="font-bold text-2xl sm:text-4xl text-[#38BDF8] tracking-tight leading-tight max-w-xl mx-auto drop-shadow-sm">
+          <h2 className="mx-auto max-w-xl text-balance font-serif text-2xl font-bold leading-tight tracking-tight text-primary sm:text-4xl">
             Os 3 Pilares da Adoção<br />no ConnectPet
           </h2>
 
@@ -355,7 +355,7 @@ export function HomeView() {
       {/* ========================================================================= */}
       {/* 4. SEÇÃO: DICAS PARA CUIDAR DO SEU PET (AZUL COM ONDA EM NUVEM E DICAS)  */}
       {/* ========================================================================= */}
-      <section id="dicas" className="relative w-full bg-[#AEE0FF] pt-12 sm:pt-16 pb-0 overflow-hidden">
+      <section id="dicas" className="relative w-full overflow-hidden bg-sky-200 pb-0 pt-12 dark:bg-sky-950 sm:pt-16">
 
         {/* Patinhas decorativas distribuídas organicamente e de forma assimétrica pelo fundo azul
         {/* 1. Esquerda alta, inclinada perto da curva da nuvem *
@@ -503,6 +503,16 @@ export function HomeView() {
       <section className="relative w-full bg-background pt-4 pb-16 sm:pb-24 transition-colors duration-300">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
 
+          <div className="mx-auto mb-8 max-w-2xl text-center sm:mb-10">
+            <span className="section-kicker">Novos amigos esperando por você</span>
+            <h2 className="mt-2 font-serif text-2xl font-bold tracking-tight text-foreground sm:text-4xl">
+              Conheça alguns pets disponíveis
+            </h2>
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+              Perfis reais de animais acolhidos por ONGs e protetores responsáveis.
+            </p>
+          </div>
+
           {/* Grade com Cards de Pets Reais (Consumidos do Supabase / AppContext) */}
           {petsLoading && (
             <p className="mb-6 text-center text-sm text-muted-foreground" role="status">Carregando animais disponíveis...</p>
@@ -517,7 +527,7 @@ export function HomeView() {
               Ainda não há animais publicados no catálogo.
             </p>
           )}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5 lg:gap-6">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4 lg:gap-6">
             {dynamicPets.map((pet) => {
               const favorite = isFavorite(pet.id);
               const mainPhoto =
@@ -528,7 +538,7 @@ export function HomeView() {
               return (
                 <div
                   key={pet.id}
-                  className="group relative flex flex-col bg-white dark:bg-[#0D1726] border-[3px] border-[#BAE6FD] hover:border-sky-400 rounded-3xl overflow-hidden shadow-sm hover:shadow-xl dark:shadow-[0_4px_20px_rgba(0,0,0,0.5)] hover:-translate-y-1.5 transition-all duration-300 max-w-sm mx-auto sm:max-w-none w-full"
+                  className="group relative mx-auto flex w-full max-w-sm flex-col overflow-hidden rounded-3xl border border-border/70 bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl sm:max-w-none"
                 >
                   {/* Foto do Pet com Moldura Azul Estilo Canva */}
                   <Link href={`/pets/${pet.id}`} className="relative aspect-square w-full overflow-hidden bg-sky-50 dark:bg-sky-950/40 block">
@@ -559,7 +569,7 @@ export function HomeView() {
                   </Link>
 
                   {/* Informações Resumidas do Pet */}
-                  <div className="p-4 sm:p-5 flex flex-col flex-1 justify-between bg-white dark:bg-[#0D1726]">
+                  <div className="flex flex-1 flex-col justify-between bg-card p-4 sm:p-5">
                     <div>
                       <div className="flex items-center justify-between gap-1.5">
                         <Link href={`/pets/${pet.id}`}>
@@ -567,7 +577,7 @@ export function HomeView() {
                             {pet.name}
                           </h3>
                         </Link>
-                        <span className="text-[11px] font-bold text-sky-950 bg-[#BEE5FE] px-2 py-0.5 rounded-full whitespace-nowrap">
+                        <span className="whitespace-nowrap rounded-full bg-primary/10 px-2 py-0.5 text-[11px] font-bold text-primary">
                           {pet.approximateAge || "Idade não informada"}
                         </span>
                       </div>
@@ -598,9 +608,9 @@ export function HomeView() {
           <div className="flex justify-center mt-10 sm:mt-14">
             <Link
               href="/pets"
-              className="inline-flex items-center gap-2.5 px-8 sm:px-10 py-3.5 sm:py-4 rounded-full bg-[#BEE5FE] hover:bg-[#BAE6FD] text-sky-950 font-extrabold text-sm sm:text-base border border-sky-300/80 shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all"
+              className="inline-flex min-h-[48px] items-center gap-2.5 rounded-full bg-primary px-8 py-3.5 text-sm font-extrabold text-primary-foreground shadow-md transition-all hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-lg active:translate-y-0 sm:px-10 sm:py-4 sm:text-base"
             >
-              <Search className="w-5 h-5 text-sky-700 stroke-[2.5]" />
+              <Search className="h-5 w-5 stroke-[2.5]" />
               <span>Acessar Catálogo Completo</span>
             </Link>
           </div>

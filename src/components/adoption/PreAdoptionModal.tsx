@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import confetti from "canvas-confetti";
 import { Pet, PreAdoptionApplication, AdopterProfile } from "@/types";
@@ -34,6 +34,7 @@ interface PreAdoptionModalProps {
 
 export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps) {
   const { currentUser, submitApplication, calculateAge, isAgeAllowed } = useApp();
+  const dialogoRef = useRef<HTMLDivElement>(null);
 
   const [step, setStep] = useState<number>(0);
   const [createdAppId, setCreatedAppId] = useState<string | null>(null);
@@ -94,6 +95,23 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
       } catch {}
     }
   }, [step]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const overflowAnterior = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    dialogoRef.current?.focus();
+
+    const aoPressionarTecla = (evento: KeyboardEvent) => {
+      if (evento.key === "Escape" && !isSubmitting) onClose();
+    };
+
+    document.addEventListener("keydown", aoPressionarTecla);
+    return () => {
+      document.removeEventListener("keydown", aoPressionarTecla);
+      document.body.style.overflow = overflowAnterior;
+    };
+  }, [isOpen, isSubmitting, onClose]);
 
   if (!isOpen) return null;
 
@@ -266,8 +284,20 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
   ];
 
   return (
-    <div className="fixed inset-0 z-[999] flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-sm overflow-y-auto">
-      <div className="relative w-full max-w-2xl bg-card rounded-3xl border border-border shadow-2xl overflow-hidden my-auto animate-in fade-in zoom-in-95 max-h-[92vh] flex flex-col">
+    <div
+      className="fixed inset-0 z-[999] flex items-center justify-center overflow-y-auto bg-black/60 p-3 backdrop-blur-sm sm:p-6"
+      onMouseDown={(evento) => {
+        if (evento.target === evento.currentTarget && !isSubmitting) onClose();
+      }}
+    >
+      <div
+        ref={dialogoRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="titulo-pre-adocao"
+        tabIndex={-1}
+        className="relative my-auto flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-2xl outline-none animate-in fade-in zoom-in-95"
+      >
         
         {/* Header with Pet info and Step Progress */}
         <div className="p-5 sm:p-6 border-b border-border/60 bg-secondary/30 flex items-center justify-between shrink-0">
@@ -275,7 +305,7 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
             <span className="text-[11px] font-bold text-primary tracking-wider uppercase">
               Etapa {step} de 5 • {stepsTitle[step]}
             </span>
-            <h2 className="text-xl sm:text-2xl font-serif font-bold text-foreground mt-0.5">
+            <h2 id="titulo-pre-adocao" className="mt-0.5 font-serif text-xl font-bold text-foreground sm:text-2xl">
               Pré-Adoção de {pet.name}
             </h2>
           </div>
@@ -290,7 +320,14 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
         </div>
 
         {/* Progress Bar */}
-        <div className="w-full bg-secondary h-1.5 shrink-0">
+        <div
+          role="progressbar"
+          aria-label="Progresso da candidatura"
+          aria-valuemin={0}
+          aria-valuemax={5}
+          aria-valuenow={step}
+          className="h-1.5 w-full shrink-0 bg-secondary"
+        >
           <div
             className="bg-primary h-full transition-all duration-300"
             style={{ width: `${(step / 5) * 100}%` }}
@@ -302,7 +339,7 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
           
           {/* Validation Alert */}
           {validationError && (
-            <div className="p-3.5 sm:p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-700 dark:text-rose-300 flex items-start gap-3 animate-in shake">
+            <div role="alert" className="flex items-start gap-3 rounded-2xl border border-rose-500/20 bg-rose-500/10 p-3.5 text-rose-700 animate-in shake dark:text-rose-300 sm:p-4">
               <AlertTriangle className="w-5 h-5 shrink-0 mt-0.5" />
               <div className="text-xs sm:text-sm font-medium leading-relaxed">
                 {validationError}

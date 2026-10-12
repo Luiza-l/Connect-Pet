@@ -1,10 +1,17 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useId } from "react";
 import { useSearchParams } from "next/navigation";
 import { useApp } from "@/context/AppContext";
 import { PetCard } from "@/components/pets/PetCard";
 import { Button } from "@/components/ui/button";
+import {
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle
+} from "@/components/ui/sheet";
 import {
   Search,
   SlidersHorizontal,
@@ -63,6 +70,11 @@ function FilterPanel({
   availableCities,
   resetFilters
 }: Omit<FilterProps, 'searchQuery' | 'setSearchQuery'>) {
+  const prefixoId = useId();
+  const idFavoritos = `${prefixoId}-favoritos`;
+  const idGuardiao = `${prefixoId}-guardiao`;
+  const idCidade = `${prefixoId}-cidade`;
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between pb-3 border-b border-border/60">
@@ -79,11 +91,11 @@ function FilterPanel({
 
       {/* Somente Favoritos Switch */}
       <div className="min-h-[44px] p-3 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-between">
-        <label htmlFor="onlyFavorites" className="flex min-h-[44px] items-center gap-1.5 text-xs font-bold text-rose-700 cursor-pointer dark:text-rose-400">
+        <label htmlFor={idFavoritos} className="flex min-h-[44px] items-center gap-1.5 text-xs font-bold text-rose-700 cursor-pointer dark:text-rose-400">
           <Heart className="w-4 h-4 fill-current" /> Somente Meus Favoritos
         </label>
         <input
-          id="onlyFavorites"
+          id={idFavoritos}
           type="checkbox"
           checked={onlyFavorites}
           onChange={(e) => setOnlyFavorites(e.target.checked)}
@@ -99,6 +111,7 @@ function FilterPanel({
             <button
               key={item}
               onClick={() => setSpecies(item)}
+              aria-pressed={species === item}
               className={`flex min-h-[44px] items-center justify-center rounded-xl px-3 py-2 text-xs font-semibold transition-all ${
                 species === item
                   ? "bg-primary text-primary-foreground font-bold shadow-sm"
@@ -124,6 +137,7 @@ function FilterPanel({
             <button
               key={item.id}
               onClick={() => setSize(item.id)}
+              aria-pressed={size === item.id}
               className={`py-2 px-2 rounded-xl text-xs font-semibold text-center transition-all min-h-[44px] flex items-center justify-center ${
                 size === item.id
                   ? "bg-primary text-primary-foreground font-bold shadow-sm"
@@ -148,6 +162,7 @@ function FilterPanel({
             <button
               key={item.id}
               onClick={() => setSex(item.id)}
+              aria-pressed={sex === item.id}
               className={`py-2 px-3 rounded-xl text-xs font-semibold transition-all min-h-[44px] flex items-center justify-center ${
                 sex === item.id
                   ? "bg-primary text-primary-foreground font-bold shadow-sm"
@@ -174,6 +189,7 @@ function FilterPanel({
             <button
               key={item.id}
               onClick={() => setAgeCategory(item.id)}
+              aria-pressed={ageCategory === item.id}
               className={`py-2 px-3 rounded-xl text-xs font-semibold text-center transition-all min-h-[44px] flex items-center justify-center ${
                 ageCategory === item.id
                   ? "bg-primary text-primary-foreground font-bold shadow-sm"
@@ -190,6 +206,8 @@ function FilterPanel({
       <div className="space-y-2">
         <label className="text-xs font-bold text-foreground uppercase tracking-wider">Doador Responsável</label>
         <select
+          id={idGuardiao}
+          aria-label="Filtrar por tipo de responsável"
           value={guardianType}
           onChange={(e) => setGuardianType(e.target.value)}
           className="w-full px-3 py-2.5 min-h-[44px] rounded-xl border border-border bg-background text-xs sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
@@ -205,6 +223,8 @@ function FilterPanel({
         <div className="space-y-2">
           <label className="text-xs font-bold text-foreground uppercase tracking-wider">Cidade / Região</label>
           <select
+            id={idCidade}
+            aria-label="Filtrar por cidade ou região"
             value={city}
             onChange={(e) => setCity(e.target.value)}
             className="w-full px-3 py-2.5 min-h-[44px] rounded-xl border border-border bg-background text-xs sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary cursor-pointer"
@@ -261,6 +281,18 @@ export function CatalogView() {
   const [city, setCity] = useState("all");
   const [onlyCastrated, setOnlyCastrated] = useState(false);
   const [onlyVaccinated, setOnlyVaccinated] = useState(false);
+
+  const totalFiltrosAtivos = [
+    species !== "all",
+    size !== "all",
+    sex !== "all",
+    ageCategory !== "all",
+    guardianType !== "all",
+    city !== "all",
+    onlyCastrated,
+    onlyVaccinated,
+    showFavoritesOnly
+  ].filter(Boolean).length;
 
   const isFavoritosUrl = searchParams.get("favoritos") === "true";
   const isAuthenticated = Boolean(currentUser);
@@ -392,6 +424,7 @@ export function CatalogView() {
             <Search className="w-4 h-4 text-muted-foreground absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
+              aria-label="Buscar animais"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Buscar por nome, raça, cidade..."
@@ -414,6 +447,11 @@ export function CatalogView() {
             className="lg:hidden rounded-full shrink-0 flex items-center gap-2 min-h-[44px] px-4"
           >
             <SlidersHorizontal className="w-4 h-4 text-primary" /> Filtros
+            {totalFiltrosAtivos > 0 && (
+              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">
+                {totalFiltrosAtivos}
+              </span>
+            )}
           </Button>
         </div>
       </div>
@@ -448,20 +486,18 @@ export function CatalogView() {
         </aside>
 
         {/* Mobile Drawer */}
-        {isMobileDrawerOpen && (
-          <div className="lg:hidden fixed inset-0 z-[999] bg-black/60 backdrop-blur-sm flex justify-end animate-in fade-in">
-            <div className="w-full max-w-xs sm:max-w-sm bg-card h-full p-5 sm:p-6 pb-12 overflow-y-auto space-y-6 shadow-2xl animate-in slide-in-from-right">
-              <div className="flex items-center justify-between border-b border-border pb-4">
-                <h3 className="font-bold text-lg text-foreground">Filtros</h3>
-                <button
-                  onClick={() => setIsMobileDrawerOpen(false)}
-                  className="p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full hover:bg-secondary text-muted-foreground"
-                  aria-label="Fechar filtros"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
+        <SheetContent
+          isOpen={isMobileDrawerOpen}
+          onOpenChange={setIsMobileDrawerOpen}
+          side="right"
+          className="w-full max-w-sm gap-0 bg-card lg:hidden"
+        >
+              <SheetHeader className="border-b border-border px-5 py-5 pr-16">
+                <SheetTitle className="text-lg font-bold">Filtros do catálogo</SheetTitle>
+                <SheetDescription>Ajuste os critérios e veja o resultado em tempo real.</SheetDescription>
+              </SheetHeader>
 
+              <div className="flex-1 space-y-6 overflow-y-auto px-5 py-5">
               <FilterPanel
                 species={species}
                 setSpecies={setSpecies}
@@ -484,16 +520,17 @@ export function CatalogView() {
                 availableCities={availableCities}
                 resetFilters={resetFilters}
               />
+              </div>
 
+              <SheetFooter className="border-t border-border bg-card p-4">
               <Button
                 onClick={() => setIsMobileDrawerOpen(false)}
                 className="w-full rounded-full bg-primary min-h-[44px]"
               >
                 Ver Resultados ({filteredPets.length})
               </Button>
-            </div>
-          </div>
-        )}
+              </SheetFooter>
+        </SheetContent>
 
         {/* Pet Cards Grid */}
         <section className="lg:col-span-3 space-y-6">

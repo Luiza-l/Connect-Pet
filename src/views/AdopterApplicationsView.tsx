@@ -299,15 +299,16 @@ export function AdopterApplicationsView() {
                   </div>
 
                   {/* Message Input */}
-                  <form onSubmit={handleSendMessage} className="flex gap-2">
+                  <form onSubmit={handleSendMessage} className="flex flex-col gap-2 sm:flex-row">
                     <input
                       type="text"
                       value={chatMessage}
                       onChange={(e) => setChatMessage(e.target.value)}
                       placeholder="Envie uma mensagem ou tire dúvidas sobre a visita..."
-                      className="flex-1 px-4 py-2.5 min-h-[44px] rounded-full border border-border bg-background text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                      aria-label="Mensagem para o responsável"
+                      className="min-h-[44px] min-w-0 flex-1 rounded-full border border-border bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                     />
-                    <Button type="submit" className="rounded-full px-5 text-xs bg-primary hover:bg-primary/90 min-h-[44px]">
+                    <Button type="submit" className="min-h-[44px] w-full rounded-full bg-primary px-5 text-xs hover:bg-primary/90 sm:w-auto">
                       <Send className="w-3.5 h-3.5 mr-1" /> Enviar
                     </Button>
                   </form>

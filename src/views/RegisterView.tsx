@@ -329,15 +329,15 @@ export function RegisterView() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-12 sm:py-16 min-h-[85vh] flex items-center justify-center">
-      <div className="w-full max-w-lg bg-card rounded-3xl border border-border shadow-xl p-5 sm:p-8 space-y-6 animate-in fade-in">
+    <div className="flex min-h-[85vh] items-center justify-center bg-gradient-to-b from-primary/[0.04] to-background px-4 py-10 sm:py-16">
+      <div className="w-full max-w-lg space-y-6 rounded-3xl border border-border/70 bg-card p-5 shadow-lg animate-in fade-in sm:p-8">
         
         {/* Header */}
         <div className="text-center space-y-2">
           <Link href="/" className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary text-primary-foreground shadow-md shadow-primary/20 mb-2">
             <PawPrint className="w-6 h-6 fill-current" />
           </Link>
-          <h1 className="font-serif text-3xl font-bold text-foreground">
+          <h1 className="font-serif text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
             Criar Conta no ConnectPet
           </h1>
           <p className="text-xs text-muted-foreground">
@@ -347,7 +347,7 @@ export function RegisterView() {
 
         {/* Feedback Messages */}
         {errorMessage && (
-          <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs">
+          <div role="alert" className="rounded-2xl border border-rose-500/30 bg-rose-500/10 p-3.5 text-sm text-rose-600 dark:text-rose-400">
             {errorMessage}
           </div>
         )}
@@ -357,6 +357,7 @@ export function RegisterView() {
           <button
             type="button"
             onClick={() => setRoleTab("adopter")}
+            aria-pressed={roleTab === "adopter"}
             className={`py-2 rounded-xl text-xs font-bold transition-all min-h-[44px] flex items-center justify-center gap-1.5 ${
               roleTab === "adopter"
                 ? "bg-background text-primary shadow-sm"
@@ -368,6 +369,7 @@ export function RegisterView() {
           <button
             type="button"
             onClick={() => setRoleTab("guardian")}
+            aria-pressed={roleTab === "guardian"}
             className={`py-2 rounded-xl text-xs font-bold transition-all min-h-[44px] flex items-center justify-center gap-1.5 ${
               roleTab === "guardian"
                 ? "bg-background text-primary shadow-sm"
@@ -393,6 +395,7 @@ export function RegisterView() {
                     maxLength={100}
                     autoComplete="name"
                     value={adopterName}
+                    aria-label="Nome completo"
                     onChange={(e) => setAdopterName(e.target.value)}
                     placeholder="Ex: Mariana da Silva Sauro"
                     className="min-h-[44px] w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-4 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
@@ -412,6 +415,7 @@ export function RegisterView() {
                       min="1900-01-01"
                       max={new Date().toISOString().split("T")[0]}
                       value={adopterBirthDate}
+                      aria-label="Data de nascimento"
                       onChange={(e) => setAdopterBirthDate(e.target.value)}
                       className="min-h-[44px] w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-3 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
                     />
@@ -444,6 +448,7 @@ export function RegisterView() {
                       inputMode="numeric"
                       maxLength={14}
                       value={adopterCpf}
+                      aria-label="CPF"
                       onChange={(e) => setAdopterCpf(formatCPF(e.target.value))}
                       placeholder="000.000.000-00"
                       className="min-h-[44px] w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-3 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
@@ -473,6 +478,7 @@ export function RegisterView() {
                       required
                       maxLength={80}
                       value={adopterProfession}
+                      aria-label="Profissão ou ocupação"
                       onChange={(e) => setAdopterProfession(e.target.value)}
                       placeholder="Ex: Designer, Engenheiro"
                       className="min-h-[44px] w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-3 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
@@ -490,6 +496,7 @@ export function RegisterView() {
                       inputMode="tel"
                       maxLength={15}
                       value={adopterPhone}
+                      aria-label="WhatsApp ou celular"
                       onChange={(e) => setAdopterPhone(formatPhone(e.target.value))}
                       placeholder="(11) 98765-4321"
                       className="min-h-[44px] w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-3 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
@@ -509,7 +516,8 @@ export function RegisterView() {
                   <input
                     type="text"
                     maxLength={80}
-                    value={adopterSocialMedia}
+                  value={adopterSocialMedia}
+                  aria-label="Rede social"
                     onChange={(e) => setAdopterSocialMedia(e.target.value)}
                     placeholder="@instagram ou linkedin.com/in/perfil"
                     className="min-h-[44px] w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-4 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
@@ -527,7 +535,8 @@ export function RegisterView() {
                     required
                     maxLength={100}
                     autoComplete="email"
-                    value={adopterEmail}
+                  value={adopterEmail}
+                  aria-label="E-mail"
                     onChange={(e) => setAdopterEmail(e.target.value)}
                     placeholder="seu.email@exemplo.com"
                     className="min-h-[44px] w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-4 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
@@ -546,7 +555,8 @@ export function RegisterView() {
                     minLength={6}
                     maxLength={64}
                     autoComplete="new-password"
-                    value={adopterPassword}
+                  value={adopterPassword}
+                  aria-label="Senha"
                     onChange={(e) => setAdopterPassword(e.target.value)}
                     placeholder="Mínimo 6 caracteres"
                     className="min-h-[44px] w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-4 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
@@ -591,6 +601,7 @@ export function RegisterView() {
                     required
                     maxLength={100}
                     value={ngoName}
+                    aria-label={guardianType === "ngo" ? "Nome da ONG ou instituição" : "Nome completo do doador"}
                     onChange={(e) => setNgoName(e.target.value)}
                     placeholder={guardianType === "ngo" ? "Nome da organização" : "Nome e sobrenome"}
                     className="min-h-[44px] w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-4 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
@@ -623,6 +634,7 @@ export function RegisterView() {
                       inputMode="numeric"
                       maxLength={guardianType === "ngo" ? 18 : 14}
                       value={ngoDocument}
+                      aria-label={guardianType === "ngo" ? "CNPJ" : "CPF"}
                       onChange={(e) => setNgoDocument(guardianType === "ngo" ? formatCNPJ(e.target.value) : formatCPF(e.target.value))}
                       placeholder={guardianType === "ngo" ? "00.000.000/0001-00" : "000.000.000-00"}
                       className="min-h-[44px] w-full rounded-xl border border-border bg-background py-2.5 pl-9 pr-3 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
@@ -655,6 +667,7 @@ export function RegisterView() {
                       required
                       maxLength={60}
                       value={ngoCity}
+                      aria-label="Cidade de atuação"
                       onChange={(e) => setNgoCity(e.target.value)}
                       placeholder="São Paulo"
                       className="min-h-[44px] w-full rounded-xl border border-border bg-background py-2.5 pl-9 pr-3 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
@@ -667,6 +680,7 @@ export function RegisterView() {
                   <select
                     id="guardian-state"
                     value={ngoState}
+                    aria-label="Estado de atuação"
                     onChange={(e) => setNgoState(e.target.value)}
                     className="min-h-[44px] w-full rounded-xl border border-border bg-background px-3 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
                   >
@@ -685,7 +699,8 @@ export function RegisterView() {
                     required
                     inputMode="tel"
                     maxLength={15}
-                    value={ngoPhone}
+                  value={ngoPhone}
+                  aria-label="WhatsApp ou celular"
                     onChange={(e) => setNgoPhone(formatPhone(e.target.value))}
                     placeholder="(11) 99999-9999"
                     className="w-full min-h-[44px] pl-10 pr-4 py-2.5 rounded-xl border border-border bg-background text-xs focus:outline-none focus:ring-2 focus:ring-primary"
@@ -702,7 +717,8 @@ export function RegisterView() {
                     required
                     maxLength={100}
                     autoComplete="email"
-                    value={ngoEmail}
+                  value={ngoEmail}
+                  aria-label={guardianType === "ngo" ? "E-mail institucional" : "E-mail"}
                     onChange={(e) => setNgoEmail(e.target.value)}
                     placeholder={guardianType === "ngo" ? "contato@ong.org" : "seu.email@exemplo.com"}
                     className="min-h-[44px] w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-4 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
@@ -720,7 +736,8 @@ export function RegisterView() {
                     minLength={6}
                     maxLength={64}
                     autoComplete="new-password"
-                    value={ngoPassword}
+                  value={ngoPassword}
+                  aria-label="Senha de acesso"
                     onChange={(e) => setNgoPassword(e.target.value)}
                     placeholder="••••••••"
                     className="min-h-[44px] w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-4 text-xs focus:outline-none focus:ring-2 focus:ring-primary"

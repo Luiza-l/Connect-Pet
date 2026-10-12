@@ -11,6 +11,7 @@ import {
   BarChart3,
   Building2,
   CheckCircle2,
+  ChevronDown,
   ChevronRight,
   CircleCheckBig,
   Eye,
@@ -158,6 +159,44 @@ function EstadoErro({ titulo, mensagem, aoTentarNovamente }: { titulo: string; m
   );
 }
 
+function RespostaDossie({ pergunta, resposta }: { pergunta: string; resposta?: string | number }) {
+  const respostaInformada = resposta !== undefined && String(resposta).trim().length > 0;
+
+  return (
+    <div className="space-y-1 border-b border-border/50 py-3 first:pt-0 last:border-0 last:pb-0">
+      <dt className="text-xs font-medium leading-relaxed text-muted-foreground">{pergunta}</dt>
+      <dd className={`whitespace-pre-wrap break-words text-sm leading-relaxed ${respostaInformada ? "text-foreground" : "italic text-muted-foreground"}`}>
+        {respostaInformada ? resposta : "Não informado"}
+      </dd>
+    </div>
+  );
+}
+
+function GrupoRespostas({
+  titulo,
+  descricao,
+  aberto = false,
+  children,
+}: {
+  titulo: string;
+  descricao: string;
+  aberto?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
+    <details open={aberto} className="group overflow-hidden rounded-2xl border border-border/70 bg-card">
+      <summary className="flex min-h-[56px] cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 marker:content-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset">
+        <span className="min-w-0">
+          <span className="block text-sm font-bold text-foreground">{titulo}</span>
+          <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">{descricao}</span>
+        </span>
+        <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" aria-hidden="true" />
+      </summary>
+      <dl className="border-t border-border/60 px-4 py-3">{children}</dl>
+    </details>
+  );
+}
+
 function PainelDossie({
   candidatura,
   contexto,
@@ -182,6 +221,17 @@ function PainelDossie({
   const [estaGerandoAnalise, setEstaGerandoAnalise] = useState(false);
   const transicoes = obterTransicoesPermitidas(candidatura.status);
   const telefone = candidatura.candidate.primaryPhone?.replace(/\D/g, "");
+  const rotulosImovel: Record<PreAdoptionApplication["housingType"], string> = {
+    apartamento: "Apartamento",
+    casa: "Casa",
+    sobrado: "Sobrado",
+    sitio: "Chácara ou sítio",
+  };
+  const rotulosCondicao: Record<PreAdoptionApplication["housingStatus"], string> = {
+    proprio: "Próprio",
+    alugado: "Alugado",
+  };
+  const simOuNao = (valor: boolean) => valor ? "Sim" : "Não";
 
   const salvarNotas = async () => {
     setEstaSalvandoNotas(true);
@@ -208,13 +258,11 @@ function PainelDossie({
   };
 
   return (
-    <article className="space-y-5 rounded-3xl border border-border/70 bg-card p-4 shadow-sm sm:space-y-6 sm:p-7">
+    <article className="space-y-5 rounded-3xl border border-border/70 bg-card p-4 shadow-sm sm:p-6">
       <header className="flex flex-col gap-4 border-b border-border/60 pb-5 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-primary">Dossiê de pré-adoção</p>
-          <h2 className="mt-1 break-words font-serif text-xl font-bold text-foreground sm:text-2xl">
-            {candidatura.candidate.name} <span className="text-muted-foreground">·</span> {candidatura.petName}
-          </h2>
+          <p className="text-[11px] font-bold uppercase tracking-wider text-primary">Candidatura para {candidatura.petName}</p>
+          <h2 className="mt-1 break-words font-serif text-xl font-bold text-foreground sm:text-2xl">{candidatura.candidate.name}</h2>
           <p className="mt-1 text-xs text-muted-foreground">Recebida em {new Date(candidatura.createdAt).toLocaleDateString("pt-BR")}</p>
         </div>
         <label className="flex w-full flex-col gap-1 text-xs font-semibold text-muted-foreground sm:w-auto">
@@ -223,7 +271,7 @@ function PainelDossie({
             value={candidatura.status}
             disabled={estaAtualizandoStatus}
             onChange={(evento) => aoSolicitarStatus(evento.target.value as ApplicationStatus)}
-            className="min-h-[44px] w-full rounded-xl border border-border bg-background px-3 text-xs font-bold text-foreground outline-none focus:ring-2 focus:ring-primary sm:w-auto"
+            className="min-h-[44px] w-full rounded-xl border border-border bg-background px-3 text-sm font-bold text-foreground outline-none focus:ring-2 focus:ring-primary sm:w-auto"
           >
             <option value={candidatura.status}>{CONFIGURACAO_STATUS_CANDIDATURA[candidatura.status].rotulo}</option>
             {transicoes.map((status) => <option key={status} value={status}>{CONFIGURACAO_STATUS_CANDIDATURA[status].rotulo}</option>)}
@@ -231,132 +279,167 @@ function PainelDossie({
         </label>
       </header>
 
-      {candidatura.automatedAnalysis && (
-        <section className="space-y-3 rounded-2xl border border-border/70 bg-muted/35 p-4">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-            <h3 className="flex items-center gap-2 text-sm font-bold text-foreground">
-              <Sparkles className="h-4 w-4 text-primary" /> Análise de apoio à triagem
-            </h3>
-            <div className="flex flex-wrap items-center gap-2">
-              <Badge variant="outline">Referência: {candidatura.automatedAnalysis.suitabilityScore}/100</Badge>
-              <Badge variant={candidatura.automatedAnalysis.origem === "ia" ? "secondary" : "outline"}>
-                {candidatura.automatedAnalysis.origem === "ia" ? "Contextualizada por IA" : "Análise local"}
-              </Badge>
-            </div>
-          </div>
-          <p className="text-xs leading-relaxed text-muted-foreground">
-            O índice de triagem é uma heurística calculada por critérios fixos e auditáveis. A IA apenas contextualiza as respostas, não altera o índice, não aprova nem rejeita a candidatura e não substitui a entrevista.
-          </p>
-          {candidatura.automatedAnalysis.resumo && (
-            <div className="space-y-1 rounded-xl border border-primary/20 bg-primary/5 p-3 text-xs">
-              <p className="font-bold text-foreground">{candidatura.automatedAnalysis.verdict}</p>
-              <p className="leading-relaxed text-muted-foreground">{candidatura.automatedAnalysis.resumo}</p>
-              {candidatura.automatedAnalysis.justificativa && <p className="leading-relaxed text-muted-foreground">{candidatura.automatedAnalysis.justificativa}</p>}
-            </div>
-          )}
-          <div className="grid grid-cols-1 gap-4 text-xs md:grid-cols-2">
-            <div>
-              <h4 className="mb-2 font-bold text-foreground">Pontos favoráveis</h4>
-              <ul className="space-y-1.5 text-muted-foreground">
-                {candidatura.automatedAnalysis.strengths.length > 0 ? candidatura.automatedAnalysis.strengths.map((item) => (
-                  <li key={item} className="flex items-start gap-2"><CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />{item}</li>
-                )) : <li>Nenhum ponto automático registrado.</li>}
-              </ul>
-            </div>
-            <div>
-              <h4 className="mb-2 font-bold text-foreground">Confirmar na conversa</h4>
-              <ul className="space-y-1.5 text-muted-foreground">
-                {candidatura.automatedAnalysis.attentionPoints.length > 0 ? candidatura.automatedAnalysis.attentionPoints.map((item) => (
-                  <li key={item} className="flex items-start gap-2"><AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-600 dark:text-amber-400" />{item}</li>
-                )) : <li>Nenhum ponto de atenção automático.</li>}
-              </ul>
-            </div>
-          </div>
-          {candidatura.automatedAnalysis.suggestedQuestions.length > 0 && (
-            <div className="border-t border-border/60 pt-3 text-xs">
-              <h4 className="mb-1 font-bold text-foreground">Perguntas sugeridas</h4>
-              <ul className="list-inside list-disc space-y-1 text-muted-foreground">
-                {candidatura.automatedAnalysis.suggestedQuestions.map((pergunta) => <li key={pergunta}>{pergunta}</li>)}
-              </ul>
-            </div>
-          )}
-          {candidatura.automatedAnalysis.fatores && candidatura.automatedAnalysis.fatores.length > 0 && (
-            <details className="rounded-xl border border-border/60 bg-background/70 text-xs">
-              <summary className="min-h-[44px] cursor-pointer px-3 py-3 font-bold text-foreground">Como a pontuação foi calculada</summary>
-              <ul className="space-y-2 border-t border-border/60 p-3 text-muted-foreground">
-                {candidatura.automatedAnalysis.fatores.map((fator, indice) => (
-                  <li key={`${fator.criterio}-${indice}`} className="flex items-start justify-between gap-3">
-                    <span><strong className="text-foreground">{fator.criterio}:</strong> {fator.explicacao}</span>
-                    <Badge variant="outline" className="shrink-0">{fator.impacto > 0 ? `+${fator.impacto}` : fator.impacto}</Badge>
-                  </li>
-                ))}
-              </ul>
-            </details>
-          )}
-          <div className="flex flex-col gap-2 border-t border-border/60 pt-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-[11px] text-muted-foreground">
-              {candidatura.automatedAnalysis.geradoEm
-                ? `Atualizada em ${new Date(candidatura.automatedAnalysis.geradoEm).toLocaleString("pt-BR")}`
-                : "Análise inicial gerada no envio da candidatura."}
-              {candidatura.automatedAnalysis.origem === "ia" && candidatura.automatedAnalysis.provedor
-                ? ` · ${candidatura.automatedAnalysis.provedor}${candidatura.automatedAnalysis.modelo ? ` (${candidatura.automatedAnalysis.modelo})` : ""}`
-                : ""}
-            </p>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              disabled={estaGerandoAnalise}
-              onClick={() => void gerarAnaliseIa()}
-              className="min-h-[44px] w-full rounded-full sm:w-auto"
-            >
-              {estaGerandoAnalise ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-              {estaGerandoAnalise ? "Analisando respostas" : candidatura.automatedAnalysis.origem === "ia" ? "Atualizar análise com IA" : "Analisar com IA"}
-            </Button>
-          </div>
-        </section>
-      )}
+      <section aria-label="Resumo da candidatura" className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div className="rounded-xl bg-muted/50 p-3">
+          <span className="block text-[11px] text-muted-foreground">Moradores</span>
+          <strong className="mt-1 block text-sm text-foreground">{candidatura.adultsCount + candidatura.childrenCount}</strong>
+        </div>
+        <div className="rounded-xl bg-muted/50 p-3">
+          <span className="block text-[11px] text-muted-foreground">Tempo sozinho</span>
+          <strong className="mt-1 block text-sm text-foreground">{candidatura.hoursAlone}h/dia</strong>
+        </div>
+        <div className="rounded-xl bg-muted/50 p-3">
+          <span className="block text-[11px] text-muted-foreground">Outros animais</span>
+          <strong className="mt-1 block text-sm text-foreground">{candidatura.hasCurrentPets ? "Sim" : "Não"}</strong>
+        </div>
+        <div className="rounded-xl bg-muted/50 p-3">
+          <span className="block text-[11px] text-muted-foreground">Referência</span>
+          <strong className="mt-1 block text-sm text-foreground">{candidatura.automatedAnalysis ? `${candidatura.automatedAnalysis.suitabilityScore}/100` : "—"}</strong>
+        </div>
+      </section>
 
-      <div className="grid grid-cols-1 gap-4 text-xs md:grid-cols-2">
-        <section className="space-y-2 rounded-2xl border border-border/60 bg-muted/25 p-4">
-          <h3 className="font-bold uppercase tracking-wider text-foreground">Candidato</h3>
-          <p><strong>Nome:</strong> {candidatura.candidate.name}</p>
-          <p><strong>Nascimento:</strong> {candidatura.candidate.birthDate || "Não informado"}</p>
-          <p><strong>Profissão:</strong> {candidatura.candidate.profession || "Não informada"}</p>
-          <p className="break-all"><strong>E-mail:</strong> <a className="text-primary hover:underline" href={`mailto:${candidatura.candidate.email}`}>{candidatura.candidate.email}</a></p>
-          <p><strong>WhatsApp:</strong> {telefone ? <a className="text-primary hover:underline" href={`https://wa.me/55${telefone}`} target="_blank" rel="noreferrer">{candidatura.candidate.primaryPhone}</a> : "Não informado"}</p>
-          <p><strong>Redes sociais:</strong> {candidatura.candidate.socialMedia || "Não informadas"}</p>
-        </section>
-        <section className="space-y-2 rounded-2xl border border-border/60 bg-muted/25 p-4">
-          <h3 className="font-bold uppercase tracking-wider text-foreground">Moradia e rotina</h3>
-          <p><strong>Imóvel:</strong> {candidatura.housingType} ({candidatura.housingStatus})</p>
-          <p><strong>Proteção física:</strong> {candidatura.hasProtection ? "Informada" : "Não informada"}</p>
-          {candidatura.protectionDetails && <p className="text-muted-foreground">{candidatura.protectionDetails}</p>}
-          <p><strong>Família:</strong> {candidatura.adultsCount} adulto(s) e {candidatura.childrenCount} criança(s)</p>
-          <p><strong>Tempo sozinho:</strong> {candidatura.hoursAlone} hora(s) por dia</p>
-          <p><strong>Cuidados diários:</strong> {candidatura.dailyCarePlan || "Não detalhado"}</p>
-          <p><strong>Animais residentes:</strong> {candidatura.hasCurrentPets ? candidatura.currentPetsDescription || "Informados sem detalhes" : "Não possui"}</p>
-          <p><strong>Plano para viagens:</strong> {candidatura.travelCarePlan || "Não informado"}</p>
-        </section>
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+        <a href={`mailto:${candidatura.candidate.email}`} className="flex min-h-[44px] min-w-0 items-center justify-center rounded-xl border border-border bg-background px-3 text-sm font-semibold text-primary transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+          <span className="truncate">{candidatura.candidate.email}</span>
+        </a>
+        {telefone ? (
+          <a href={`https://wa.me/55${telefone}`} target="_blank" rel="noreferrer" className="flex min-h-[44px] items-center justify-center rounded-xl border border-border bg-background px-3 text-sm font-semibold text-primary transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+            WhatsApp {candidatura.candidate.primaryPhone}
+          </a>
+        ) : (
+          <div className="flex min-h-[44px] items-center justify-center rounded-xl border border-border bg-muted/30 px-3 text-sm text-muted-foreground">Telefone não informado</div>
+        )}
       </div>
 
-      <section className="space-y-2">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <label htmlFor={`notas-${contexto}-${candidatura.id}`} className="text-xs font-bold uppercase tracking-wider text-foreground">Anotações internas</label>
-          <Button variant="ghost" size="sm" disabled={estaSalvandoNotas} onClick={() => void salvarNotas()} className="min-h-[44px] self-start text-xs text-primary sm:self-auto">
+      <section aria-labelledby={`respostas-${contexto}-${candidatura.id}`} className="space-y-3">
+        <div>
+          <h3 id={`respostas-${contexto}-${candidatura.id}`} className="text-sm font-bold text-foreground">Respostas do candidato</h3>
+          <p className="mt-1 text-xs text-muted-foreground">Cada resposta é exibida integralmente como foi enviada.</p>
+        </div>
+
+        <GrupoRespostas titulo="Moradia e segurança" descricao={`${rotulosImovel[candidatura.housingType]} · ${rotulosCondicao[candidatura.housingStatus]}`}>
+          <RespostaDossie pergunta="Qual é o tipo e a condição do imóvel?" resposta={`${rotulosImovel[candidatura.housingType]} — ${rotulosCondicao[candidatura.housingStatus]}`} />
+          {candidatura.housingStatus === "alugado" && <RespostaDossie pergunta="O proprietário ou condomínio autoriza animais?" resposta={simOuNao(Boolean(candidatura.landlordPermission))} />}
+          <RespostaDossie pergunta="A residência possui proteção física contra fugas ou quedas?" resposta={simOuNao(candidatura.hasProtection)} />
+          <RespostaDossie pergunta="Como é a proteção da residência?" resposta={candidatura.protectionDetails} />
+          <RespostaDossie pergunta="Onde o animal poderá circular?" resposta={candidatura.accessArea === "livre_total" ? "Livremente por toda a casa" : "Em áreas ou cômodos específicos"} />
+        </GrupoRespostas>
+
+        <GrupoRespostas titulo="Família e rotina" descricao="Cuidados, ausências e viagens" aberto>
+          <RespostaDossie pergunta="Quantas pessoas moram na residência?" resposta={`${candidatura.adultsCount} adulto(s) e ${candidatura.childrenCount} criança(s)`} />
+          <RespostaDossie pergunta="Todos os moradores concordam com a adoção?" resposta={simOuNao(candidatura.familyAgreement)} />
+          <RespostaDossie pergunta="Há casos de alergia a pelos na residência?" resposta={simOuNao(candidatura.allergyCases)} />
+          {candidatura.allergyCases && <RespostaDossie pergunta="Como a alergia será manejada?" resposta={candidatura.allergyDetails} />}
+          <RespostaDossie pergunta="Por quantas horas o animal ficará sozinho por dia?" resposta={`${candidatura.hoursAlone} hora(s)`} />
+          <RespostaDossie pergunta="Quem cuidará da alimentação, higiene, passeios e consultas? Como isso fará parte da rotina?" resposta={candidatura.dailyCarePlan} />
+          <RespostaDossie pergunta="Com quem ou onde o animal ficará durante férias e viagens?" resposta={candidatura.travelCarePlan} />
+        </GrupoRespostas>
+
+        <GrupoRespostas titulo="Experiência e preparo" descricao="Outros animais, histórico e custos">
+          <RespostaDossie pergunta="Já há outros animais na residência?" resposta={simOuNao(candidatura.hasCurrentPets)} />
+          {candidatura.hasCurrentPets && <RespostaDossie pergunta="Quais animais vivem na residência e como será feita a apresentação?" resposta={candidatura.currentPetsDescription} />}
+          <RespostaDossie pergunta="Qual é o histórico do candidato com animais?" resposta={candidatura.previousPetsHistory} />
+          <RespostaDossie pergunta="O candidato declarou estar preparado para os custos contínuos e veterinários?" resposta={simOuNao(candidatura.costAwareness)} />
+        </GrupoRespostas>
+
+        <GrupoRespostas titulo="Dados do candidato" descricao="Identificação e contato informados no cadastro">
+          <RespostaDossie pergunta="Nome completo" resposta={candidatura.candidate.name} />
+          <RespostaDossie pergunta="Data de nascimento" resposta={candidatura.candidate.birthDate} />
+          <RespostaDossie pergunta="Profissão ou ocupação" resposta={candidatura.candidate.profession} />
+          <RespostaDossie pergunta="E-mail" resposta={candidatura.candidate.email} />
+          <RespostaDossie pergunta="WhatsApp ou telefone" resposta={candidatura.candidate.primaryPhone} />
+          <RespostaDossie pergunta="Rede social" resposta={candidatura.candidate.socialMedia} />
+        </GrupoRespostas>
+      </section>
+
+      {candidatura.automatedAnalysis && (
+        <details className="group overflow-hidden rounded-2xl border border-border/70 bg-muted/25">
+          <summary className="flex min-h-[56px] cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 marker:content-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset">
+            <span className="flex min-w-0 items-center gap-2 text-sm font-bold text-foreground">
+              <Sparkles className="h-4 w-4 shrink-0 text-primary" />
+              Análise de apoio
+            </span>
+            <span className="flex shrink-0 items-center gap-2">
+              <Badge variant="outline">{candidatura.automatedAnalysis.suitabilityScore}/100</Badge>
+              <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-open:rotate-180" aria-hidden="true" />
+            </span>
+          </summary>
+          <div className="space-y-4 border-t border-border/60 p-4 text-xs">
+            <div className="rounded-xl border border-primary/20 bg-primary/5 p-3">
+              <p className="font-bold text-foreground">{candidatura.automatedAnalysis.verdict}</p>
+              {candidatura.automatedAnalysis.resumo && <p className="mt-1 whitespace-pre-wrap break-words leading-relaxed text-muted-foreground">{candidatura.automatedAnalysis.resumo}</p>}
+              {candidatura.automatedAnalysis.justificativa && <p className="mt-1 whitespace-pre-wrap break-words leading-relaxed text-muted-foreground">{candidatura.automatedAnalysis.justificativa}</p>}
+            </div>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div>
+                <h4 className="mb-2 font-bold text-foreground">Pontos favoráveis</h4>
+                <ul className="space-y-2 text-muted-foreground">
+                  {candidatura.automatedAnalysis.strengths.length > 0 ? candidatura.automatedAnalysis.strengths.map((item) => (
+                    <li key={item} className="flex items-start gap-2"><CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" /><span className="break-words">{item}</span></li>
+                  )) : <li>Nenhum ponto automático registrado.</li>}
+                </ul>
+              </div>
+              <div>
+                <h4 className="mb-2 font-bold text-foreground">Confirmar na conversa</h4>
+                <ul className="space-y-2 text-muted-foreground">
+                  {candidatura.automatedAnalysis.attentionPoints.length > 0 ? candidatura.automatedAnalysis.attentionPoints.map((item) => (
+                    <li key={item} className="flex items-start gap-2"><AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-600 dark:text-amber-400" /><span className="break-words">{item}</span></li>
+                  )) : <li>Nenhum ponto de atenção automático.</li>}
+                </ul>
+              </div>
+            </div>
+            {candidatura.automatedAnalysis.suggestedQuestions.length > 0 && (
+              <div>
+                <h4 className="mb-2 font-bold text-foreground">Perguntas sugeridas para a entrevista</h4>
+                <ul className="list-inside list-disc space-y-1.5 text-muted-foreground">
+                  {candidatura.automatedAnalysis.suggestedQuestions.map((pergunta) => <li key={pergunta} className="break-words">{pergunta}</li>)}
+                </ul>
+              </div>
+            )}
+            {candidatura.automatedAnalysis.fatores && candidatura.automatedAnalysis.fatores.length > 0 && (
+              <details className="rounded-xl border border-border/60 bg-background/70">
+                <summary className="min-h-[44px] cursor-pointer px-3 py-3 font-bold text-foreground">Como a referência foi calculada</summary>
+                <ul className="space-y-2 border-t border-border/60 p-3 text-muted-foreground">
+                  {candidatura.automatedAnalysis.fatores.map((fator, indice) => (
+                    <li key={`${fator.criterio}-${indice}`} className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+                      <span className="break-words"><strong className="text-foreground">{fator.criterio}:</strong> {fator.explicacao}</span>
+                      <Badge variant="outline" className="w-fit shrink-0">{fator.impacto > 0 ? `+${fator.impacto}` : fator.impacto}</Badge>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            )}
+            <div className="flex flex-col gap-3 border-t border-border/60 pt-4 sm:flex-row sm:items-center sm:justify-between">
+              <p className="leading-relaxed text-muted-foreground">A referência apoia a triagem e não aprova ou rejeita a candidatura.</p>
+              <Button type="button" variant="outline" size="sm" disabled={estaGerandoAnalise} onClick={() => void gerarAnaliseIa()} className="min-h-[44px] w-full rounded-full sm:w-auto">
+                {estaGerandoAnalise ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                {estaGerandoAnalise ? "Analisando respostas" : candidatura.automatedAnalysis.origem === "ia" ? "Atualizar análise" : "Analisar com IA"}
+              </Button>
+            </div>
+          </div>
+        </details>
+      )}
+
+      <details className="group overflow-hidden rounded-2xl border border-border/70 bg-card">
+        <summary className="flex min-h-[56px] cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 marker:content-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset">
+          <span><span className="block text-sm font-bold text-foreground">Anotações internas</span><span className="mt-0.5 block text-xs text-muted-foreground">Visíveis apenas para o responsável</span></span>
+          <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" aria-hidden="true" />
+        </summary>
+        <div className="space-y-3 border-t border-border/60 p-4">
+          <label htmlFor={`notas-${contexto}-${candidatura.id}`} className="sr-only">Anotações internas</label>
+          <textarea
+            id={`notas-${contexto}-${candidatura.id}`}
+            rows={4}
+            value={notas}
+            onChange={(evento) => setNotas(evento.target.value)}
+            placeholder="Registre impressões da entrevista, combinados ou informações para a equipe."
+            className="w-full rounded-xl border border-border bg-background px-3.5 py-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary"
+          />
+          <Button variant="outline" size="sm" disabled={estaSalvandoNotas} onClick={() => void salvarNotas()} className="min-h-[44px] w-full rounded-full sm:w-auto">
             {estaSalvandoNotas && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{estaSalvandoNotas ? "Salvando" : "Salvar anotações"}
           </Button>
         </div>
-        <textarea
-          id={`notas-${contexto}-${candidatura.id}`}
-          rows={3}
-          value={notas}
-          onChange={(evento) => setNotas(evento.target.value)}
-          placeholder="Registre impressões da entrevista, combinados ou informações para a equipe."
-          className="w-full rounded-xl border border-border bg-background px-3.5 py-3 text-xs text-foreground outline-none focus:ring-2 focus:ring-primary"
-        />
-        <p className="text-[11px] text-muted-foreground">Visível apenas para o responsável pelo animal.</p>
-      </section>
+      </details>
 
       <section className="space-y-3 border-t border-border/60 pt-5">
         <h3 className="flex items-center gap-2 text-sm font-bold text-foreground"><MessageSquare className="h-4 w-4 text-primary" /> Conversa com o candidato</h3>
@@ -524,6 +607,12 @@ export function GuardianDashboardView() {
   const cuidadosCompletos = animaisGuardiao.filter((pet) => pet.vaccinated && pet.castrated && pet.dewormed).length;
   const animaisQuePrecisamAtencao = animaisGuardiao.filter((pet) => obterCompletudePet(pet) < 80).sort((a, b) => obterCompletudePet(a) - obterCompletudePet(b));
   const petParaExcluir = animaisGuardiao.find((pet) => pet.id === petIdParaExcluir) || null;
+  const quantidadeFiltrosCandidatura = [
+    buscaCandidatura.trim().length > 0,
+    statusCandidatura !== "todos",
+    petCandidatura !== "todos",
+    ordenacaoCandidaturas !== "recentes",
+  ].filter(Boolean).length;
 
   const selecionarCandidatura = (candidaturaId: string) => {
     navegarParaAba("candidaturas", candidaturaId);
@@ -682,11 +771,24 @@ export function GuardianDashboardView() {
                 <div><p className="text-xs font-bold uppercase tracking-wider text-primary">Triagem responsável</p><h2 className="font-serif text-2xl font-bold text-foreground">Candidaturas recebidas</h2><p className="mt-1 text-sm text-muted-foreground">Filtre a fila, revise o dossiê e registre cada próximo passo.</p></div>
                 <p aria-live="polite" className="text-xs font-semibold text-muted-foreground">{candidaturasFiltradas.length} de {candidaturasGuardiao.length} candidatura(s)</p>
               </div>
-              <div className="grid grid-cols-1 gap-3 rounded-2xl border border-border/60 bg-card p-3 sm:grid-cols-2 lg:grid-cols-4">
-                <label className="relative sm:col-span-2 lg:col-span-1"><span className="sr-only">Buscar candidatura</span><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><input value={buscaCandidatura} onChange={(e) => setBuscaCandidatura(e.target.value)} placeholder="Candidato ou pet" className="min-h-[44px] w-full rounded-xl border border-border bg-background pl-10 pr-3 text-sm outline-none focus:ring-2 focus:ring-primary" /></label>
-                <label><span className="sr-only">Filtrar por status</span><select value={statusCandidatura} onChange={(e) => setStatusCandidatura(e.target.value as ApplicationStatus | "todos")} className="min-h-[44px] w-full rounded-xl border border-border bg-background px-3 text-sm font-medium"><option value="todos">Todos os status</option>{Object.entries(CONFIGURACAO_STATUS_CANDIDATURA).map(([valor, info]) => <option key={valor} value={valor}>{info.rotulo}</option>)}</select></label>
-                <label><span className="sr-only">Filtrar por pet</span><select value={petCandidatura} onChange={(e) => setPetCandidatura(e.target.value)} className="min-h-[44px] w-full rounded-xl border border-border bg-background px-3 text-sm font-medium"><option value="todos">Todos os pets</option>{animaisGuardiao.map((pet) => <option key={pet.id} value={pet.id}>{pet.name}</option>)}</select></label>
-                <label><span className="sr-only">Ordenar candidaturas</span><select value={ordenacaoCandidaturas} onChange={(e) => setOrdenacaoCandidaturas(e.target.value as OrdenacaoCandidaturas)} className="min-h-[44px] w-full rounded-xl border border-border bg-background px-3 text-sm font-medium"><option value="recentes">Mais recentes</option><option value="antigas">Mais antigas</option><option value="atividade">Atividade recente</option></select></label>
+              <div className="space-y-3 rounded-2xl border border-border/60 bg-card p-3">
+                <label className="relative block"><span className="sr-only">Buscar candidatura</span><Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" /><input value={buscaCandidatura} onChange={(e) => setBuscaCandidatura(e.target.value)} placeholder="Buscar por candidato ou pet" className="min-h-[44px] w-full rounded-xl border border-border bg-background pl-10 pr-3 text-sm outline-none focus:ring-2 focus:ring-primary" /></label>
+                <details className="group overflow-hidden rounded-xl border border-border sm:hidden">
+                  <summary className="flex min-h-[44px] cursor-pointer list-none items-center justify-between gap-3 px-3 py-2 text-sm font-semibold text-foreground marker:content-none">
+                    <span className="flex items-center gap-2"><SlidersHorizontal className="h-4 w-4 text-primary" />Filtros e ordenação{quantidadeFiltrosCandidatura > 0 && <Badge variant="secondary">{quantidadeFiltrosCandidatura}</Badge>}</span>
+                    <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-open:rotate-180" aria-hidden="true" />
+                  </summary>
+                  <div className="grid grid-cols-1 gap-3 border-t border-border p-3">
+                    <label><span className="mb-1 block text-xs font-medium text-muted-foreground">Status</span><select value={statusCandidatura} onChange={(e) => setStatusCandidatura(e.target.value as ApplicationStatus | "todos")} className="min-h-[44px] w-full rounded-xl border border-border bg-background px-3 text-sm font-medium"><option value="todos">Todos os status</option>{Object.entries(CONFIGURACAO_STATUS_CANDIDATURA).map(([valor, info]) => <option key={valor} value={valor}>{info.rotulo}</option>)}</select></label>
+                    <label><span className="mb-1 block text-xs font-medium text-muted-foreground">Animal</span><select value={petCandidatura} onChange={(e) => setPetCandidatura(e.target.value)} className="min-h-[44px] w-full rounded-xl border border-border bg-background px-3 text-sm font-medium"><option value="todos">Todos os pets</option>{animaisGuardiao.map((pet) => <option key={pet.id} value={pet.id}>{pet.name}</option>)}</select></label>
+                    <label><span className="mb-1 block text-xs font-medium text-muted-foreground">Ordenação</span><select value={ordenacaoCandidaturas} onChange={(e) => setOrdenacaoCandidaturas(e.target.value as OrdenacaoCandidaturas)} className="min-h-[44px] w-full rounded-xl border border-border bg-background px-3 text-sm font-medium"><option value="recentes">Mais recentes</option><option value="antigas">Mais antigas</option><option value="atividade">Atividade recente</option></select></label>
+                  </div>
+                </details>
+                <div className="hidden grid-cols-3 gap-3 sm:grid">
+                  <label><span className="sr-only">Filtrar por status</span><select value={statusCandidatura} onChange={(e) => setStatusCandidatura(e.target.value as ApplicationStatus | "todos")} className="min-h-[44px] w-full rounded-xl border border-border bg-background px-3 text-sm font-medium"><option value="todos">Todos os status</option>{Object.entries(CONFIGURACAO_STATUS_CANDIDATURA).map(([valor, info]) => <option key={valor} value={valor}>{info.rotulo}</option>)}</select></label>
+                  <label><span className="sr-only">Filtrar por pet</span><select value={petCandidatura} onChange={(e) => setPetCandidatura(e.target.value)} className="min-h-[44px] w-full rounded-xl border border-border bg-background px-3 text-sm font-medium"><option value="todos">Todos os pets</option>{animaisGuardiao.map((pet) => <option key={pet.id} value={pet.id}>{pet.name}</option>)}</select></label>
+                  <label><span className="sr-only">Ordenar candidaturas</span><select value={ordenacaoCandidaturas} onChange={(e) => setOrdenacaoCandidaturas(e.target.value as OrdenacaoCandidaturas)} className="min-h-[44px] w-full rounded-xl border border-border bg-background px-3 text-sm font-medium"><option value="recentes">Mais recentes</option><option value="antigas">Mais antigas</option><option value="atividade">Atividade recente</option></select></label>
+                </div>
               </div>
               <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
                 <section aria-label="Lista de candidaturas" className="space-y-3 lg:col-span-4">
@@ -695,9 +797,9 @@ export function GuardianDashboardView() {
                   ) : candidaturasFiltradas.map((item) => {
                     const selecionada = candidaturaSelecionada?.id === item.id;
                     return (
-                      <button key={item.id} type="button" onClick={() => selecionarCandidatura(item.id)} className={`min-h-[88px] w-full rounded-2xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${selecionada ? "border-primary bg-primary/5 shadow-sm" : "border-border/60 bg-card hover:border-primary/30 hover:bg-muted/30"}`}>
-                        <div className="flex items-start justify-between gap-3"><div className="min-w-0"><p className="truncate text-sm font-bold text-foreground">{item.candidate.name}</p><p className="mt-0.5 truncate text-xs text-muted-foreground">Para {item.petName}</p></div><Badge variant="outline" className={`shrink-0 ${CONFIGURACAO_STATUS_CANDIDATURA[item.status].classe}`}>{CONFIGURACAO_STATUS_CANDIDATURA[item.status].rotulo}</Badge></div>
-                        <div className="mt-3 flex items-center justify-between border-t border-border/40 pt-2 text-[11px] text-muted-foreground"><span>{new Date(item.createdAt).toLocaleDateString("pt-BR")}</span><span>{item.messages.length} mensagem(ns)</span></div>
+                      <button key={item.id} type="button" aria-current={selecionada ? "true" : undefined} onClick={() => selecionarCandidatura(item.id)} className={`min-h-[88px] w-full rounded-2xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${selecionada ? "border-primary bg-primary/5 shadow-sm" : "border-border/60 bg-card hover:border-primary/30 hover:bg-muted/30"}`}>
+                        <div className="flex flex-wrap items-start justify-between gap-2"><div className="min-w-0 flex-1"><p className="break-words text-sm font-bold text-foreground">{item.candidate.name}</p><p className="mt-0.5 break-words text-xs text-muted-foreground">Para {item.petName}</p></div><Badge variant="outline" className={`shrink-0 ${CONFIGURACAO_STATUS_CANDIDATURA[item.status].classe}`}>{CONFIGURACAO_STATUS_CANDIDATURA[item.status].rotulo}</Badge></div>
+                        <p className="mt-3 border-t border-border/40 pt-2 text-[11px] text-muted-foreground">Recebida em {new Date(item.createdAt).toLocaleDateString("pt-BR")}</p>
                       </button>
                     );
                   })}

@@ -419,13 +419,24 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setPetsLoading(true);
     setPetsError(null);
     try {
-      const { data, error } = await supabase
+      const colunasBase = 'id, name, species, breed, size, approximate_age, age_category, sex, status, vaccinated, castrated, dewormed, vaccination_details, special_needs, photos, headline, story, temperament, temperament_description, guardian_id, guardian_name, guardian_type, guardian_phone, guardian_email, city, state, neighborhood, created_at';
+      type ResultadoConsulta = { data: Record<string, unknown>[] | null; error: { message: string } | null };
+      const consultarPets = (colunas: string) => supabase
         .from('pets')
-        .select('id, name, species, breed, size, approximate_age, age_category, sex, status, vaccinated, castrated, dewormed, vaccination_details, special_needs, photos, headline, story, temperament, temperament_description, guardian_id, guardian_name, guardian_type, guardian_phone, guardian_email, city, state, neighborhood, created_at')
-        .order('created_at', { ascending: false });
+        .select(colunas)
+        .order('created_at', { ascending: false }) as unknown as PromiseLike<ResultadoConsulta>;
+
+      let { data, error } = await consultarPets(`${colunasBase}, energy_level, compatible_with_children, compatible_with_dogs, compatible_with_cats`);
+
+      if (error) {
+        // Banco ainda sem as colunas de energia/convivência: mantém o catálogo funcionando.
+        console.warn('Consulta completa do catálogo falhou; usando colunas básicas:', error.message);
+        ({ data, error } = await consultarPets(colunasBase));
+      }
 
       if (error) throw error;
-      setPetsState((data ?? []).map((pet) => mapearPetDoBanco(pet as Record<string, unknown>)));
+
+      setPetsState((data ?? []).map((pet) => mapearPetDoBanco(pet)));
     } catch (error) {
       console.warn('Não foi possível carregar o catálogo:', error);
       setPetsState([]);
@@ -564,19 +575,35 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           setApplicationsError(null);
         }
 
-        // Para guardiões, filtra explicitamente pelo responsável.
-        // A RLS continua sendo a autoridade de acesso; o filtro reduz transferência e processamento
-        // sem truncar os totais usados pelos indicadores do painel.
-        let consultaCandidaturas = supabase
-          .from('applications')
-          .select('id, pet_id, candidate_name, candidate_email, candidate_phone, guardian_id, status, candidate, housing, routine, finance, automated_analysis, guardian_notes, created_at, pet_name, pet_photo, pet_species, guardian_name, guardian_type, candidate_id, pets(id, name, photos, species, size, age_category, energy_level, compatible_with_children, compatible_with_dogs, compatible_with_cats, temperament, special_needs), application_messages(id, sender_name, sender_role, message, created_at)')
-          .order('created_at', { ascending: false });
+        const colunasCandidatura = 'id, pet_id, candidate_name, candidate_email, candidate_phone, guardian_id, status, candidate, housing, routine, finance, dossier, automated_analysis, guardian_notes, created_at, pet_name, pet_photo, pet_species, guardian_name, guardian_type, candidate_id';
+        const colunasMensagens = 'application_messages(id, sender_name, sender_role, message, created_at)';
+        type ResultadoCandidaturas = { data: Record<string, unknown>[] | null; error: { message: string } | null };
+        const montarConsulta = (colunasPet: string) => {
+          let consulta = supabase
+            .from('applications')
+            .select(`${colunasCandidatura}, pets(${colunasPet}), ${colunasMensagens}`)
+            .order('created_at', { ascending: false });
+          // Para guardiões, filtra explicitamente pelo responsável.
+          // A RLS continua sendo a autoridade de acesso; o filtro reduz transferência e processamento
+          // sem truncar os totais usados pelos indicadores do painel.
+          if (currentUser.role === 'guardian') {
+            consulta = consulta.eq('guardian_id', currentUser.id);
+          }
+          return consulta as unknown as PromiseLike<ResultadoCandidaturas>;
+        };
 
-        if (currentUser.role === 'guardian') {
-          consultaCandidaturas = consultaCandidaturas.eq('guardian_id', currentUser.id);
+        let { data: remoteApps, error: appsError } = await montarConsulta(
+          'id, name, photos, species, size, age_category, energy_level, compatible_with_children, compatible_with_dogs, compatible_with_cats, temperament, special_needs'
+        );
+
+        if (appsError) {
+          // Banco ainda sem as colunas de energia/convivência: tenta novamente só com as colunas básicas.
+          console.warn('Consulta completa das candidaturas falhou; usando colunas básicas:', appsError.message);
+          ({ data: remoteApps, error: appsError } = await montarConsulta(
+            'id, name, photos, species, size, age_category, temperament, special_needs'
+          ));
         }
 
-        const { data: remoteApps, error: appsError } = await consultaCandidaturas;
 
         if (appsError) {
           console.warn('Não foi possível carregar as candidaturas:', appsError.message);
@@ -586,10 +613,23 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           }
         } else if (Array.isArray(remoteApps) && isMounted) {
           const mappedApps: PreAdoptionApplication[] = remoteApps.map((a: Record<string, unknown>) => {
+            const dossier = ehRegistro(a.dossier) ? a.dossier : {};
+            const respostasMoradia = ehRegistro(dossier.moradia) ? dossier.moradia : {};
+            const respostasRotina = ehRegistro(dossier.rotina) ? dossier.rotina : {};
+            const respostasFinanceiras = ehRegistro(dossier.financas) ? dossier.financas : {};
             const candidate = (a.candidate || {}) as Record<string, string>;
-            const housing = (a.housing || {}) as Record<string, unknown>;
-            const routine = (a.routine || {}) as Record<string, unknown>;
-            const finance = (a.finance || {}) as Record<string, unknown>;
+            const housing = {
+              ...respostasMoradia,
+              ...(ehRegistro(a.housing) ? a.housing : {})
+            } as Record<string, unknown>;
+            const routine = {
+              ...respostasRotina,
+              ...(ehRegistro(a.routine) ? a.routine : {})
+            } as Record<string, unknown>;
+            const finance = {
+              ...respostasFinanceiras,
+              ...(ehRegistro(a.finance) ? a.finance : {})
+            } as Record<string, unknown>;
             const petObj = (a.pets && typeof a.pets === 'object' ? a.pets : null) as Record<string, unknown> | null;
             const petPhotos = petObj && Array.isArray(petObj.photos) ? (petObj.photos as string[]) : [];
             const petPhoto = normalizarFotosPet(
@@ -1541,6 +1581,31 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     };
 
     const analysis = analyzeDossier(sanitizedData);
+    const dadosMoradia = {
+      housingType: data.housingType,
+      housingStatus: data.housingStatus,
+      landlordPermission: data.landlordPermission,
+      hasProtection: data.hasProtection,
+      protectionDetails: data.protectionDetails,
+      accessArea: data.accessArea
+    };
+    const dadosRotina = {
+      adultsCount: data.adultsCount,
+      childrenCount: data.childrenCount,
+      hoursAlone: data.hoursAlone,
+      dailyCarePlan: data.dailyCarePlan,
+      familyAgreement: data.familyAgreement,
+      allergyCases: data.allergyCases,
+      allergyDetails: data.allergyDetails,
+      travelCarePlan: data.travelCarePlan,
+      hasCurrentPets: data.hasCurrentPets,
+      currentPetsDescription: data.currentPetsDescription,
+      currentPetsDetails: data.currentPetsDetails,
+      previousPetsHistory: data.previousPetsHistory
+    };
+    const dadosFinanceiros = {
+      costAwareness: data.costAwareness
+    };
     try {
       const { data: created, error } = await supabase
             .from('applications')
@@ -1552,30 +1617,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
               guardian_id: data.guardianId,
               status: 'pending',
               candidate: sanitizedData.candidate,
-              housing: {
-                housingType: data.housingType,
-                housingStatus: data.housingStatus,
-                landlordPermission: data.landlordPermission,
-                hasProtection: data.hasProtection,
-                protectionDetails: data.protectionDetails,
-                accessArea: data.accessArea
-              },
-              routine: {
-                adultsCount: data.adultsCount,
-                childrenCount: data.childrenCount,
-                hoursAlone: data.hoursAlone,
-                dailyCarePlan: data.dailyCarePlan,
-                familyAgreement: data.familyAgreement,
-                allergyCases: data.allergyCases,
-                allergyDetails: data.allergyDetails,
-                travelCarePlan: data.travelCarePlan,
-                hasCurrentPets: data.hasCurrentPets,
-                currentPetsDescription: data.currentPetsDescription,
-                currentPetsDetails: data.currentPetsDetails,
-                previousPetsHistory: data.previousPetsHistory
-              },
-              finance: {
-                costAwareness: data.costAwareness
+              housing: dadosMoradia,
+              routine: dadosRotina,
+              finance: dadosFinanceiros,
+              dossier: {
+                versao: 2,
+                moradia: dadosMoradia,
+                rotina: dadosRotina,
+                financas: dadosFinanceiros
               }
             })
             .select('id, created_at')

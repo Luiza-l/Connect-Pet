@@ -1099,3 +1099,36 @@ $$;
 revoke all on function public.obter_perfil_publico_guardiao(text) from public;
 grant execute on function public.obter_perfil_publico_guardiao(text) to anon, authenticated;
 
+-- ==============================================================================
+-- 13. Recuperação de contas sem perfil
+-- Contas criadas antes do trigger handle_new_user (ou durante uma falha dele) não têm
+-- linha em public.profiles e são recusadas no login. Idempotente: só insere o que falta,
+-- usando os mesmos dados de cadastro gravados em raw_user_meta_data.
+-- ==============================================================================
+insert into public.profiles (
+  id, role, name, email, primary_phone,
+  cpf, birth_date, profession, social_media,
+  guardian_type, document, city, state, neighborhood
+)
+select
+  u.id,
+  case when coalesce(u.raw_user_meta_data ->> 'role', '') = 'guardian' then 'guardian' else 'adopter' end,
+  coalesce(nullif(u.raw_user_meta_data ->> 'name', ''), split_part(coalesce(u.email, ''), '@', 1), 'Usuário'),
+  coalesce(u.email, ''),
+  u.raw_user_meta_data ->> 'primaryPhone',
+  case when coalesce(u.raw_user_meta_data ->> 'role', '') <> 'guardian' then u.raw_user_meta_data ->> 'cpf' end,
+  case when coalesce(u.raw_user_meta_data ->> 'role', '') <> 'guardian' then u.raw_user_meta_data ->> 'birthDate' end,
+  case when coalesce(u.raw_user_meta_data ->> 'role', '') <> 'guardian' then u.raw_user_meta_data ->> 'profession' end,
+  u.raw_user_meta_data ->> 'socialMedia',
+  case when coalesce(u.raw_user_meta_data ->> 'role', '') = 'guardian'
+    then case when u.raw_user_meta_data ->> 'guardianType' in ('individual', 'ngo') then u.raw_user_meta_data ->> 'guardianType' else 'ngo' end
+  end,
+  case when coalesce(u.raw_user_meta_data ->> 'role', '') = 'guardian' then u.raw_user_meta_data ->> 'document' end,
+  u.raw_user_meta_data ->> 'city',
+  u.raw_user_meta_data ->> 'state',
+  case when coalesce(u.raw_user_meta_data ->> 'role', '') = 'guardian' then u.raw_user_meta_data ->> 'neighborhood' end
+from auth.users u
+where not exists (select 1 from public.profiles p where p.id = u.id)
+on conflict (id) do nothing;
+
+

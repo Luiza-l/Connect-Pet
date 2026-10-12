@@ -94,6 +94,7 @@ export function LoginView() {
           .maybeSingle();
         if (erroPerfil || (profile?.role !== "guardian" && profile?.role !== "adopter")) {
           await supabase.auth.signOut({ scope: "local" });
+          console.warn("Perfil indisponível no login:", erroPerfil?.message ?? "linha inexistente em profiles");
           const mensagem = "Sua conta não possui um perfil válido. Aplique o schema atualizado do Supabase e tente novamente.";
           setErrorMessage(mensagem);
           showToast("Perfil indisponível", mensagem, "error");
@@ -117,15 +118,15 @@ export function LoginView() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-12 sm:py-16 min-h-[85vh] flex items-center justify-center">
-      <div className="w-full max-w-md bg-card rounded-3xl border border-border shadow-xl p-5 sm:p-8 space-y-6 animate-in fade-in">
+    <div className="flex min-h-[85vh] items-center justify-center bg-gradient-to-b from-primary/[0.04] to-background px-4 py-10 sm:py-16">
+      <div className="w-full max-w-md space-y-6 rounded-3xl border border-border/70 bg-card p-5 shadow-lg animate-in fade-in sm:p-8">
         
         {/* Header */}
         <div className="text-center space-y-2">
           <Link href="/" className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary text-primary-foreground shadow-md shadow-primary/20 mb-2">
             <PawPrint className="w-6 h-6 fill-current" />
           </Link>
-          <h1 className="font-serif text-3xl font-bold text-foreground">
+          <h1 className="font-serif text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
             Acesse o ConnectPet
           </h1>
           <p className="text-xs text-muted-foreground">
@@ -138,6 +139,7 @@ export function LoginView() {
           <button
             type="button"
             onClick={() => setRoleTab("adopter")}
+            aria-pressed={roleTab === "adopter"}
             className={`py-2 rounded-xl text-xs font-bold transition-all min-h-[44px] flex items-center justify-center gap-1.5 ${
               roleTab === "adopter"
                 ? "bg-background text-primary shadow-sm"
@@ -149,6 +151,7 @@ export function LoginView() {
           <button
             type="button"
             onClick={() => setRoleTab("guardian")}
+            aria-pressed={roleTab === "guardian"}
             className={`py-2 rounded-xl text-xs font-bold transition-all min-h-[44px] flex items-center justify-center gap-1.5 ${
               roleTab === "guardian"
                 ? "bg-background text-primary shadow-sm"
@@ -161,7 +164,7 @@ export function LoginView() {
 
         {/* Error Feedback */}
         {errorMessage && (
-          <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 text-xs">
+          <div role="alert" className="rounded-2xl border border-rose-500/30 bg-rose-500/10 p-3.5 text-sm text-rose-600 dark:text-rose-400">
             {errorMessage}
           </div>
         )}
@@ -169,35 +172,37 @@ export function LoginView() {
         {/* Form */}
         <form onSubmit={handleLogin} className="space-y-4 text-xs">
           <div className="space-y-1.5">
-            <label className="font-bold text-foreground">E-mail Cadastrado</label>
+            <label htmlFor="email-login" className="font-bold text-foreground">E-mail Cadastrado</label>
             <div className="relative">
               <Mail className="w-4 h-4 text-muted-foreground absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="email"
+                id="email-login"
                 required
                 maxLength={100}
                 autoComplete="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="seu.email@exemplo.com"
-                className="min-h-[44px] w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-4 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
+                className="min-h-[44px] w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <label className="font-bold text-foreground">Senha</label>
+            <label htmlFor="senha-login" className="font-bold text-foreground">Senha</label>
             <div className="relative">
               <Lock className="w-4 h-4 text-muted-foreground absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
                 type="password"
+                id="senha-login"
                 required
                 maxLength={64}
                 autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="min-h-[44px] w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-4 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
+                className="min-h-[44px] w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
             </div>
           </div>

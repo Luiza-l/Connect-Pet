@@ -1,4 +1,4 @@
-export const VERSAO_AVALIACAO = "connectpet-ia-v3";
+export const VERSAO_AVALIACAO = "connectpet-ia-v2";
 
 export interface FatorAvaliacao {
   criterio: string;

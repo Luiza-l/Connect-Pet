@@ -199,11 +199,11 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1">
               <Label>Nome *</Label>
-              <Input required maxLength={50} value={name} onChange={(e) => setName(e.target.value)} />
+              <Input aria-label="Nome do animal" required maxLength={50} value={name} onChange={(e) => setName(e.target.value)} />
             </div>
             <div className="space-y-1">
               <Label>Raça *</Label>
-              <Input required maxLength={50} value={breed} onChange={(e) => setBreed(e.target.value)} />
+              <Input aria-label="Raça do animal" required maxLength={50} value={breed} onChange={(e) => setBreed(e.target.value)} />
             </div>
           </div>
 
@@ -211,6 +211,7 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
             <div className="space-y-1">
               <Label>Espécie</Label>
               <select
+                aria-label="Espécie"
                 value={species}
                 onChange={(e) => setSpecies(e.target.value as "dog" | "cat")}
                 className="min-h-[44px] w-full rounded-md border border-input bg-background px-3 text-sm"
@@ -222,6 +223,7 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
             <div className="space-y-1">
               <Label>Porte</Label>
               <select
+                aria-label="Porte"
                 value={size}
                 onChange={(e) => setSize(e.target.value as "small" | "medium" | "large")}
                 className="min-h-[44px] w-full rounded-md border border-input bg-background px-3 text-sm"
@@ -234,6 +236,7 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
             <div className="space-y-1">
               <Label>Sexo</Label>
               <select
+                aria-label="Sexo"
                 value={sex}
                 onChange={(e) => setSex(e.target.value as "male" | "female")}
                 className="min-h-[44px] w-full rounded-md border border-input bg-background px-3 text-sm"
@@ -247,7 +250,7 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1">
               <Label>Faixa etária</Label>
-              <select value={ageCategory} onChange={(e) => setAgeCategory(e.target.value as typeof ageCategory)} className="min-h-[44px] w-full rounded-md border border-input bg-background px-3 text-sm">
+              <select aria-label="Faixa etária" value={ageCategory} onChange={(e) => setAgeCategory(e.target.value as typeof ageCategory)} className="min-h-[44px] w-full rounded-xl border border-input bg-background px-3 text-sm">
                 <option value="puppy">Filhote</option>
                 <option value="young">Jovem</option>
                 <option value="adult">Adulto</option>
@@ -257,7 +260,7 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
             {isEditing && (
               <div className="space-y-1">
                 <Label>Status da adoção</Label>
-                <select value={status} onChange={(e) => setStatus(e.target.value as typeof status)} className="min-h-[44px] w-full rounded-md border border-input bg-background px-3 text-sm">
+                <select aria-label="Status da adoção" value={status} onChange={(e) => setStatus(e.target.value as typeof status)} className="min-h-[44px] w-full rounded-xl border border-input bg-background px-3 text-sm">
                   <option value="available">Disponível</option>
                   <option value="in_process">Em processo</option>
                   <option value="adopted">Adotado</option>
@@ -268,7 +271,7 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
 
           <div className="space-y-1">
             <Label>Idade Aproximada *</Label>
-            <Input required maxLength={30} value={approximateAge} onChange={(e) => setApproximateAge(e.target.value)} />
+            <Input aria-label="Idade aproximada" required maxLength={30} value={approximateAge} onChange={(e) => setApproximateAge(e.target.value)} />
           </div>
 
           <div className="space-y-3 rounded-xl border border-border bg-secondary/30 p-4">
@@ -279,7 +282,7 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-1">
                 <Label>Nível de energia</Label>
-                <select value={energyLevel} onChange={(e) => setEnergyLevel(e.target.value as Pet["energyLevel"])} className="min-h-[44px] w-full rounded-md border border-input bg-background px-3 text-sm">
+                <select aria-label="Nível de energia" value={energyLevel} onChange={(e) => setEnergyLevel(e.target.value as Pet["energyLevel"])} className="min-h-[44px] w-full rounded-xl border border-input bg-background px-3 text-sm">
                   <option value="calm">Calmo</option>
                   <option value="moderate">Moderado</option>
                   <option value="high">Alto</option>
@@ -287,19 +290,19 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
               </div>
               <div className="space-y-1">
                 <Label>Convivência com crianças</Label>
-                <select value={compatibleWithChildren} onChange={(e) => setCompatibleWithChildren(e.target.value as Pet["compatibleWithChildren"])} className="min-h-[44px] w-full rounded-md border border-input bg-background px-3 text-sm">
+                <select aria-label="Convivência com crianças" value={compatibleWithChildren} onChange={(e) => setCompatibleWithChildren(e.target.value as Pet["compatibleWithChildren"])} className="min-h-[44px] w-full rounded-xl border border-input bg-background px-3 text-sm">
                   <option value="unknown">Ainda não avaliado</option><option value="yes">Convive bem</option><option value="no">Não é recomendado</option>
                 </select>
               </div>
               <div className="space-y-1">
                 <Label>Convivência com cães</Label>
-                <select value={compatibleWithDogs} onChange={(e) => setCompatibleWithDogs(e.target.value as Pet["compatibleWithDogs"])} className="min-h-[44px] w-full rounded-md border border-input bg-background px-3 text-sm">
+                <select aria-label="Convivência com cães" value={compatibleWithDogs} onChange={(e) => setCompatibleWithDogs(e.target.value as Pet["compatibleWithDogs"])} className="min-h-[44px] w-full rounded-xl border border-input bg-background px-3 text-sm">
                   <option value="unknown">Ainda não avaliado</option><option value="yes">Convive bem</option><option value="no">Não é recomendado</option>
                 </select>
               </div>
               <div className="space-y-1">
                 <Label>Convivência com gatos</Label>
-                <select value={compatibleWithCats} onChange={(e) => setCompatibleWithCats(e.target.value as Pet["compatibleWithCats"])} className="min-h-[44px] w-full rounded-md border border-input bg-background px-3 text-sm">
+                <select aria-label="Convivência com gatos" value={compatibleWithCats} onChange={(e) => setCompatibleWithCats(e.target.value as Pet["compatibleWithCats"])} className="min-h-[44px] w-full rounded-xl border border-input bg-background px-3 text-sm">
                   <option value="unknown">Ainda não avaliado</option><option value="yes">Convive bem</option><option value="no">Não é recomendado</option>
                 </select>
               </div>
@@ -308,7 +311,7 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
 
           <div className="space-y-1">
             <Label>Frase de Destaque *</Label>
-            <Input required maxLength={120} value={headline} onChange={(e) => setHeadline(e.target.value)} />
+            <Input aria-label="Frase de destaque" required maxLength={120} value={headline} onChange={(e) => setHeadline(e.target.value)} />
           </div>
 
           <div className="space-y-1">
@@ -316,17 +319,18 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
               <Label>História de Resgate *</Label>
               <span className="text-[10px] text-muted-foreground">{story.length}/1000</span>
             </div>
-            <Textarea required rows={3} maxLength={1000} value={story} onChange={(e) => setStory(e.target.value.slice(0, 1000))} />
+            <Textarea aria-label="História de resgate" required rows={3} maxLength={1000} value={story} onChange={(e) => setStory(e.target.value.slice(0, 1000))} />
           </div>
 
           <div className="space-y-1">
             <Label>Temperamento (separado por vírgula)</Label>
-            <Input maxLength={150} value={temperament} onChange={(e) => setTemperament(e.target.value)} />
+            <Input aria-label="Temperamento" maxLength={150} value={temperament} onChange={(e) => setTemperament(e.target.value)} />
           </div>
 
           <div className="space-y-1">
             <Label>Descrição de comportamento e convivência *</Label>
             <Textarea
+              aria-label="Descrição de comportamento e convivência"
               required
               rows={3}
               maxLength={500}
@@ -338,11 +342,11 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1">
               <Label>Detalhes da vacinação</Label>
-              <Input maxLength={200} value={vaccinationDetails} onChange={(e) => setVaccinationDetails(e.target.value)} />
+              <Input aria-label="Detalhes da vacinação" maxLength={200} value={vaccinationDetails} onChange={(e) => setVaccinationDetails(e.target.value)} />
             </div>
             <div className="space-y-1">
               <Label>Necessidades especiais</Label>
-              <Input maxLength={200} value={specialNeeds} onChange={(e) => setSpecialNeeds(e.target.value)} />
+              <Input aria-label="Necessidades especiais" maxLength={200} value={specialNeeds} onChange={(e) => setSpecialNeeds(e.target.value)} />
             </div>
           </div>
 

@@ -45,7 +45,7 @@ export function PetCard({ pet, priority = false }: PetCardProps) {
   const cityText = [pet.location?.city, pet.location?.state].filter(Boolean).join(", ") || "Localização não informada";
 
   return (
-    <div className="group relative flex flex-col rounded-3xl border border-border/50 bg-card overflow-hidden shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300 max-w-md mx-auto sm:max-w-none w-full">
+    <article className="group relative mx-auto flex w-full max-w-md flex-col overflow-hidden rounded-3xl border border-border/70 bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl sm:max-w-none">
 
       {/* Top Image Section */}
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-secondary">
@@ -86,11 +86,13 @@ export function PetCard({ pet, priority = false }: PetCardProps) {
 
         {/* Pet Name and Headline on image bottom */}
         <div className="absolute bottom-3 left-3.5 right-3.5 text-white">
-          <div className="flex items-baseline justify-between">
-            <h3 className="font-serif text-2xl font-bold tracking-tight text-white drop-shadow-sm">
-              {pet.name}
+          <div className="flex min-w-0 items-end justify-between gap-2">
+            <h3 className="min-w-0 truncate font-serif text-2xl font-bold tracking-tight text-white drop-shadow-sm">
+              <Link href={`/pets/${pet.id}`} className="rounded-sm focus-visible:ring-white">
+                {pet.name}
+              </Link>
             </h3>
-            <span className="text-xs font-semibold text-white/90 bg-black/40 px-2 py-0.5 rounded-full backdrop-blur-sm">
+            <span className="max-w-[48%] truncate rounded-full bg-black/45 px-2 py-1 text-[11px] font-semibold text-white/95 backdrop-blur-sm sm:text-xs">
               {pet.approximateAge || "Idade não informada"}
             </span>
           </div>
@@ -124,7 +126,7 @@ export function PetCard({ pet, priority = false }: PetCardProps) {
         </div>
 
         {/* Headline text */}
-        <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 leading-relaxed">
+        <p className="line-clamp-2 min-h-10 text-sm leading-relaxed text-muted-foreground">
           &ldquo;{pet.headline || "Informações em atualização."}&rdquo;
         </p>
 
@@ -147,14 +149,15 @@ export function PetCard({ pet, priority = false }: PetCardProps) {
 
         {/* Footer info: Location, Guardian & Action Link */}
         <div className="pt-3 border-t border-border/50 flex items-center justify-between mt-auto text-xs">
-          <div className="flex max-w-40 items-center gap-1 truncate text-muted-foreground">
+          <div className="flex min-w-0 flex-1 items-center gap-1 truncate text-muted-foreground">
             <MapPin className="w-3.5 h-3.5 text-primary shrink-0" />
             <span className="truncate">{cityText}</span>
           </div>
 
           <Link
             href={`/pets/${pet.id}`}
-            className="inline-flex items-center gap-1 font-bold text-xs text-primary group-hover:translate-x-0.5 transition-transform hover:underline min-h-[44px] py-2"
+            aria-label={`Ver detalhes de ${pet.name}`}
+            className="inline-flex min-h-[44px] shrink-0 items-center gap-1 py-2 pl-3 text-xs font-bold text-primary transition-transform hover:underline group-hover:translate-x-0.5"
           >
             Ver Detalhes
             <ArrowRight className="w-3.5 h-3.5" />
@@ -162,6 +165,6 @@ export function PetCard({ pet, priority = false }: PetCardProps) {
         </div>
 
       </div>
-    </div>
+    </article>
   );
 }

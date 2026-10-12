@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
@@ -62,6 +62,29 @@ export function Navbar() {
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [themeDropdownOpen, setThemeDropdownOpen] = useState(false);
 
+  useEffect(() => {
+    if (!mobileMenuOpen && !profileDropdownOpen && !themeDropdownOpen) return;
+
+    const aoPressionarTecla = (evento: KeyboardEvent) => {
+      if (evento.key !== "Escape") return;
+      setMobileMenuOpen(false);
+      setProfileDropdownOpen(false);
+      setThemeDropdownOpen(false);
+    };
+
+    document.addEventListener("keydown", aoPressionarTecla);
+    return () => document.removeEventListener("keydown", aoPressionarTecla);
+  }, [mobileMenuOpen, profileDropdownOpen, themeDropdownOpen]);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const overflowAnterior = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = overflowAnterior;
+    };
+  }, [mobileMenuOpen]);
+
   const isAdopter = currentUser?.role === "adopter";
   const isGuardian = currentUser?.role === "guardian";
 
@@ -72,12 +95,18 @@ export function Navbar() {
     { label: "Smart Match", href: "/match", icon: Sparkles },
   ];
 
+  const estaAtivo = (href: string) => {
+    if (href === "/") return pathname === "/";
+    if (href.includes("#")) return false;
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/85 backdrop-blur-xl transition-colors">
-      <div className="container mx-auto flex h-20 items-center justify-between px-4 sm:px-8">
+    <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/90 shadow-sm shadow-foreground/[0.02] backdrop-blur-xl transition-colors">
+      <div className="page-shell flex h-16 items-center justify-between sm:h-20">
         
         {/* Logo */}
-        <Link href="/" className="group flex items-center gap-2 sm:gap-3 shrink-0">
+        <Link href="/" aria-label="ConnectPet — página inicial" className="group flex min-h-[44px] shrink-0 items-center gap-2 sm:gap-3">
           <div className="flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-primary text-primary-foreground shadow-md shadow-primary/20 transition-transform duration-300 group-hover:scale-105">
             <PawPrint className="h-5 w-5 sm:h-6 sm:w-6 fill-current" />
           </div>
@@ -89,15 +118,16 @@ export function Navbar() {
         </Link>
 
         {/* Center Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-1.5 bg-secondary/40 border border-border/40 p-1.5 rounded-full">
+        <nav aria-label="Navegação principal" className="hidden lg:flex items-center gap-1 bg-secondary/50 border border-border/60 p-1 rounded-full">
           {navLinks.map((link) => {
-            const isActive = pathname === link.href;
+            const isActive = estaAtivo(link.href);
             const Icon = link.icon;
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all ${
+                aria-current={isActive ? "page" : undefined}
+                className={`flex min-h-[44px] items-center gap-1.5 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all ${
                   isActive
                     ? "bg-background text-foreground shadow-sm font-bold"
                     : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
@@ -123,6 +153,7 @@ export function Navbar() {
                 : "border-border/50 bg-card hover:bg-secondary/50 text-muted-foreground hover:text-rose-500"
             }`}
             title={isCatalog && showFavoritesOnly ? "Ver Todos os Pets" : "Ver Pets Favoritos"}
+            aria-label={isCatalog && showFavoritesOnly ? "Exibir todos os pets" : `Exibir favoritos${favoritesCount ? `, ${favoritesCount} salvos` : ""}`}
           >
             <Heart className={`w-5 h-5 ${favoritesCount > 0 || (isCatalog && showFavoritesOnly) ? "text-rose-500 fill-rose-500/20" : ""}`} />
             {favoritesCount > 0 && (
@@ -142,6 +173,8 @@ export function Navbar() {
               className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full border border-border/50 bg-card hover:bg-secondary/50 text-muted-foreground transition-colors"
               title="Mudar Tema"
               aria-label="Mudar Tema"
+              aria-haspopup="menu"
+              aria-expanded={themeDropdownOpen}
             >
               {theme === "light" && <Sun className="w-5 h-5 text-amber-500" />}
               {theme === "dark" && <Moon className="w-5 h-5 text-indigo-400" />}
@@ -149,13 +182,15 @@ export function Navbar() {
             </button>
 
             {themeDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-36 rounded-2xl bg-card border border-border/60 shadow-xl p-1.5 z-50 animate-in fade-in zoom-in-95">
+              <div role="menu" aria-label="Escolher tema" className="absolute right-0 mt-2 w-40 rounded-2xl bg-popover border border-border/60 shadow-xl p-1.5 z-50 animate-in fade-in zoom-in-95">
                 <button
                   onClick={() => {
                     setTheme("light");
                     setThemeDropdownOpen(false);
                   }}
-                  className={`flex w-full items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-xl transition-colors ${
+                  role="menuitemradio"
+                  aria-checked={theme === "light"}
+                  className={`flex min-h-[44px] w-full items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-xl transition-colors ${
                     theme === "light" ? "bg-primary/10 text-primary font-bold" : "hover:bg-secondary text-foreground"
                   }`}
                 >
@@ -166,7 +201,9 @@ export function Navbar() {
                     setTheme("dark");
                     setThemeDropdownOpen(false);
                   }}
-                  className={`flex w-full items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-xl transition-colors ${
+                  role="menuitemradio"
+                  aria-checked={theme === "dark"}
+                  className={`flex min-h-[44px] w-full items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-xl transition-colors ${
                     theme === "dark" ? "bg-primary/10 text-primary font-bold" : "hover:bg-secondary text-foreground"
                   }`}
                 >
@@ -177,7 +214,9 @@ export function Navbar() {
                     setTheme("system");
                     setThemeDropdownOpen(false);
                   }}
-                  className={`flex w-full items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-xl transition-colors ${
+                  role="menuitemradio"
+                  aria-checked={theme === "system"}
+                  className={`flex min-h-[44px] w-full items-center gap-2.5 px-3 py-2 text-xs font-medium rounded-xl transition-colors ${
                     theme === "system" ? "bg-primary/10 text-primary font-bold" : "hover:bg-secondary text-foreground"
                   }`}
                 >
@@ -195,6 +234,9 @@ export function Navbar() {
                   setProfileDropdownOpen(!profileDropdownOpen);
                   setThemeDropdownOpen(false);
                 }}
+                aria-haspopup="menu"
+                aria-expanded={profileDropdownOpen}
+                aria-label={`Abrir menu de ${currentUser.name}`}
                 className="flex items-center gap-2.5 p-1.5 pr-3 min-h-[44px] rounded-full border border-border/60 bg-card hover:border-primary/40 shadow-sm transition-all text-left"
               >
                 <div className="w-8 h-8 rounded-full overflow-hidden relative border border-primary/25 bg-sky-100 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300 flex items-center justify-center font-bold text-xs shrink-0">
@@ -222,7 +264,7 @@ export function Navbar() {
               </button>
 
               {profileDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-64 rounded-2xl bg-card border border-border shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95">
+                <div role="menu" aria-label="Menu da conta" className="absolute right-0 mt-2 w-64 rounded-2xl bg-popover border border-border shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95">
                   <div className="p-2.5 border-b border-border/60 mb-2">
                     <p className="text-xs font-bold text-foreground">{currentUser.name}</p>
                     <p className="text-[11px] text-muted-foreground truncate">{currentUser.email}</p>
@@ -234,8 +276,9 @@ export function Navbar() {
                   {/* Editar Perfil */}
                   <Link
                     href="/perfil"
+                    role="menuitem"
                     onClick={() => setProfileDropdownOpen(false)}
-                    className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-foreground rounded-xl hover:bg-secondary transition-colors"
+                    className="flex min-h-[44px] items-center gap-2.5 px-3 py-2 text-xs font-medium text-foreground rounded-xl hover:bg-secondary transition-colors"
                   >
                     <UserCog className="w-4 h-4 text-primary" /> Editar Perfil
                   </Link>
@@ -244,8 +287,9 @@ export function Navbar() {
                   {isAdopter && (
                     <Link
                       href="/minhas-candidaturas"
+                      role="menuitem"
                       onClick={() => setProfileDropdownOpen(false)}
-                      className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-foreground rounded-xl hover:bg-secondary transition-colors"
+                      className="flex min-h-[44px] items-center gap-2.5 px-3 py-2 text-xs font-medium text-foreground rounded-xl hover:bg-secondary transition-colors"
                     >
                       <FileCheck2 className="w-4 h-4 text-primary" /> Minhas Candidaturas
                     </Link>
@@ -254,8 +298,9 @@ export function Navbar() {
                   {isGuardian && (
                     <Link
                       href="/dashboard"
+                      role="menuitem"
                       onClick={() => setProfileDropdownOpen(false)}
-                      className="flex items-center gap-2.5 px-3 py-2 text-xs font-medium text-foreground rounded-xl hover:bg-secondary transition-colors"
+                      className="flex min-h-[44px] items-center gap-2.5 px-3 py-2 text-xs font-medium text-foreground rounded-xl hover:bg-secondary transition-colors"
                     >
                       <LayoutDashboard className="w-4 h-4 text-primary" /> Painel de gestão
                     </Link>
@@ -270,7 +315,8 @@ export function Navbar() {
                         logout();
                         setProfileDropdownOpen(false);
                       }}
-                      className="flex w-full items-center gap-2 px-3 py-2 text-xs font-medium text-rose-600 dark:text-rose-400 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
+                      role="menuitem"
+                      className="flex min-h-[44px] w-full items-center gap-2 px-3 py-2 text-xs font-medium text-rose-600 dark:text-rose-400 rounded-xl hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors"
                     >
                       <LogOut className="w-3.5 h-3.5" /> Sair da conta
                     </button>
@@ -293,7 +339,9 @@ export function Navbar() {
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="lg:hidden p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full border border-border/60 bg-card text-foreground"
-            aria-label="Abrir Menu"
+            aria-label={mobileMenuOpen ? "Fechar menu" : "Abrir menu"}
+            aria-expanded={mobileMenuOpen}
+            aria-controls="menu-movel"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -302,17 +350,25 @@ export function Navbar() {
 
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-b border-border bg-background px-4 py-6 shadow-xl space-y-4 animate-in slide-in-from-top-4">
-          <nav className="flex flex-col space-y-1">
+        <>
+          <button
+            type="button"
+            aria-label="Fechar menu"
+            onClick={() => setMobileMenuOpen(false)}
+            className="fixed inset-x-0 bottom-0 top-16 z-40 cursor-default bg-foreground/30 backdrop-blur-sm sm:top-20 lg:hidden"
+          />
+          <div id="menu-movel" className="fixed bottom-0 right-0 top-16 z-50 w-full max-w-sm overflow-y-auto border-l border-border bg-background px-4 py-5 shadow-2xl animate-in slide-in-from-right-4 sm:top-20 sm:px-6 lg:hidden">
+          <nav aria-label="Navegação móvel" className="flex flex-col space-y-1">
             {navLinks.map((link) => {
-              const isActive = pathname === link.href;
+              const isActive = estaAtivo(link.href);
               const Icon = link.icon;
               return (
                 <Link
                   key={link.href}
                   href={link.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-colors ${
+                  aria-current={isActive ? "page" : undefined}
+                  className={`flex min-h-[48px] items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold transition-colors ${
                     isActive ? "bg-primary/10 text-primary font-bold" : "text-muted-foreground hover:bg-secondary"
                   }`}
                 >
@@ -401,7 +457,8 @@ export function Navbar() {
               </div>
             )}
           </div>
-        </div>
+          </div>
+        </>
       )}
     </header>
   );

@@ -53,8 +53,9 @@ export default function EditPetPage({ params }: EditPetPageProps) {
 
   return (
     <div className="mx-auto w-full max-w-3xl space-y-6 px-4 py-6 sm:px-6 sm:py-10">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Editar Pet</h1>
+      <div className="border-b border-border/60 pb-5">
+        <p className="section-kicker">Gestão do anúncio</p>
+        <h1 className="mt-1 font-serif text-3xl font-bold tracking-tight text-foreground sm:text-4xl">Editar pet</h1>
         <p className="text-muted-foreground">Atualize as informações de {pet.name}.</p>
       </div>
 

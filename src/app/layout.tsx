@@ -47,6 +47,12 @@ export default function RootLayout({
       className={`${jakarta.variable} ${playfair.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans bg-background text-foreground selection:bg-primary/20 selection:text-primary">
+        <a
+          href="#conteudo-principal"
+          className="fixed left-4 top-3 z-[100] -translate-y-20 rounded-xl bg-primary px-4 py-3 text-sm font-bold text-primary-foreground shadow-lg transition-transform focus:translate-y-0"
+        >
+          Pular para o conteúdo
+        </a>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
@@ -55,7 +61,7 @@ export default function RootLayout({
         >
           <AppProvider>
             <Navbar />
-            <main className="flex-1">{children}</main>
+            <main id="conteudo-principal" className="flex-1" tabIndex={-1}>{children}</main>
             <Footer />
             <ToastContainer />
             <AuthRequiredDialog />

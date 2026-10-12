@@ -220,15 +220,15 @@ export function SmartMatchView() {
                     onClick={() => handleOptionSelect(questions[currentStep].field as keyof SmartMatchQuizData, option.value)}
                     className="w-full p-4 min-h-[44px] rounded-2xl border border-border/70 hover:border-primary/50 hover:bg-primary/5 text-left transition-all flex items-center justify-between group"
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex min-w-0 items-center gap-3">
                       <div className="w-10 h-10 rounded-xl bg-secondary group-hover:bg-primary/10 text-primary flex items-center justify-center shrink-0">
                         <Icon className="w-5 h-5" />
                       </div>
-                      <span className="text-sm font-semibold text-foreground group-hover:text-primary">
+                      <span className="min-w-0 break-words text-sm font-semibold text-foreground group-hover:text-primary">
                         {option.label}
                       </span>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-transform" />
+                    <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
                   </button>
                 );
               })}
