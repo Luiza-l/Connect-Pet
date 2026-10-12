@@ -1,5 +1,14 @@
 # Changelog
 
+## [v0.9.5] - 2026-10-12
+### Commit
+`feat: adicionar indicador deslizante na navbar`
+
+### Mudanças
+- Adiciona pílula animada que desliza até o link ativo na navegação desktop, com suporte a `prefers-reduced-motion` e temas claro/escuro.
+
+---
+
 ## [v0.9.4] - 2026-10-12
 ### Commit
 `fix: remover rolagem vertical duplicada`

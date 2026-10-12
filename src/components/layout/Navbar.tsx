@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
@@ -101,6 +101,30 @@ export function Navbar() {
     return pathname === href || pathname.startsWith(`${href}/`);
   };
 
+  // Indicador deslizante: posição e largura da pílula atrás do link ativo
+  const refsLinks = useRef<Record<string, HTMLAnchorElement | null>>({});
+  const [indicador, setIndicador] = useState<{ esquerda: number; largura: number; visivel: boolean }>({
+    esquerda: 0,
+    largura: 0,
+    visivel: false,
+  });
+
+  useLayoutEffect(() => {
+    const atualizarIndicador = () => {
+      const ativo = navLinks.find((link) => estaAtivo(link.href));
+      const elemento = ativo ? refsLinks.current[ativo.href] : null;
+      if (!elemento) {
+        setIndicador((anterior) => (anterior.visivel ? { ...anterior, visivel: false } : anterior));
+        return;
+      }
+      setIndicador({ esquerda: elemento.offsetLeft, largura: elemento.offsetWidth, visivel: true });
+    };
+    atualizarIndicador();
+    window.addEventListener("resize", atualizarIndicador);
+    return () => window.removeEventListener("resize", atualizarIndicador);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/90 shadow-sm shadow-foreground/[0.02] backdrop-blur-xl transition-colors">
       <div className="page-shell flex h-16 items-center justify-between sm:h-20">
@@ -118,7 +142,14 @@ export function Navbar() {
         </Link>
 
         {/* Center Desktop Navigation */}
-        <nav aria-label="Navegação principal" className="hidden lg:flex items-center gap-1 bg-secondary/50 border border-border/60 p-1 rounded-full">
+        <nav aria-label="Navegação principal" className="relative hidden lg:flex items-center gap-1 bg-secondary/50 border border-border/60 p-1 rounded-full">
+          <span
+            aria-hidden="true"
+            className={`pointer-events-none absolute left-0 top-1 bottom-1 rounded-full bg-background shadow-sm ring-1 ring-border/50 transition-[transform,width,opacity] duration-300 ease-out motion-reduce:transition-none ${
+              indicador.visivel ? "opacity-100" : "opacity-0"
+            }`}
+            style={{ width: indicador.largura, transform: `translateX(${indicador.esquerda}px)` }}
+          />
           {navLinks.map((link) => {
             const isActive = estaAtivo(link.href);
             const Icon = link.icon;
@@ -126,11 +157,14 @@ export function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
+                ref={(el) => {
+                  refsLinks.current[link.href] = el;
+                }}
                 aria-current={isActive ? "page" : undefined}
-                className={`flex min-h-[44px] items-center gap-1.5 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all ${
+                className={`relative z-10 flex min-h-[44px] items-center gap-1.5 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-colors duration-300 ${
                   isActive
-                    ? "bg-background text-foreground shadow-sm font-bold"
-                    : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
+                    ? "text-foreground font-bold"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {Icon && <Icon className="w-3.5 h-3.5 text-primary" />}
