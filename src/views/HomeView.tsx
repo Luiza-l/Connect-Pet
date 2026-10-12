@@ -69,7 +69,7 @@ export function HomeView() {
         </div>
 
         {/* Animal da Lateral Esquerda (Dálmata espiando no canto inferior esquerdo, apoiado na onda) */}
-        <div className="absolute left-0 bottom-3 sm:bottom-5 md:bottom-8 lg:bottom-10 z-10 w-32 sm:w-44 md:w-56 lg:w-72 max-w-[34vw] sm:max-w-none select-none pointer-events-none transition-transform duration-300 hover:scale-105">
+        <div className="absolute left-0 bottom-3 z-10 w-40 max-w-[42vw] select-none pointer-events-none transition-transform duration-300 hover:scale-105 sm:bottom-5 sm:w-56 sm:max-w-none md:bottom-8 md:w-72 lg:bottom-10 lg:w-96">
           <Image
             src="/images/home/hero-dog-left.png"
             alt="Cachorro Dálmata espiando"
@@ -296,14 +296,14 @@ export function HomeView() {
           </h2>
 
           {/* Ilustração Panorâmica da Trilha com Pins e Patinhas */}
-          <div className="relative w-full max-w-4xl mx-auto my-6 sm:my-8 px-2">
+          <div className="relative mx-auto my-6 aspect-[3/1] w-full max-w-4xl overflow-hidden sm:my-8">
             <Image
-              src="/images/home/pillars-illustration.png"
+              src="/images/imagem-sobre.png"
               alt="Os 3 Pilares da Adoção no ConnectPet"
-              width={1024}
-              height={341}
+              width={1448}
+              height={1086}
               priority
-              className="w-full h-auto object-contain select-none"
+              className="absolute left-0 top-1/2 h-auto w-full -translate-y-1/2 select-none object-contain"
             />
           </div>
 

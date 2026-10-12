@@ -138,11 +138,11 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/90 shadow-sm shadow-foreground/[0.02] backdrop-blur-xl transition-colors">
-      <div className="page-shell flex h-16 items-center justify-between gap-2 sm:h-20 sm:gap-3 lg:gap-6">
+      <div className="mx-auto flex h-16 w-full max-w-screen-2xl items-center justify-between gap-2 px-4 sm:h-20 sm:gap-3 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:gap-6 lg:px-8">
         
         {/* Logo */}
-        <Link href="/" aria-label="ConnectPet — página inicial" className="group flex min-h-[44px] shrink-0 items-center gap-2 sm:gap-3">
-          <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full shadow-md shadow-primary/20 transition-transform duration-300 group-hover:scale-105 sm:h-14 sm:w-14">
+        <Link href="/" aria-label="ConnectPet — página inicial" className="group flex min-h-[44px] shrink-0 items-center gap-2 sm:gap-3 lg:justify-self-start">
+          <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full transition-transform duration-300 group-hover:scale-105 sm:h-14 sm:w-14">
             <Image
               src="/images/logo-connectpet-redondo.png"
               alt=""
@@ -160,7 +160,7 @@ export function Navbar() {
         </Link>
 
         {/* Center Desktop Navigation */}
-        <nav aria-label="Navegação principal" className="relative hidden lg:flex items-center gap-1.5 xl:gap-2 bg-secondary/50 border border-border/60 p-1.5 rounded-full">
+        <nav aria-label="Navegação principal" className="relative hidden items-center gap-2 rounded-full border border-border/60 bg-secondary/50 p-1.5 lg:flex lg:justify-self-center lg:gap-3 xl:gap-5">
           <span
             aria-hidden="true"
             className={`pointer-events-none absolute left-0 top-1.5 bottom-1.5 rounded-full bg-background shadow-sm ring-1 ring-border/50 transition-[transform,width,opacity] duration-300 ease-out motion-reduce:transition-none ${
@@ -179,7 +179,7 @@ export function Navbar() {
                   refsLinks.current[link.href] = el;
                 }}
                 aria-current={isActive ? "page" : undefined}
-                className={`relative z-10 flex min-h-[44px] items-center gap-2 px-3.5 xl:px-5 py-2 rounded-full text-sm font-semibold transition-colors duration-300 ${
+                className={`relative z-10 flex min-h-[44px] items-center gap-2 rounded-full px-3.5 py-2 text-[0.9375rem] font-semibold transition-colors duration-300 xl:px-5 ${
                   isActive
                     ? "text-foreground font-bold"
                     : "text-muted-foreground hover:text-foreground"
@@ -193,7 +193,7 @@ export function Navbar() {
         </nav>
 
         {/* Right Section: Favorites, Theme & User Profile */}
-        <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-3 lg:justify-self-end">
           
           {/* Favorites Button */}
           <Link

@@ -1,5 +1,65 @@
 # Changelog
 
+## [v0.9.18] - 2026-10-12
+### Commit
+`style: aumentar texto da navbar`
+
+### Mudanças
+- Aumenta levemente o texto dos links centrais da navbar de 14 px para 15 px.
+- Mantém as dimensões, o espaçamento e a centralização dos botões.
+
+---
+
+## [v0.9.17] - 2026-10-12
+### Commit
+`style: ampliar espaçamento da navegação`
+
+### Mudanças
+- Aumenta progressivamente o espaçamento horizontal entre os links da navbar em telas desktop.
+- Preserva a centralização geométrica do menu e o tamanho acessível dos botões existentes.
+
+---
+
+## [v0.9.16] - 2026-10-12
+### Commit
+`fix: centralizar navegação com o conteúdo`
+
+### Mudanças
+- Centraliza geometricamente o menu desktop da navbar em relação ao centro da página.
+- Mantém o logo e as ações alinhados às extremidades sem interferir na posição do menu central.
+
+---
+
+## [v0.9.15] - 2026-10-12
+### Commit
+`style: atualizar imagem da seção sobre`
+
+### Mudanças
+- Substitui a ilustração anterior da seção sobre pela nova imagem `imagem-sobre.png`.
+- Mantém o enquadramento panorâmico e responsivo apesar da área transparente da nova imagem.
+
+---
+
+## [v0.9.14] - 2026-10-12
+### Commit
+`style: equilibrar animais do banner principal`
+
+### Mudanças
+- Aumenta responsivamente a imagem do cachorro à esquerda do banner para equilibrar sua proporção visual com o cachorro da direita.
+- Preserva um limite relativo à viewport no mobile para evitar sobreposição com o conteúdo central.
+
+---
+
+## [v0.9.13] - 2026-10-12
+### Commit
+`style: ampliar navbar e remover sombra do logo`
+
+### Mudanças
+- Amplia o limite horizontal do conteúdo da navbar em telas largas, mantendo os recuos responsivos a partir de 320px.
+- Remove a sombra decorativa do logo exibido na navbar.
+
+---
+
 ## [v0.9.12] - 2026-10-12
 ### Commit
 `fix: corrigir script de tema e hidratação da navbar`
