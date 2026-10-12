@@ -9,6 +9,7 @@ import { ToastContainer } from "@/components/ui/ToastContainer";
 import { AuthRequiredDialog } from "@/components/auth/AuthRequiredDialog";
 import { AnimacoesDaPagina } from "@/components/layout/AnimacoesDaPagina";
 import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 const playfair = Playfair_Display({
   variable: "--font-playfair",
@@ -71,6 +72,7 @@ export default function RootLayout({
           </AppProvider>
         </ThemeProvider>
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
