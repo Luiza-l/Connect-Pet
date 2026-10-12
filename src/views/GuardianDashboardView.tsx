@@ -36,6 +36,7 @@ import { useApp } from "@/context/AppContext";
 import type { ApplicationStatus, Pet, PetAdoptionStatus, PreAdoptionApplication } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { SeletorDeslizante } from "@/components/ui/SeletorDeslizante";
 import {
   AlertDialogContent,
   AlertDialogDescription,
@@ -261,7 +262,7 @@ function PainelDossie({
     <article className="space-y-5 rounded-3xl border border-border/70 bg-card p-4 shadow-sm sm:p-6">
       <header className="flex flex-col gap-4 border-b border-border/60 pb-5 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
-          <p className="text-[11px] font-bold uppercase tracking-wider text-primary">Candidatura para {candidatura.petName}</p>
+          <p className="text-xs font-bold uppercase tracking-wider text-primary">Candidatura para {candidatura.petName}</p>
           <h2 className="mt-1 break-words font-serif text-xl font-bold text-foreground sm:text-2xl">{candidatura.candidate.name}</h2>
           <p className="mt-1 text-xs text-muted-foreground">Recebida em {new Date(candidatura.createdAt).toLocaleDateString("pt-BR")}</p>
         </div>
@@ -281,19 +282,19 @@ function PainelDossie({
 
       <section aria-label="Resumo da candidatura" className="grid grid-cols-2 gap-2 sm:grid-cols-4">
         <div className="rounded-xl bg-muted/50 p-3">
-          <span className="block text-[11px] text-muted-foreground">Moradores</span>
+          <span className="block text-xs text-muted-foreground">Moradores</span>
           <strong className="mt-1 block text-sm text-foreground">{candidatura.adultsCount + candidatura.childrenCount}</strong>
         </div>
         <div className="rounded-xl bg-muted/50 p-3">
-          <span className="block text-[11px] text-muted-foreground">Tempo sozinho</span>
+          <span className="block text-xs text-muted-foreground">Tempo sozinho</span>
           <strong className="mt-1 block text-sm text-foreground">{candidatura.hoursAlone}h/dia</strong>
         </div>
         <div className="rounded-xl bg-muted/50 p-3">
-          <span className="block text-[11px] text-muted-foreground">Outros animais</span>
+          <span className="block text-xs text-muted-foreground">Outros animais</span>
           <strong className="mt-1 block text-sm text-foreground">{candidatura.hasCurrentPets ? "Sim" : "Não"}</strong>
         </div>
         <div className="rounded-xl bg-muted/50 p-3">
-          <span className="block text-[11px] text-muted-foreground">Referência</span>
+          <span className="block text-xs text-muted-foreground">Referência</span>
           <strong className="mt-1 block text-sm text-foreground">{candidatura.automatedAnalysis ? `${candidatura.automatedAnalysis.suitabilityScore}/100` : "—"}</strong>
         </div>
       </section>
@@ -453,12 +454,12 @@ function PainelDossie({
             <div className="space-y-3">
               {candidatura.messages.map((item) => {
                 if (item.senderRole === "system") {
-                  return <p key={item.id} className="text-center text-[10px] text-muted-foreground"><span className="inline-block rounded-full bg-muted px-3 py-1">{item.content}</span></p>;
+                  return <p key={item.id} className="text-center text-xs text-muted-foreground"><span className="inline-block rounded-full bg-muted px-3 py-1">{item.content}</span></p>;
                 }
                 const mensagemGuardiao = item.senderRole === "guardian";
                 return (
                   <div key={item.id} className={`flex flex-col ${mensagemGuardiao ? "items-end" : "items-start"}`}>
-                    <span className="mb-1 px-1 text-[10px] text-muted-foreground">{item.senderName} · {new Date(item.sentAt).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}</span>
+                    <span className="mb-1 px-1 text-xs text-muted-foreground">{item.senderName} · {new Date(item.sentAt).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}</span>
                     <p className={`max-w-[90%] rounded-2xl p-3 text-xs leading-relaxed sm:max-w-md ${mensagemGuardiao ? "rounded-br-sm bg-primary text-primary-foreground" : "rounded-bl-sm border border-border bg-card text-foreground"}`}>{item.content}</p>
                   </div>
                 );
@@ -663,25 +664,28 @@ export function GuardianDashboardView() {
         </Button>
       </header>
 
-      <nav aria-label="Seções do painel" role="tablist" className="flex gap-2 overflow-x-auto rounded-2xl border border-border/60 bg-card p-1.5 shadow-sm">
-        {ABAS.map((aba) => {
-          const Icone = aba.icone;
-          const selecionada = abaAtiva === aba.id;
+      <SeletorDeslizante
+        papel="abas"
+        rotuloAria="Seções do painel"
+        valor={abaAtiva}
+        aoMudar={(id) => navegarParaAba(id as AbaPainel)}
+        itens={ABAS.map((aba) => {
           const contagem = aba.id === "candidaturas" ? candidaturasAbertas.length : aba.id === "animais" ? animaisGuardiao.length : null;
-          return (
-            <button
-              key={aba.id}
-              type="button"
-              role="tab"
-              aria-selected={selecionada}
-              onClick={() => navegarParaAba(aba.id)}
-              className={`flex min-h-[44px] shrink-0 items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary sm:px-4 sm:text-sm ${selecionada ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:bg-muted hover:text-foreground"}`}
-            >
-              <Icone className="h-4 w-4" />{aba.rotulo}{contagem !== null && <span className={`rounded-full px-1.5 py-0.5 text-[10px] ${selecionada ? "bg-primary-foreground/20" : "bg-muted"}`}>{contagem}</span>}
-            </button>
-          );
+          return {
+            id: aba.id,
+            rotulo: aba.rotulo,
+            icone: aba.icone,
+            extra: contagem !== null
+              ? (selecionada: boolean) => <span className={`rounded-full px-1.5 py-0.5 text-xs ${selecionada ? "bg-primary-foreground/20" : "bg-muted"}`}>{contagem}</span>
+              : undefined,
+          };
         })}
-      </nav>
+        className="flex gap-2 overflow-x-auto rounded-2xl border border-border/60 bg-card p-1.5 shadow-sm"
+        classeItem="flex min-h-[44px] shrink-0 items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold sm:px-4 sm:text-sm"
+        classeIndicador="rounded-xl bg-primary shadow-sm"
+        classeSelecionado="text-primary-foreground"
+        classeNaoSelecionado="text-muted-foreground hover:text-foreground"
+      />
 
       <main role="tabpanel" aria-label={ABAS.find((aba) => aba.id === abaAtiva)?.rotulo}>
         {abaAtiva === "visao-geral" && (
@@ -750,7 +754,7 @@ export function GuardianDashboardView() {
                       return (
                         <div key={pet.id} className="flex items-center gap-3 rounded-2xl bg-muted/35 p-3">
                           <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-muted"><Image src={pet.photos[0]} alt="" fill sizes="48px" className="object-cover" /></div>
-                          <div className="min-w-0 flex-1"><p className="truncate text-sm font-bold text-foreground">{pet.name}</p><div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-primary" style={{ width: `${completude}%` }} /></div><p className="mt-1 text-[11px] text-muted-foreground">{completude}% preenchido</p></div>
+                          <div className="min-w-0 flex-1"><p className="truncate text-sm font-bold text-foreground">{pet.name}</p><div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-primary" style={{ width: `${completude}%` }} /></div><p className="mt-1 text-xs text-muted-foreground">{completude}% preenchido</p></div>
                           <Button asChild variant="ghost" size="icon-sm" className="min-h-[44px] min-w-[44px]"><Link href={`/dashboard/pets/${pet.id}/editar`} aria-label={`Completar anúncio de ${pet.name}`}><Pencil className="h-4 w-4" /></Link></Button>
                         </div>
                       );
@@ -799,7 +803,7 @@ export function GuardianDashboardView() {
                     return (
                       <button key={item.id} type="button" aria-current={selecionada ? "true" : undefined} onClick={() => selecionarCandidatura(item.id)} className={`min-h-[88px] w-full rounded-2xl border p-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${selecionada ? "border-primary bg-primary/5 shadow-sm" : "border-border/60 bg-card hover:border-primary/30 hover:bg-muted/30"}`}>
                         <div className="flex flex-wrap items-start justify-between gap-2"><div className="min-w-0 flex-1"><p className="break-words text-sm font-bold text-foreground">{item.candidate.name}</p><p className="mt-0.5 break-words text-xs text-muted-foreground">Para {item.petName}</p></div><Badge variant="outline" className={`shrink-0 ${CONFIGURACAO_STATUS_CANDIDATURA[item.status].classe}`}>{CONFIGURACAO_STATUS_CANDIDATURA[item.status].rotulo}</Badge></div>
-                        <p className="mt-3 border-t border-border/40 pt-2 text-[11px] text-muted-foreground">Recebida em {new Date(item.createdAt).toLocaleDateString("pt-BR")}</p>
+                        <p className="mt-3 border-t border-border/40 pt-2 text-xs text-muted-foreground">Recebida em {new Date(item.createdAt).toLocaleDateString("pt-BR")}</p>
                       </button>
                     );
                   })}
@@ -819,7 +823,21 @@ export function GuardianDashboardView() {
                 <label><span className="sr-only">Filtrar status</span><select value={statusAnimal} onChange={(e) => setStatusAnimal(e.target.value as PetAdoptionStatus | "todos")} className="min-h-[44px] w-full rounded-xl border border-border bg-background px-3 text-sm font-medium"><option value="todos">Todos os status</option>{Object.entries(ROTULOS_STATUS_PET).map(([valor, rotulo]) => <option key={valor} value={valor}>{rotulo}</option>)}</select></label>
                 <label><span className="sr-only">Filtrar espécie</span><select value={especieAnimal} onChange={(e) => setEspecieAnimal(e.target.value as Pet["species"] | "todos")} className="min-h-[44px] w-full rounded-xl border border-border bg-background px-3 text-sm font-medium"><option value="todos">Todas as espécies</option><option value="dog">Cachorros</option><option value="cat">Gatos</option></select></label>
                 <label><span className="sr-only">Ordenar animais</span><select value={ordenacaoAnimais} onChange={(e) => setOrdenacaoAnimais(e.target.value as OrdenacaoAnimais)} className="min-h-[44px] w-full rounded-xl border border-border bg-background px-3 text-sm font-medium"><option value="recentes">Mais recentes</option><option value="nome">Nome</option><option value="completude">Menor completude</option></select></label>
-                <div className="hidden items-center justify-end gap-1 md:flex"><Button type="button" variant={modoAnimais === "cartoes" ? "secondary" : "ghost"} size="icon-sm" className="min-h-[44px] min-w-[44px]" onClick={() => setModoAnimais("cartoes")} aria-label="Exibir cartões"><Grid2X2 className="h-4 w-4" /></Button><Button type="button" variant={modoAnimais === "lista" ? "secondary" : "ghost"} size="icon-sm" className="min-h-[44px] min-w-[44px]" onClick={() => setModoAnimais("lista")} aria-label="Exibir lista"><List className="h-4 w-4" /></Button></div>
+                <div className="hidden justify-end md:flex">
+                  <SeletorDeslizante
+                    rotuloAria="Modo de exibição dos animais"
+                    valor={modoAnimais}
+                    aoMudar={(id) => setModoAnimais(id as typeof modoAnimais)}
+                    itens={[
+                      { id: "cartoes", rotulo: null, icone: Grid2X2, rotuloAcessivel: "Exibir cartões" },
+                      { id: "lista", rotulo: null, icone: List, rotuloAcessivel: "Exibir lista" },
+                    ]}
+                    className="flex items-center gap-1 rounded-xl bg-muted/60 p-1"
+                    classeItem="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg"
+                    classeIndicador="rounded-lg bg-background shadow-sm"
+                    classeSelecionado="text-foreground"
+                  />
+                </div>
               </div>
               <div className="flex items-center justify-between text-xs text-muted-foreground"><span aria-live="polite">{animaisFiltrados.length} de {animaisGuardiao.length} animal(is)</span><span className="flex items-center gap-1"><SlidersHorizontal className="h-3.5 w-3.5" />Filtros ativos na sessão</span></div>
               {animaisFiltrados.length === 0 ? (
@@ -827,7 +845,7 @@ export function GuardianDashboardView() {
               ) : modoAnimais === "lista" ? (
                 <div className="hidden overflow-hidden rounded-3xl border border-border bg-card md:block"><div className="overflow-x-auto"><table className="w-full text-left text-sm"><thead className="border-b border-border bg-muted/40 text-xs text-muted-foreground"><tr><th className="p-4 font-semibold">Animal</th><th className="p-4 font-semibold">Status</th><th className="p-4 font-semibold">Candidaturas</th><th className="p-4 font-semibold">Completude</th><th className="p-4 text-right font-semibold">Ações</th></tr></thead><tbody>{animaisFiltrados.map((pet) => { const completude = obterCompletudePet(pet); return <tr key={pet.id} className="border-b border-border/60 last:border-0 hover:bg-muted/20"><td className="p-4"><div className="flex items-center gap-3"><div className="relative h-12 w-12 overflow-hidden rounded-xl bg-muted"><Image src={pet.photos[0]} alt="" fill sizes="48px" className="object-cover" /></div><div><p className="font-bold text-foreground">{pet.name}</p><p className="text-xs text-muted-foreground">{pet.breed} · {pet.species === "dog" ? "Cachorro" : "Gato"}</p></div></div></td><td className="p-4"><select value={pet.status} onChange={(e) => void updatePet(pet.id, { status: e.target.value as PetAdoptionStatus })} className="min-h-[44px] rounded-xl border border-border bg-background px-3 text-xs font-bold"><option value="available">Disponível</option><option value="in_process">Em processo</option><option value="adopted">Adotado</option></select></td><td className="p-4 text-muted-foreground">{contagemCandidaturasPorPet.get(pet.id) || 0}</td><td className="p-4"><span className="font-bold text-foreground">{completude}%</span></td><td className="p-4"><div className="flex justify-end gap-1"><Button asChild variant="ghost" size="icon-sm" className="min-h-[44px] min-w-[44px]"><Link href={`/pets/${pet.id}`} aria-label={`Ver anúncio de ${pet.name}`}><Eye className="h-4 w-4" /></Link></Button><Button asChild variant="ghost" size="icon-sm" className="min-h-[44px] min-w-[44px]"><Link href={`/dashboard/pets/${pet.id}/editar`} aria-label={`Editar ${pet.name}`}><Pencil className="h-4 w-4" /></Link></Button><Button variant="ghost" size="icon-sm" className="min-h-[44px] min-w-[44px] text-destructive" onClick={() => setPetIdParaExcluir(pet.id)} aria-label={`Remover ${pet.name}`}><Trash2 className="h-4 w-4" /></Button></div></td></tr>; })}</tbody></table></div></div>
               ) : null}
-              <div className={`grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 ${modoAnimais === "lista" ? "md:hidden" : ""}`}>{animaisFiltrados.map((pet) => { const completude = obterCompletudePet(pet); return <article key={pet.id} className="overflow-hidden rounded-3xl border border-border/70 bg-card shadow-sm"><div className="relative aspect-[16/9] bg-muted"><Image src={pet.photos[0]} alt={`Foto de ${pet.name}`} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" /><Badge className="absolute left-3 top-3" variant={pet.status === "available" ? "default" : "secondary"}>{ROTULOS_STATUS_PET[pet.status]}</Badge></div><div className="space-y-4 p-4"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><h3 className="truncate font-serif text-xl font-bold text-foreground">{pet.name}</h3><p className="truncate text-xs text-muted-foreground">{pet.breed} · {pet.approximateAge}</p></div><span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold text-foreground">{contagemCandidaturasPorPet.get(pet.id) || 0} candidatura(s)</span></div><div><div className="flex justify-between text-[11px] text-muted-foreground"><span>Completude do anúncio</span><strong className="text-foreground">{completude}%</strong></div><div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-primary" style={{ width: `${completude}%` }} /></div></div><label className="flex flex-col gap-1 text-xs font-semibold text-muted-foreground">Status<select value={pet.status} onChange={(e) => void updatePet(pet.id, { status: e.target.value as PetAdoptionStatus })} className="min-h-[44px] w-full rounded-xl border border-border bg-background px-3 font-bold text-foreground"><option value="available">Disponível</option><option value="in_process">Em processo</option><option value="adopted">Adotado</option></select></label><div className="grid grid-cols-3 gap-2 border-t border-border/50 pt-3"><Button asChild variant="ghost" size="sm" className="min-h-[44px]"><Link href={`/pets/${pet.id}`}><Eye className="mr-1 h-4 w-4" />Ver</Link></Button><Button asChild variant="outline" size="sm" className="min-h-[44px]"><Link href={`/dashboard/pets/${pet.id}/editar`}><Pencil className="mr-1 h-4 w-4" />Editar</Link></Button><Button variant="ghost" size="sm" className="min-h-[44px] text-destructive" onClick={() => setPetIdParaExcluir(pet.id)}><Trash2 className="mr-1 h-4 w-4" />Excluir</Button></div></div></article>; })}</div>
+              <div className={`grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3 ${modoAnimais === "lista" ? "md:hidden" : ""}`}>{animaisFiltrados.map((pet) => { const completude = obterCompletudePet(pet); return <article key={pet.id} className="overflow-hidden rounded-3xl border border-border/70 bg-card shadow-sm"><div className="relative aspect-[16/9] bg-muted"><Image src={pet.photos[0]} alt={`Foto de ${pet.name}`} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover" /><Badge className="absolute left-3 top-3" variant={pet.status === "available" ? "default" : "secondary"}>{ROTULOS_STATUS_PET[pet.status]}</Badge></div><div className="space-y-4 p-4"><div className="flex items-start justify-between gap-3"><div className="min-w-0"><h3 className="truncate font-serif text-xl font-bold text-foreground">{pet.name}</h3><p className="truncate text-xs text-muted-foreground">{pet.breed} · {pet.approximateAge}</p></div><span className="rounded-full bg-muted px-2.5 py-1 text-xs font-bold text-foreground">{contagemCandidaturasPorPet.get(pet.id) || 0} candidatura(s)</span></div><div><div className="flex justify-between text-xs text-muted-foreground"><span>Completude do anúncio</span><strong className="text-foreground">{completude}%</strong></div><div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-muted"><div className="h-full rounded-full bg-primary" style={{ width: `${completude}%` }} /></div></div><label className="flex flex-col gap-1 text-xs font-semibold text-muted-foreground">Status<select value={pet.status} onChange={(e) => void updatePet(pet.id, { status: e.target.value as PetAdoptionStatus })} className="min-h-[44px] w-full rounded-xl border border-border bg-background px-3 font-bold text-foreground"><option value="available">Disponível</option><option value="in_process">Em processo</option><option value="adopted">Adotado</option></select></label><div className="grid grid-cols-3 gap-2 border-t border-border/50 pt-3"><Button asChild variant="ghost" size="sm" className="min-h-[44px]"><Link href={`/pets/${pet.id}`}><Eye className="mr-1 h-4 w-4" />Ver</Link></Button><Button asChild variant="outline" size="sm" className="min-h-[44px]"><Link href={`/dashboard/pets/${pet.id}/editar`}><Pencil className="mr-1 h-4 w-4" />Editar</Link></Button><Button variant="ghost" size="sm" className="min-h-[44px] text-destructive" onClick={() => setPetIdParaExcluir(pet.id)}><Trash2 className="mr-1 h-4 w-4" />Excluir</Button></div></div></article>; })}</div>
             </div>
         )}
 

@@ -2,13 +2,14 @@
 
 import React, { useState, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useApp } from "@/context/AppContext";
 import { sanitizeRedirect } from "@/components/auth/auth-features";
 import { Button } from "@/components/ui/button";
+import { SeletorDeslizante } from "@/components/ui/SeletorDeslizante";
 import { createClient } from "@/lib/client";
 import {
-  PawPrint,
   UserCheck,
   Building2,
   Mail,
@@ -334,8 +335,8 @@ export function RegisterView() {
         
         {/* Header */}
         <div className="text-center space-y-2">
-          <Link href="/" className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary text-primary-foreground shadow-md shadow-primary/20 mb-2">
-            <PawPrint className="w-6 h-6 fill-current" />
+          <Link href="/" aria-label="ConnectPet — página inicial" className="relative mx-auto mb-2 block h-16 w-16 overflow-hidden rounded-full shadow-md shadow-primary/20 transition-transform hover:scale-105 sm:h-20 sm:w-20">
+            <Image src="/images/logo-connectpet-redondo.png" alt="" fill sizes="80px" priority className="object-contain" />
           </Link>
           <h1 className="font-serif text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
             Criar Conta no ConnectPet
@@ -353,32 +354,17 @@ export function RegisterView() {
         )}
 
         {/* Role Switcher */}
-        <div className="grid grid-cols-2 p-1.5 bg-muted/60 rounded-2xl border border-border">
-          <button
-            type="button"
-            onClick={() => setRoleTab("adopter")}
-            aria-pressed={roleTab === "adopter"}
-            className={`py-2 rounded-xl text-xs font-bold transition-all min-h-[44px] flex items-center justify-center gap-1.5 ${
-              roleTab === "adopter"
-                ? "bg-background text-primary shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <UserCheck className="w-4 h-4" /> Quero Adotar
-          </button>
-          <button
-            type="button"
-            onClick={() => setRoleTab("guardian")}
-            aria-pressed={roleTab === "guardian"}
-            className={`py-2 rounded-xl text-xs font-bold transition-all min-h-[44px] flex items-center justify-center gap-1.5 ${
-              roleTab === "guardian"
-                ? "bg-background text-primary shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <Building2 className="w-4 h-4" /> Sou ONG / Doador
-          </button>
-        </div>
+        <SeletorDeslizante
+          rotuloAria="Tipo de conta"
+          valor={roleTab}
+          aoMudar={(id) => setRoleTab(id as typeof roleTab)}
+          itens={[
+            { id: "adopter", rotulo: "Quero Adotar", icone: UserCheck },
+            { id: "guardian", rotulo: "Sou ONG / Doador", icone: Building2 },
+          ]}
+          className="grid grid-cols-2 p-1.5 bg-muted/60 rounded-2xl border border-border"
+          classeItem="py-2 rounded-xl text-xs font-bold min-h-[44px] flex items-center justify-center gap-1.5"
+        />
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
@@ -420,7 +406,7 @@ export function RegisterView() {
                       className="min-h-[44px] w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-3 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
                     />
                   </div>
-                  <p className="text-[10px] text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     Exigido mínimo de 18 anos completos para cadastro.
                   </p>
                 </div>
@@ -429,7 +415,7 @@ export function RegisterView() {
                   <div className="flex items-center justify-between">
                     <label className="font-bold text-foreground">CPF *</label>
                     {adopterCpf && (
-                      <span className={`text-[10px] font-medium ${
+                      <span className={`text-xs font-medium ${
                         isValidCPF(adopterCpf)
                           ? "text-emerald-600 dark:text-emerald-400"
                           : adopterCpf.replace(/\D/g, "").length === 11
@@ -455,12 +441,12 @@ export function RegisterView() {
                     />
                   </div>
                   {adopterCpf.replace(/\D/g, "").length > 0 && adopterCpf.replace(/\D/g, "").length < 11 && (
-                    <p className="text-[10px] text-amber-600 dark:text-amber-400">
+                    <p className="text-xs text-amber-600 dark:text-amber-400">
                       CPF incompleto (informe os 11 dígitos).
                     </p>
                   )}
                   {adopterCpf.replace(/\D/g, "").length === 11 && !isValidCPF(adopterCpf) && (
-                    <p className="text-[10px] text-rose-500 dark:text-rose-400">
+                    <p className="text-xs text-rose-500 dark:text-rose-400">
                       CPF inválido. Verifique os dígitos verificadores.
                     </p>
                   )}
@@ -509,7 +495,7 @@ export function RegisterView() {
               <div className="space-y-1">
                 <div className="flex items-center justify-between">
                   <label className="font-bold text-foreground">Rede Social</label>
-                  <span className="text-[10px] text-muted-foreground font-normal">Opcional</span>
+                  <span className="text-xs text-muted-foreground font-normal">Opcional</span>
                 </div>
                 <div className="relative">
                   <AtSign className="w-4 h-4 text-muted-foreground absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -614,7 +600,7 @@ export function RegisterView() {
                   <div className="flex items-center justify-between">
                     <label htmlFor="guardian-document-field" className="font-bold text-foreground">{guardianType === "ngo" ? "CNPJ" : "CPF"} *</label>
                     {ngoDocument && (
-                      <span className={`text-[10px] font-medium ${
+                      <span className={`text-xs font-medium ${
                         (guardianType === "ngo" ? isValidCNPJ(ngoDocument) : isValidCPF(ngoDocument))
                           ? "text-emerald-600 dark:text-emerald-400"
                           : ngoDocument.replace(/\D/g, "").length === (guardianType === "ngo" ? 14 : 11)
@@ -641,18 +627,18 @@ export function RegisterView() {
                     />
                   </div>
                   {ngoDocument.replace(/\D/g, "").length > 0 && ngoDocument.replace(/\D/g, "").length < (guardianType === "ngo" ? 14 : 11) && (
-                    <p className="text-[10px] text-amber-600 dark:text-amber-400">
+                    <p className="text-xs text-amber-600 dark:text-amber-400">
                       {guardianType === "ngo" ? "CNPJ" : "CPF"} incompleto.
                     </p>
                   )}
                   {ngoDocument.replace(/\D/g, "").length === (guardianType === "ngo" ? 14 : 11)
                     && !(guardianType === "ngo" ? isValidCNPJ(ngoDocument) : isValidCPF(ngoDocument)) && (
-                    <p className="text-[10px] text-rose-500 dark:text-rose-400">
+                    <p className="text-xs text-rose-500 dark:text-rose-400">
                       {guardianType === "ngo" ? "CNPJ" : "CPF"} inválido. Verifique os dígitos verificadores.
                     </p>
                   )}
                   {(guardianType === "ngo" ? isValidCNPJ(ngoDocument) : isValidCPF(ngoDocument)) && (
-                    <p className="text-[10px] text-emerald-600 dark:text-emerald-400">
+                    <p className="text-xs text-emerald-600 dark:text-emerald-400">
                       ✓ Documento válido.
                     </p>
                   )}

@@ -1,6 +1,7 @@
 import React from "react";
 import Link from "next/link";
-import { PawPrint, Heart, ShieldAlert, CheckCircle, Scale } from "lucide-react";
+import Image from "next/image";
+import { Heart, ShieldAlert, CheckCircle, Scale } from "lucide-react";
 
 export function Footer() {
   return (
@@ -26,8 +27,8 @@ export function Footer() {
           
           {/* Logo ConnectPet com Patinha */}
           <Link href="/" className="flex items-center gap-3 group">
-            <div className="flex h-10 w-10 items-center justify-center rounded-2xl border border-sky-200/70 bg-card text-primary shadow-sm transition-transform group-hover:scale-105 dark:border-sky-800">
-              <PawPrint className="w-6 h-6 fill-current" />
+            <div className="relative h-12 w-12 shrink-0 overflow-hidden rounded-2xl shadow-sm transition-transform group-hover:scale-105 sm:h-14 sm:w-14">
+              <Image src="/images/logo-connectpet-redondo.png" alt="" fill sizes="56px" className="object-contain" />
             </div>
             <span className="font-serif text-2xl font-extrabold tracking-tight text-foreground">
               ConnectPet
@@ -79,7 +80,7 @@ export function Footer() {
         {/* Linha Inferior com Copyright */}
         <div className="flex flex-col items-center justify-between gap-3 border-t border-sky-300/50 pt-5 text-center text-xs font-medium text-muted-foreground dark:border-sky-800/70 sm:flex-row sm:text-left">
           <p>© 2026 ConnectPet • Adoção Consciente e Responsável. Todos os direitos reservados.</p>
-          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px]">
+          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs">
             <span>Privacidade &amp; LGPD</span>
             <span>Termos de Uso</span>
             <span className="flex items-center gap-1">

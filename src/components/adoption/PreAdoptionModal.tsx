@@ -302,7 +302,7 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
         {/* Header with Pet info and Step Progress */}
         <div className="p-5 sm:p-6 border-b border-border/60 bg-secondary/30 flex items-center justify-between shrink-0">
           <div>
-            <span className="text-[11px] font-bold text-primary tracking-wider uppercase">
+            <span className="text-xs font-bold text-primary tracking-wider uppercase">
               Etapa {step} de 5 • {stepsTitle[step]}
             </span>
             <h2 id="titulo-pre-adocao" className="mt-0.5 font-serif text-xl font-bold text-foreground sm:text-2xl">
@@ -411,13 +411,13 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
                   <label className="text-xs font-bold text-foreground flex flex-col sm:flex-row sm:items-center justify-between gap-1">
                     <span className="flex items-center gap-1.5 flex-wrap">
                       <span>Data de Nascimento *</span>
-                      <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-full border border-border">
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-full border border-border">
                         <Lock className="w-3 h-3 text-amber-500" />
                         Bloqueada para alteração
                       </span>
                     </span>
                     {candidateBirthDate && (
-                      <span className={`text-[11px] font-bold ${isCandidateAdultEnough ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600"}`}>
+                      <span className={`text-xs font-bold ${isCandidateAdultEnough ? "text-emerald-600 dark:text-emerald-400" : "text-rose-600"}`}>
                         {currentAge} anos ({isCandidateAdultEnough ? "Permitido 21+" : "Menor de 21 anos"})
                       </span>
                     )}
@@ -433,11 +433,11 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
                     />
                     <Lock className="w-4 h-4 text-muted-foreground absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   </div>
-                  <p className="text-[11px] text-muted-foreground">
+                  <p className="text-xs text-muted-foreground">
                     A data de nascimento é vinculada ao cadastro da sua conta e não pode ser modificada no dossiê de adoção.
                   </p>
                   {!isCandidateAdultEnough && (
-                    <p className="text-[11px] text-rose-600 font-medium">
+                    <p className="text-xs text-rose-600 font-medium">
                       Bloqueado: Para submeter formulário de adoção responsável você precisa ter 21 anos completos.
                     </p>
                   )}
@@ -506,7 +506,7 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-bold text-foreground">CPF</label>
                     {formData.cpf && (
-                      <span className={`text-[10px] font-medium ${
+                      <span className={`text-xs font-medium ${
                         isValidCPF(formData.cpf)
                           ? "text-emerald-600 dark:text-emerald-400"
                           : formData.cpf.replace(/\D/g, "").length === 11
@@ -601,7 +601,7 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
                         ? "Possui telas de proteção nas janelas e sacada?"
                         : "Possui muros altos e portão seguro sem vãos de fuga?"}
                     </span>
-                    <p className="text-[11px] text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       Segurança habitacional é critério indispensável contra quedas e atropelamentos.
                     </p>
                   </div>
@@ -691,7 +691,7 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
                     <span className="text-xs font-bold text-foreground">
                       Concordância Familiar Unânime *
                     </span>
-                    <p className="text-[11px] text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       Todos os moradores estão 100% de acordo com a adoção deste animal?
                     </p>
                   </div>
@@ -744,7 +744,7 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
                   onChange={(e) => setFormData({ ...formData, hoursAlone: Number(e.target.value) })}
                   className="min-h-[44px] w-full accent-primary"
                 />
-                <div className="flex justify-between text-[10px] text-muted-foreground">
+                <div className="flex justify-between text-xs text-muted-foreground">
                   <span>Sempre alguém em casa (0h)</span>
                   <span>Meio período (4h - 6h)</span>
                   <span>Tempo integral (8h+)</span>
@@ -788,7 +788,7 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
                     <span className="text-xs font-bold text-foreground">
                       Você já possui outros animais em casa atualmente?
                     </span>
-                    <p className="text-[11px] text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       Importante para prevermos a socialização e vacinação cruzada.
                     </p>
                   </div>

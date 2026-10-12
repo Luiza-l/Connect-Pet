@@ -242,17 +242,17 @@ export function PetDetailView({ pet }: PetDetailViewProps) {
             <div className="grid grid-cols-3 gap-1.5 sm:gap-2 text-center text-xs">
               <div className={`p-2.5 sm:p-3 rounded-2xl border ${pet.vaccinated ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300" : "bg-secondary border-border text-muted-foreground"}`}>
                 <CheckCircle2 className={`w-4 h-4 mx-auto mb-1 ${pet.vaccinated ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}`} />
-                <span className="font-bold block text-[11px] sm:text-xs">{pet.vaccinated ? "Vacinado" : "Não vacinado"}</span>
+                <span className="font-bold block text-xs sm:text-xs">{pet.vaccinated ? "Vacinado" : "Não vacinado"}</span>
               </div>
 
               <div className={`p-2.5 sm:p-3 rounded-2xl border ${pet.castrated ? "bg-primary/10 border-primary/30 text-primary" : "bg-secondary border-border text-muted-foreground"}`}>
                 <Sparkles className={`w-4 h-4 mx-auto mb-1 ${pet.castrated ? "text-primary" : "text-muted-foreground"}`} />
-                <span className="font-bold block text-[11px] sm:text-xs">{pet.castrated ? "Castrado" : "Não castrado"}</span>
+                <span className="font-bold block text-xs sm:text-xs">{pet.castrated ? "Castrado" : "Não castrado"}</span>
               </div>
 
               <div className={`p-2.5 sm:p-3 rounded-2xl border ${pet.dewormed ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300" : "bg-secondary border-border text-muted-foreground"}`}>
                 <ShieldCheck className={`w-4 h-4 mx-auto mb-1 ${pet.dewormed ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}`} />
-                <span className="font-bold block text-[11px] sm:text-xs">{pet.dewormed ? "Vermifugado" : "Não vermifugado"}</span>
+                <span className="font-bold block text-xs sm:text-xs">{pet.dewormed ? "Vermifugado" : "Não vermifugado"}</span>
               </div>
             </div>
 
@@ -269,7 +269,7 @@ export function PetDetailView({ pet }: PetDetailViewProps) {
               <Heart className="w-5 h-5 mr-2 fill-current" />
               {pet.status === "adopted" ? "Animal Já Adotado" : `Quero Adotar ${pet.name}`}
             </Button>
-            <p className="text-[11px] text-center text-muted-foreground">
+            <p className="text-xs text-center text-muted-foreground">
               Adoção consciente e gratuita. Exige preenchimento de dossiê e idade mínima de 21 anos.
             </p>
           </div>
@@ -378,14 +378,14 @@ export function PetDetailView({ pet }: PetDetailViewProps) {
                 </AvatarFallback>
               </Avatar>
               <div className="min-w-0">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
+                <span className="text-xs font-bold uppercase tracking-wider text-primary">
                   {pet.guardianType === "ngo" ? "ONG responsável" : "Protetor independente"}
                 </span>
                 <h4 className="font-bold text-lg text-foreground leading-tight break-words">
                   {pet.guardianName}
                 </h4>
                 {perfilGuardiao?.verificado && (
-                  <span className="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 dark:text-emerald-400">
+                  <span className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
                     <ShieldCheck className="w-3.5 h-3.5" /> Responsável verificado
                   </span>
                 )}
@@ -423,7 +423,7 @@ export function PetDetailView({ pet }: PetDetailViewProps) {
             )}
 
             {perfilGuardiao && (membroDesdeTexto || perfilGuardiao.totalAnimaisDisponiveis > 0) && (
-              <div className="flex flex-wrap gap-2 text-[11px] font-semibold text-foreground">
+              <div className="flex flex-wrap gap-2 text-xs font-semibold text-foreground">
                 {membroDesdeTexto && (
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-secondary">
                     <CalendarHeart className="w-3.5 h-3.5 text-primary" /> Na plataforma desde {membroDesdeTexto}

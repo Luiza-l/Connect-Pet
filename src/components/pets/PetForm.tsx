@@ -317,7 +317,7 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
           <div className="space-y-1">
             <div className="flex justify-between items-center">
               <Label>História de Resgate *</Label>
-              <span className="text-[10px] text-muted-foreground">{story.length}/1000</span>
+              <span className="text-xs text-muted-foreground">{story.length}/1000</span>
             </div>
             <Textarea aria-label="História de resgate" required rows={3} maxLength={1000} value={story} onChange={(e) => setStory(e.target.value.slice(0, 1000))} />
           </div>

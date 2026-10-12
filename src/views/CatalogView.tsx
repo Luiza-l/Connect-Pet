@@ -83,7 +83,7 @@ function FilterPanel({
         </h3>
         <button
           onClick={resetFilters}
-          className="flex min-h-[44px] items-center gap-1 px-2 text-[11px] font-semibold text-muted-foreground transition-colors hover:text-primary"
+          className="flex min-h-[44px] items-center gap-1 px-2 text-xs font-semibold text-muted-foreground transition-colors hover:text-primary"
         >
           <RotateCcw className="w-3 h-3" /> Limpar
         </button>
@@ -448,7 +448,7 @@ export function CatalogView() {
           >
             <SlidersHorizontal className="w-4 h-4 text-primary" /> Filtros
             {totalFiltrosAtivos > 0 && (
-              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-[10px] font-bold text-primary-foreground">
+              <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs font-bold text-primary-foreground">
                 {totalFiltrosAtivos}
               </span>
             )}

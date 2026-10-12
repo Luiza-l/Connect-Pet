@@ -27,11 +27,11 @@ export const metadata: Metadata = {
   description: "Conectando adotantes conscientes a ONGs e protetores sérios. Triagem criteriosa, 100% ética e gratuita para garantir o lar perfeito.",
   icons: {
     icon: [
-      { url: "/icon.svg", type: "image/svg+xml" },
-      { url: "/favicon.ico", sizes: "32x32" }
+      { url: "/icon.png", type: "image/png", sizes: "512x512" },
+      { url: "/favicon.ico", sizes: "any" }
     ],
     apple: [
-      { url: "/icon.svg", type: "image/svg+xml" }
+      { url: "/apple-icon.png", type: "image/png", sizes: "180x180" }
     ]
   }
 };

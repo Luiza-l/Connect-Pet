@@ -215,12 +215,12 @@ export function PetPhotoUploader({ fotos, onChange, disabled = false, maxFotos =
               />
 
               {indice === 0 && (
-                <span className="absolute left-2 top-2 rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground shadow">
+                <span className="absolute left-2 top-2 rounded-full bg-primary px-2 py-0.5 text-xs font-bold text-primary-foreground shadow">
                   Principal
                 </span>
               )}
               {foto.tipo === "local" && foto.status !== "erro" && (
-                <span className="absolute left-2 bottom-2 rounded-full bg-black/70 px-2 py-0.5 text-[10px] font-semibold text-white">
+                <span className="absolute left-2 bottom-2 rounded-full bg-black/70 px-2 py-0.5 text-xs font-semibold text-white">
                   {foto.status === "enviando" ? "Enviando..." : "Novo"}
                 </span>
               )}
@@ -233,7 +233,7 @@ export function PetPhotoUploader({ fotos, onChange, disabled = false, maxFotos =
               {foto.tipo === "local" && foto.status === "erro" && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 bg-rose-950/70 p-2 text-center text-white">
                   <AlertCircle className="w-5 h-5" />
-                  <span className="text-[10px] leading-tight line-clamp-4">
+                  <span className="text-xs leading-tight line-clamp-4">
                     {foto.mensagemErro || "Falha no envio"}
                   </span>
                 </div>

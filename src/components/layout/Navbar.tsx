@@ -127,25 +127,32 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/90 shadow-sm shadow-foreground/[0.02] backdrop-blur-xl transition-colors">
-      <div className="page-shell flex h-16 items-center justify-between sm:h-20">
+      <div className="page-shell flex h-16 items-center justify-between gap-2 sm:h-20 sm:gap-3 lg:gap-6">
         
         {/* Logo */}
         <Link href="/" aria-label="ConnectPet — página inicial" className="group flex min-h-[44px] shrink-0 items-center gap-2 sm:gap-3">
-          <div className="flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-primary text-primary-foreground shadow-md shadow-primary/20 transition-transform duration-300 group-hover:scale-105">
-            <PawPrint className="h-5 w-5 sm:h-6 sm:w-6 fill-current" />
+          <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-full shadow-md shadow-primary/20 transition-transform duration-300 group-hover:scale-105 sm:h-14 sm:w-14">
+            <Image
+              src="/images/logo-connectpet-redondo.png"
+              alt=""
+              fill
+              sizes="56px"
+              priority
+              className="object-contain"
+            />
           </div>
           <div className="flex flex-col">
-            <span className="font-serif font-bold text-xl sm:text-2xl leading-none text-foreground tracking-tight">
+            <span className="font-serif font-bold text-xl sm:text-[1.65rem] leading-none text-foreground tracking-tight">
               ConnectPet
             </span>
           </div>
         </Link>
 
         {/* Center Desktop Navigation */}
-        <nav aria-label="Navegação principal" className="relative hidden lg:flex items-center gap-1 bg-secondary/50 border border-border/60 p-1 rounded-full">
+        <nav aria-label="Navegação principal" className="relative hidden lg:flex items-center gap-1.5 xl:gap-2 bg-secondary/50 border border-border/60 p-1.5 rounded-full">
           <span
             aria-hidden="true"
-            className={`pointer-events-none absolute left-0 top-1 bottom-1 rounded-full bg-background shadow-sm ring-1 ring-border/50 transition-[transform,width,opacity] duration-300 ease-out motion-reduce:transition-none ${
+            className={`pointer-events-none absolute left-0 top-1.5 bottom-1.5 rounded-full bg-background shadow-sm ring-1 ring-border/50 transition-[transform,width,opacity] duration-300 ease-out motion-reduce:transition-none ${
               indicador.visivel ? "opacity-100" : "opacity-0"
             }`}
             style={{ width: indicador.largura, transform: `translateX(${indicador.esquerda}px)` }}
@@ -161,13 +168,13 @@ export function Navbar() {
                   refsLinks.current[link.href] = el;
                 }}
                 aria-current={isActive ? "page" : undefined}
-                className={`relative z-10 flex min-h-[44px] items-center gap-1.5 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-colors duration-300 ${
+                className={`relative z-10 flex min-h-[44px] items-center gap-2 px-3.5 xl:px-5 py-2 rounded-full text-sm font-semibold transition-colors duration-300 ${
                   isActive
                     ? "text-foreground font-bold"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
               >
-                {Icon && <Icon className="w-3.5 h-3.5 text-primary" />}
+                {Icon && <Icon className="h-4 w-4 text-primary" />}
                 {link.label}
               </Link>
             );
@@ -191,7 +198,7 @@ export function Navbar() {
           >
             <Heart className={`w-5 h-5 ${favoritesCount > 0 || (isCatalog && showFavoritesOnly) ? "text-rose-500 fill-rose-500/20" : ""}`} />
             {favoritesCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-[10px] font-bold text-white shadow-sm animate-in zoom-in-50">
+              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-xs font-bold text-white shadow-sm animate-in zoom-in-50">
                 {favoritesCount}
               </span>
             )}
@@ -290,7 +297,7 @@ export function Navbar() {
                   <span className="max-w-32 truncate text-xs font-bold leading-tight text-foreground">
                     {currentUser.name}
                   </span>
-                  <span className="text-[10px] font-medium text-primary leading-none">
+                  <span className="text-xs font-medium text-primary leading-none">
                     {isAdopter ? "Adotante" : "ONG / Protetor"}
                   </span>
                 </div>
@@ -301,8 +308,8 @@ export function Navbar() {
                 <div role="menu" aria-label="Menu da conta" className="absolute right-0 mt-2 w-64 rounded-2xl bg-popover border border-border shadow-2xl p-2 z-50 animate-in fade-in zoom-in-95">
                   <div className="p-2.5 border-b border-border/60 mb-2">
                     <p className="text-xs font-bold text-foreground">{currentUser.name}</p>
-                    <p className="text-[11px] text-muted-foreground truncate">{currentUser.email}</p>
-                    <span className="mt-1.5 inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary/10 text-primary">
+                    <p className="text-xs text-muted-foreground truncate">{currentUser.email}</p>
+                    <span className="mt-1.5 inline-block px-2 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary">
                       {isAdopter ? "Candidato a Tutor" : "ONG / Protetor"}
                     </span>
                   </div>
@@ -453,7 +460,7 @@ export function Navbar() {
                   </div>
                   <div className="flex-1 truncate">
                     <p className="text-xs font-bold text-foreground">{currentUser.name}</p>
-                    <p className="text-[11px] text-muted-foreground truncate">{currentUser.email}</p>
+                    <p className="text-xs text-muted-foreground truncate">{currentUser.email}</p>
                   </div>
                 </div>
 

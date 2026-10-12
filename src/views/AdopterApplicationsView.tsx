@@ -167,12 +167,12 @@ export function AdopterApplicationsView() {
                         <span className="font-bold text-sm text-foreground truncate">
                           {app.petName}
                         </span>
-                        <span className="text-[10px] text-muted-foreground">
+                        <span className="text-xs text-muted-foreground">
                           {new Date(app.createdAt).toLocaleDateString("pt-BR")}
                         </span>
                       </div>
                       <p className="text-xs text-muted-foreground truncate">{app.guardianName}</p>
-                      <span className="inline-block mt-1 text-[10px] font-bold text-primary">
+                      <span className="inline-block mt-1 text-xs font-bold text-primary">
                         {app.status === "pending" && "Em análise inicial"}
                         {app.status === "under_review" && "Em avaliação pelo comitê"}
                         {app.status === "approved" && "Candidatura aprovada!"}
@@ -203,7 +203,7 @@ export function AdopterApplicationsView() {
                     />
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold text-primary uppercase tracking-wider">
+                    <span className="text-xs font-bold text-primary uppercase tracking-wider">
                       Candidatura #{selectedApp.id}
                     </span>
                     <h3 className="font-serif text-xl sm:text-2xl font-bold text-foreground">
@@ -245,7 +245,7 @@ export function AdopterApplicationsView() {
                             )}
                             <span className="font-bold text-xs">{st.label}</span>
                           </div>
-                          <p className="text-[10px] leading-tight opacity-80">{st.desc}</p>
+                          <p className="text-xs leading-tight opacity-80">{st.desc}</p>
                         </div>
                       );
                     })}
@@ -258,7 +258,7 @@ export function AdopterApplicationsView() {
                     <h4 className="font-bold text-sm text-foreground flex items-center gap-2">
                       <MessageSquare className="w-4 h-4 text-primary" /> Mensagens com a {selectedApp.guardianName}
                     </h4>
-                    <span className="text-[11px] text-muted-foreground">Canal oficial e direto</span>
+                    <span className="text-xs text-muted-foreground">Canal oficial e direto</span>
                   </div>
 
                   {/* Messages box */}
@@ -270,7 +270,7 @@ export function AdopterApplicationsView() {
                       if (isSystem) {
                         return (
                           <div key={msg.id} className="text-center py-1">
-                            <span className="text-[10px] text-muted-foreground px-2.5 py-1 rounded-full bg-secondary">
+                            <span className="text-xs text-muted-foreground px-2.5 py-1 rounded-full bg-secondary">
                               {msg.content}
                             </span>
                           </div>
@@ -282,7 +282,7 @@ export function AdopterApplicationsView() {
                           key={msg.id}
                           className={`flex flex-col ${isAdopter ? "items-end" : "items-start"}`}
                         >
-                          <span className="text-[10px] text-muted-foreground mb-0.5 px-1">
+                          <span className="text-xs text-muted-foreground mb-0.5 px-1">
                             {msg.senderName} &bull; {new Date(msg.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </span>
                           <div

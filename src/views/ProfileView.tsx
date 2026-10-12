@@ -282,7 +282,7 @@ function ProfileForm({ user }: { user: CurrentUser }) {
                 ) : (
                   <div className="flex flex-col items-center justify-center text-sky-700 dark:text-sky-300">
                     <User className="w-12 h-12" />
-                    <span className="text-[10px] font-bold mt-1 uppercase tracking-wider text-muted-foreground">Sem Foto</span>
+                    <span className="text-xs font-bold mt-1 uppercase tracking-wider text-muted-foreground">Sem Foto</span>
                   </div>
                 )}
               </div>
@@ -392,7 +392,7 @@ function ProfileForm({ user }: { user: CurrentUser }) {
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-xs font-bold text-foreground flex items-center justify-between">
                   <span>E-mail da Conta</span>
-                  <span className="text-[10px] text-muted-foreground font-normal">Identificador de login</span>
+                  <span className="text-xs text-muted-foreground font-normal">Identificador de login</span>
                 </Label>
                 <div className="relative">
                   <Input
@@ -410,7 +410,7 @@ function ProfileForm({ user }: { user: CurrentUser }) {
               <div className="space-y-2">
                 <Label htmlFor="phone" className="text-xs font-bold text-foreground flex items-center justify-between">
                   <span>WhatsApp / Celular *</span>
-                  <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold">Para contato das ONGs</span>
+                  <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">Para contato das ONGs</span>
                 </Label>
                 <div className="relative">
                   <Input
@@ -435,14 +435,14 @@ function ProfileForm({ user }: { user: CurrentUser }) {
                     <span className="flex items-center gap-1.5">
                       <span>Data de Nascimento</span>
                       {isBirthDateLocked && (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-full border border-border">
+                        <span className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-full border border-border">
                           <Lock className="w-3 h-3 text-amber-500" />
                           Definida no cadastro
                         </span>
                       )}
                     </span>
                     {age !== null && (
-                      <span className="text-[11px] font-bold text-primary">
+                      <span className="text-xs font-bold text-primary">
                         {age} anos {age >= 21 ? "• Apto para adotar" : "• Mínimo 21 anos"}
                       </span>
                     )}
@@ -467,11 +467,11 @@ function ProfileForm({ user }: { user: CurrentUser }) {
                     )}
                   </div>
                   {isBirthDateLocked ? (
-                    <p className="text-[11px] text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       A data de nascimento só pode ser definida uma única vez na criação da conta e não pode ser modificada por motivos de segurança e integridade do dossiê.
                     </p>
                   ) : (
-                    <p className="text-[11px] text-amber-600 dark:text-amber-400">
+                    <p className="text-xs text-amber-600 dark:text-amber-400">
                       Atenção: A data de nascimento só poderá ser informada uma única vez e será bloqueada para futuras alterações.
                     </p>
                   )}
@@ -503,7 +503,7 @@ function ProfileForm({ user }: { user: CurrentUser }) {
               <div className={`space-y-2 ${isAdopter ? "sm:col-span-2" : ""}`}>
                 <Label htmlFor="socialMedia" className="text-xs font-bold text-foreground flex items-center justify-between">
                   <span>Redes Sociais (Instagram, LinkedIn ou perfil público)</span>
-                  <span className="text-[10px] text-muted-foreground font-normal">Opcional</span>
+                  <span className="text-xs text-muted-foreground font-normal">Opcional</span>
                 </Label>
                 <div className="relative">
                   <Input
@@ -523,7 +523,7 @@ function ProfileForm({ user }: { user: CurrentUser }) {
               <div className="space-y-2">
                 <Label htmlFor="doc" className="text-xs font-bold text-foreground flex items-center justify-between">
                   <span>{isAdopter ? "CPF do Tutor" : "Documento (CNPJ ou CPF)"}</span>
-                  <span className="text-[10px] text-muted-foreground">Dado protegido por LGPD</span>
+                  <span className="text-xs text-muted-foreground">Dado protegido por LGPD</span>
                 </Label>
                 <Input
                   id="doc"
@@ -742,7 +742,7 @@ function ProfileForm({ user }: { user: CurrentUser }) {
                         Apenas adultos
                       </button>
                     </div>
-                    <p className="text-[11px] text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       Ajuda a recomendar pets que se adaptam com facilidade à energia infantil.
                     </p>
                   </div>
@@ -795,7 +795,7 @@ function ProfileForm({ user }: { user: CurrentUser }) {
                     <Label htmlFor="bio" className="text-xs font-bold text-foreground flex items-center gap-1.5">
                       <FileText className="w-4 h-4 text-primary" /> Breve Apresentação sobre Você
                     </Label>
-                    <span className="text-[11px] text-muted-foreground">
+                    <span className="text-xs text-muted-foreground">
                       {bio.length}/500 caracteres
                     </span>
                   </div>
@@ -872,7 +872,7 @@ function ProfileForm({ user }: { user: CurrentUser }) {
                 <div className="sm:col-span-3 space-y-2">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="desc" className="text-xs font-bold text-foreground">Apresentação / Missão da ONG <span className="font-normal text-muted-foreground">(exibida na página dos seus animais)</span></Label>
-                    <span className="text-[11px] text-muted-foreground">{bio.length}/500 caracteres</span>
+                    <span className="text-xs text-muted-foreground">{bio.length}/500 caracteres</span>
                   </div>
                   <Textarea
                     id="desc"

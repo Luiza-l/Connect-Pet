@@ -2,14 +2,15 @@
 
 import React, { useState, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useApp } from "@/context/AppContext";
 import { Button } from "@/components/ui/button";
+import { SeletorDeslizante } from "@/components/ui/SeletorDeslizante";
 import { createClient } from "@/lib/client";
 import { isValidEmail } from "@/lib/validation";
 import { sanitizeRedirect } from "@/components/auth/auth-features";
 import {
-  PawPrint,
   UserCheck,
   Building2,
   Mail,
@@ -123,8 +124,8 @@ export function LoginView() {
         
         {/* Header */}
         <div className="text-center space-y-2">
-          <Link href="/" className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-primary text-primary-foreground shadow-md shadow-primary/20 mb-2">
-            <PawPrint className="w-6 h-6 fill-current" />
+          <Link href="/" aria-label="ConnectPet — página inicial" className="relative mx-auto mb-2 block h-16 w-16 overflow-hidden rounded-full shadow-md shadow-primary/20 transition-transform hover:scale-105 sm:h-20 sm:w-20">
+            <Image src="/images/logo-connectpet-redondo.png" alt="" fill sizes="80px" priority className="object-contain" />
           </Link>
           <h1 className="font-serif text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
             Acesse o ConnectPet
@@ -135,32 +136,17 @@ export function LoginView() {
         </div>
 
         {/* Role Tab Selector */}
-        <div className="grid grid-cols-2 gap-2 p-1.5 rounded-2xl bg-secondary/50 border border-border/50">
-          <button
-            type="button"
-            onClick={() => setRoleTab("adopter")}
-            aria-pressed={roleTab === "adopter"}
-            className={`py-2 rounded-xl text-xs font-bold transition-all min-h-[44px] flex items-center justify-center gap-1.5 ${
-              roleTab === "adopter"
-                ? "bg-background text-primary shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <UserCheck className="w-4 h-4" /> Quero Adotar
-          </button>
-          <button
-            type="button"
-            onClick={() => setRoleTab("guardian")}
-            aria-pressed={roleTab === "guardian"}
-            className={`py-2 rounded-xl text-xs font-bold transition-all min-h-[44px] flex items-center justify-center gap-1.5 ${
-              roleTab === "guardian"
-                ? "bg-background text-primary shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            <Building2 className="w-4 h-4" /> Sou ONG / Doador
-          </button>
-        </div>
+        <SeletorDeslizante
+          rotuloAria="Tipo de conta"
+          valor={roleTab}
+          aoMudar={(id) => setRoleTab(id as typeof roleTab)}
+          itens={[
+            { id: "adopter", rotulo: "Quero Adotar", icone: UserCheck },
+            { id: "guardian", rotulo: "Sou ONG / Doador", icone: Building2 },
+          ]}
+          className="grid grid-cols-2 gap-2 p-1.5 rounded-2xl bg-secondary/50 border border-border/50"
+          classeItem="py-2 rounded-xl text-xs font-bold min-h-[44px] flex items-center justify-center gap-1.5"
+        />
 
         {/* Error Feedback */}
         {errorMessage && (

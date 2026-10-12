@@ -1,5 +1,48 @@
 # Changelog
 
+## [v0.9.9] - 2026-10-12
+### Commit
+`style: aumentar logo redondo na navbar e no rodapé`
+
+### Mudanças
+- Navbar: logo redondo passa de 40/48px para 44/56px (mobile/`sm`+), com recorte circular.
+- Rodapé: logo redondo passa de 40px para 48/56px, com recorte circular.
+
+---
+
+## [v0.9.8] - 2026-10-12
+### Commit
+`feat: aplicar novos logos do ConnectPet`
+
+### Mudanças
+- Logo quadrado aplicado na navbar, no rodapé e nos favicons (`icon.png`, `apple-icon.png` e `favicon.ico` regenerados).
+- Logo redondo aplicado no topo das páginas de login e cadastro.
+- Remove `public/icon.svg` e as referências a ele nos metadados.
+
+---
+
+## [v0.9.7] - 2026-10-12
+### Commit
+`feat: aplicar indicador deslizante nos seletores segmentados`
+
+### Mudanças
+- Cria o componente reutilizável `SeletorDeslizante`, com pílula animada, `ResizeObserver` e suporte a `prefers-reduced-motion`.
+- Aplica o componente no alternador "Quero Adotar / Sou ONG / Doador" do login e do cadastro.
+- Aplica o componente nas abas do painel de gestão e no alternador cartões/lista de animais.
+
+---
+
+## [v0.9.6] - 2026-10-12
+### Commit
+`refactor: equilibrar proporções da navbar e da página inicial`
+
+### Mudanças
+- Navbar: aumenta espaçamento entre itens do menu desktop, ícones, logo e padding da pílula, preservando o layout móvel.
+- Home: amplia textos secundários, ícones, botões e títulos dos cards, números dos pilares e metadados dos cards de pets, mantendo a identidade visual.
+- Alvos de toque dos botões dos cards com altura mínima de 44px.
+
+---
+
 ## [v0.9.5] - 2026-10-12
 ### Commit
 `feat: adicionar indicador deslizante na navbar`

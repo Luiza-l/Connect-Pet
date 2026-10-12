@@ -63,7 +63,7 @@ export function PetCard({ pet, priority = false }: PetCardProps) {
 
         {/* Status Badge */}
         <div className="absolute top-3.5 left-3.5">
-          <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wide backdrop-blur-md shadow-sm ${currentStatus.className}`}>
+          <span className={`px-2.5 py-1 rounded-full text-xs font-bold tracking-wide backdrop-blur-md shadow-sm ${currentStatus.className}`}>
             {currentStatus.label}
           </span>
         </div>
@@ -92,7 +92,7 @@ export function PetCard({ pet, priority = false }: PetCardProps) {
                 {pet.name}
               </Link>
             </h3>
-            <span className="max-w-[48%] truncate rounded-full bg-black/45 px-2 py-1 text-[11px] font-semibold text-white/95 backdrop-blur-sm sm:text-xs">
+            <span className="max-w-[48%] truncate rounded-full bg-black/45 px-2 py-1 text-xs font-semibold text-white/95 backdrop-blur-sm sm:text-xs">
               {pet.approximateAge || "Idade não informada"}
             </span>
           </div>
@@ -107,19 +107,19 @@ export function PetCard({ pet, priority = false }: PetCardProps) {
 
         {/* Attributes row */}
         <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
-          <Badge variant="secondary" className="rounded-lg text-[11px] font-medium">
+          <Badge variant="secondary" className="rounded-lg text-xs font-medium">
             {sizeLabels[pet.size] || "Porte Médio"}
           </Badge>
-          <Badge variant="secondary" className="rounded-lg text-[11px] font-medium">
+          <Badge variant="secondary" className="rounded-lg text-xs font-medium">
             {sexLabels[pet.sex] || "Macho"}
           </Badge>
           {pet.vaccinated && (
-            <Badge variant="outline" className="rounded-lg text-[11px] text-emerald-700 dark:text-emerald-400 border-emerald-500/30">
+            <Badge variant="outline" className="rounded-lg text-xs text-emerald-700 dark:text-emerald-400 border-emerald-500/30">
               <ShieldCheck className="w-3 h-3 mr-1 text-emerald-600 dark:text-emerald-400" /> Vacinado
             </Badge>
           )}
           {pet.castrated && (
-            <Badge variant="outline" className="rounded-lg text-[11px] text-primary border-primary/30">
+            <Badge variant="outline" className="rounded-lg text-xs text-primary border-primary/30">
               <Sparkles className="w-3 h-3 mr-1" /> Castrado
             </Badge>
           )}
@@ -135,13 +135,13 @@ export function PetCard({ pet, priority = false }: PetCardProps) {
           {temperamentList.slice(0, 3).map((tag) => (
             <span
               key={tag}
-              className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-secondary/80 text-secondary-foreground"
+              className="text-xs font-semibold px-2 py-0.5 rounded-md bg-secondary/80 text-secondary-foreground"
             >
               #{tag}
             </span>
           ))}
           {temperamentList.length > 3 && (
-            <span className="text-[10px] text-muted-foreground px-1 py-0.5">
+            <span className="text-xs text-muted-foreground px-1 py-0.5">
               +{temperamentList.length - 3}
             </span>
           )}
