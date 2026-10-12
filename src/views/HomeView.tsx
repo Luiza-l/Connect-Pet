@@ -94,7 +94,7 @@ export function HomeView() {
 
         {/* Conteúdo Central Exclusivo do Hero (100% livre e sem sobreposição com os mascotes) */}
         <div className="container mx-auto px-4 sm:px-6 relative z-10 text-center flex flex-col items-center justify-center pt-2 sm:pt-4 pb-20 sm:pb-28 md:py-6">
-          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border border-white/90 dark:border-white/10 text-sky-900 dark:text-sky-200 text-xs sm:text-sm font-bold shadow-sm mb-3 sm:mb-4 animate-in fade-in">
+          <span className="mb-3 inline-flex items-center gap-2 rounded-full border border-border bg-card/85 px-3.5 py-1.5 text-xs font-bold text-sky-900 shadow-sm backdrop-blur-md animate-in fade-in dark:border-white/10 dark:bg-slate-900/80 dark:text-sky-200 sm:mb-4 sm:text-sm">
             <Sparkles className="w-4 h-4 text-sky-600 dark:text-sky-400" /> Acolhimento & Adoção Responsável
           </span>
           <h1 className="max-w-xs px-2 font-serif text-3xl font-extrabold leading-tight tracking-tight text-sky-950 drop-shadow-sm dark:text-sky-50 sm:max-w-md sm:text-4xl md:max-w-2xl md:text-5xl lg:text-6xl">
@@ -144,7 +144,7 @@ export function HomeView() {
 
               <div className="flex flex-col items-center">
                 {/* Ícone Estilizado: Filtros */}
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/95 border border-sky-300/40 flex items-center justify-center text-sky-700 mb-3.5 shadow-sm group-hover:bg-white group-hover:scale-110 transition-all">
+                <div className="mb-3.5 flex h-12 w-12 items-center justify-center rounded-2xl border border-sky-300/40 bg-card/95 text-sky-700 shadow-sm transition-all group-hover:scale-110 group-hover:bg-card dark:bg-white/95 dark:group-hover:bg-white sm:h-14 sm:w-14">
                   <SlidersHorizontal className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2] text-sky-800" />
                 </div>
 
@@ -181,7 +181,7 @@ export function HomeView() {
 
               <div className="flex flex-col items-center">
                 {/* Ícone Estilizado: Sparkles */}
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/95 border border-sky-300/40 flex items-center justify-center text-sky-700 mb-3.5 shadow-sm group-hover:bg-white group-hover:scale-110 transition-all">
+                <div className="mb-3.5 flex h-12 w-12 items-center justify-center rounded-2xl border border-sky-300/40 bg-card/95 text-sky-700 shadow-sm transition-all group-hover:scale-110 group-hover:bg-card dark:bg-white/95 dark:group-hover:bg-white sm:h-14 sm:w-14">
                   <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2] text-sky-800" />
                 </div>
 
@@ -224,7 +224,7 @@ export function HomeView() {
 
               <div className="flex flex-col items-center">
                 {/* Ícone Estilizado: Coração */}
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/95 border border-sky-300/40 flex items-center justify-center text-rose-500 mb-3.5 shadow-sm group-hover:bg-white group-hover:scale-110 transition-all">
+                <div className="mb-3.5 flex h-12 w-12 items-center justify-center rounded-2xl border border-sky-300/40 bg-card/95 text-rose-500 shadow-sm transition-all group-hover:scale-110 group-hover:bg-card dark:bg-white/95 dark:group-hover:bg-white sm:h-14 sm:w-14">
                   <Heart className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2] text-rose-500 fill-rose-100" />
                 </div>
 
@@ -261,7 +261,7 @@ export function HomeView() {
 
               <div className="flex flex-col items-center">
                 {/* Ícone Estilizado: Patinha */}
-                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-white/95 border border-sky-300/40 flex items-center justify-center text-sky-700 mb-3.5 shadow-sm group-hover:bg-white group-hover:scale-110 transition-all">
+                <div className="mb-3.5 flex h-12 w-12 items-center justify-center rounded-2xl border border-sky-300/40 bg-card/95 text-sky-700 shadow-sm transition-all group-hover:scale-110 group-hover:bg-card dark:bg-white/95 dark:group-hover:bg-white sm:h-14 sm:w-14">
                   <PawPrint className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.2] text-sky-800" />
                 </div>
 
@@ -558,7 +558,7 @@ export function HomeView() {
                         toggleFavorite(pet.id);
                       }}
                       aria-label={favorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
-                      className="absolute top-2.5 right-2.5 min-h-[44px] min-w-[44px] rounded-full bg-white/95 dark:bg-slate-900/90 border border-transparent dark:border-white/10 backdrop-blur-sm flex items-center justify-center text-slate-600 dark:text-slate-300 hover:text-rose-500 shadow-md hover:scale-110 active:scale-95 transition-all"
+                      className="absolute right-2.5 top-2.5 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-border/70 bg-card/95 text-slate-600 shadow-md backdrop-blur-sm transition-all hover:scale-110 hover:text-rose-500 active:scale-95 dark:border-white/10 dark:bg-slate-900/90 dark:text-slate-300"
                     >
                       <Heart
                         className={`w-5 h-5 transition-colors ${

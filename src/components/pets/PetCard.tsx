@@ -76,7 +76,7 @@ export function PetCard({ pet, priority = false }: PetCardProps) {
             toggleFavorite(pet.id);
           }}
           aria-label={favorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
-          className="absolute top-2.5 right-2.5 min-h-[44px] min-w-[44px] rounded-full bg-white/90 dark:bg-black/80 backdrop-blur-md flex items-center justify-center text-foreground hover:scale-110 active:scale-95 transition-all shadow-md"
+          className="absolute right-2.5 top-2.5 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-border/70 bg-card/90 text-foreground shadow-md backdrop-blur-md transition-all hover:scale-110 active:scale-95 dark:border-transparent dark:bg-black/80"
         >
           <Heart
             className={`w-5 h-5 transition-colors ${favorite ? "fill-rose-500 text-rose-500" : "text-muted-foreground hover:text-rose-500"

@@ -1,5 +1,16 @@
 # Changelog
 
+## [v0.9.2] - 2026-10-12
+### Commit
+`style: suavizar superfícies do modo claro`
+
+### Mudanças
+- Substitui o branco puro do fundo global por um off-white frio e levemente azulado, alinhado à identidade visual do ConnectPet.
+- Diferencia páginas, cards, popovers, áreas secundárias e bordas com uma hierarquia tonal mais confortável, preservando contraste e legibilidade.
+- Harmoniza superfícies translúcidas, destaques da página inicial e controles sobre imagens com os tokens semânticos do tema claro, sem alterar a paleta do modo escuro.
+
+---
+
 ## [v0.9.1] - 2026-10-12
 ### Commit
 `fix: simplificar triagem e preservar respostas do dossiê`
