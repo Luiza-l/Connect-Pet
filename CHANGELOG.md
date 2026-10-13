@@ -1,5 +1,35 @@
 # Changelog
 
+## [v0.9.22] - 2026-10-12
+### Commit
+`style: reduzir espaço superior da página do pet`
+
+### Mudanças
+- Reduz progressivamente o espaçamento superior da página de detalhes para antecipar a exibição do botão de adoção em computadores.
+- Compacta o intervalo entre as ações e o conteúdo principal, preservando respiro seguro sob a navbar em celulares e telas maiores.
+
+---
+
+## [v0.9.21] - 2026-10-12
+### Commit
+`style: suavizar brilho do botão de adoção`
+
+### Mudanças
+- Reduz a intensidade e a extensão da sombra azul do botão principal de adoção.
+- Aplica uma elevação ainda mais discreta no modo escuro para evitar brilho excessivo.
+
+---
+
+## [v0.9.20] - 2026-10-12
+### Commit
+`refactor: reorganizar informações da página do pet`
+
+### Mudanças
+- Move o card de comportamento e convivência para o espaço disponível ao lado da galeria, aproximando informações de compatibilidade da ação de adoção.
+- Remove o comportamento fixo durante a rolagem e mantém história, ficha médica e responsável na seção complementar da página.
+
+---
+
 ## [v0.9.19] - 2026-10-12
 ### Commit
 `style: ampliar seção sobre horizontalmente`

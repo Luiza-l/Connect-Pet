@@ -123,7 +123,7 @@ export function PetDetailView({ pet }: PetDetailViewProps) {
   const currentStatus = statusMap[pet.status] || statusMap.available;
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 md:px-8 py-6 sm:py-10 md:py-16 min-h-screen space-y-6 sm:space-y-8 md:space-y-10">
+    <div className="container mx-auto min-h-screen space-y-5 px-4 pb-6 pt-5 sm:space-y-7 sm:px-6 sm:pb-10 sm:pt-8 md:space-y-8 md:px-8 md:pb-16">
       
       {/* Back Button & Actions */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -156,7 +156,7 @@ export function PetDetailView({ pet }: PetDetailViewProps) {
       </div>
 
       {/* Main Grid: Gallery + Core Info */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-10">
+      <div className="grid grid-cols-1 items-start gap-6 sm:gap-8 lg:grid-cols-12 lg:gap-10">
         
         {/* Left: Gallery (7 Cols) */}
         <div className="lg:col-span-7 space-y-4">
@@ -201,10 +201,10 @@ export function PetDetailView({ pet }: PetDetailViewProps) {
           )}
         </div>
 
-        {/* Right: Overview & CTA (5 Cols) */}
-        <div className="lg:col-span-5 space-y-5 sm:space-y-6 flex flex-col justify-between">
+        {/* Direita: resumo, compatibilidade e ação principal */}
+        <div className="space-y-5 sm:space-y-6 lg:col-span-5">
           
-          <div className="space-y-4">
+          <div className="space-y-4 sm:space-y-5">
             <div>
               <span className="text-xs font-bold text-primary uppercase tracking-wider">
                 {pet.species === "dog" ? "Cão Resgatado" : "Gato Resgatado"} • {pet.breed}
@@ -256,15 +256,60 @@ export function PetDetailView({ pet }: PetDetailViewProps) {
               </div>
             </div>
 
+            {/* Comportamento reposicionado para apoiar a decisão antes da adoção */}
+            <div className="space-y-4 rounded-3xl border border-border/60 bg-card p-4 shadow-sm sm:p-5">
+              <h2 className="font-serif text-xl font-bold text-foreground sm:text-2xl">
+                Comportamento e Convivência
+              </h2>
+              <p className="text-xs leading-relaxed text-muted-foreground sm:text-sm">
+                {pet.temperamentDescription}
+              </p>
+
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                <div className="rounded-2xl border border-border bg-secondary/40 p-3 text-xs">
+                  <span className="font-semibold text-foreground">Nível de energia</span>
+                  <p className="mt-1 text-muted-foreground">{{ calm: "Calmo", moderate: "Moderado", high: "Alto" }[pet.energyLevel]}</p>
+                </div>
+                {[
+                  ["Crianças", pet.compatibleWithChildren],
+                  ["Cães", pet.compatibleWithDogs],
+                  ["Gatos", pet.compatibleWithCats]
+                ].map(([rotulo, compatibilidade]) => (
+                  <div key={rotulo} className="rounded-2xl border border-border bg-secondary/40 p-3 text-xs">
+                    <span className="font-semibold text-foreground">Convivência com {rotulo.toLocaleLowerCase("pt-BR")}</span>
+                    <p className="mt-1 text-muted-foreground">
+                      {{ yes: "Boa convivência observada", no: "Não recomendada", unknown: "Ainda não avaliada" }[compatibilidade]}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-1">
+                <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  Traços marcantes:
+                </span>
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                  {pet.temperament.map((trait) => (
+                    <span
+                      key={trait}
+                      className="rounded-xl bg-secondary px-2.5 py-1 text-xs font-semibold text-foreground sm:px-3"
+                    >
+                      #{trait}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
           </div>
 
-          {/* Action Button: Quero Adotar */}
-          <div className="pt-3 sm:pt-4 border-t border-border/60 space-y-2.5 sm:space-y-3">
+          {/* Ação principal: Quero Adotar */}
+          <div className="space-y-2.5 border-t border-border/60 pt-4 sm:space-y-3 sm:pt-5">
             <Button
               size="lg"
               onClick={handleAdoptClick}
               disabled={pet.status === "adopted"}
-              className="w-full h-12 sm:h-14 rounded-full text-sm sm:text-base font-bold bg-primary hover:bg-primary/90 shadow-xl shadow-primary/20 transition-all hover:scale-[1.01]"
+              className="min-h-12 w-full rounded-full bg-primary text-sm font-bold shadow-md shadow-primary/10 transition-all hover:scale-[1.01] hover:bg-primary/90 dark:shadow-sm dark:shadow-primary/5 sm:min-h-14 sm:text-base"
             >
               <Heart className="w-5 h-5 mr-2 fill-current" />
               {pet.status === "adopted" ? "Animal Já Adotado" : `Quero Adotar ${pet.name}`}
@@ -278,13 +323,13 @@ export function PetDetailView({ pet }: PetDetailViewProps) {
 
       </div>
 
-      {/* Deep Details: Story, Medical Record, Behavior & Guardian Info */}
+      {/* Detalhes complementares: história, ficha médica e responsável */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-10 pt-4 sm:pt-6">
         
-        {/* Story & Behavior (7 Cols) */}
+        {/* História e cuidados (7 colunas) */}
         <div className="lg:col-span-7 space-y-6 sm:space-y-8">
-          
-          {/* Rescue Story */}
+
+          {/* História de resgate */}
           <div className="p-4 sm:p-6 md:p-8 rounded-3xl bg-card border border-border/60 shadow-sm space-y-4">
             <h3 className="font-serif text-xl sm:text-2xl font-bold text-foreground flex items-center gap-2">
               História de Resgate
@@ -292,51 +337,6 @@ export function PetDetailView({ pet }: PetDetailViewProps) {
             <p className="text-xs sm:text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
               {pet.story}
             </p>
-          </div>
-
-          {/* Behavior & Temperament */}
-          <div className="p-4 sm:p-6 md:p-8 rounded-3xl bg-card border border-border/60 shadow-sm space-y-4">
-            <h3 className="font-serif text-xl sm:text-2xl font-bold text-foreground">
-              Comportamento e Convivência
-            </h3>
-            <p className="text-xs sm:text-sm leading-relaxed text-muted-foreground">
-              {pet.temperamentDescription}
-            </p>
-
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-              <div className="rounded-2xl border border-border bg-secondary/40 p-3 text-xs">
-                <span className="font-semibold text-foreground">Nível de energia</span>
-                <p className="mt-1 text-muted-foreground">{{ calm: "Calmo", moderate: "Moderado", high: "Alto" }[pet.energyLevel]}</p>
-              </div>
-              {[
-                ["Crianças", pet.compatibleWithChildren],
-                ["Cães", pet.compatibleWithDogs],
-                ["Gatos", pet.compatibleWithCats]
-              ].map(([rotulo, compatibilidade]) => (
-                <div key={rotulo} className="rounded-2xl border border-border bg-secondary/40 p-3 text-xs">
-                  <span className="font-semibold text-foreground">Convivência com {rotulo.toLocaleLowerCase("pt-BR")}</span>
-                  <p className="mt-1 text-muted-foreground">
-                    {{ yes: "Boa convivência observada", no: "Não recomendada", unknown: "Ainda não avaliada" }[compatibilidade]}
-                  </p>
-                </div>
-              ))}
-            </div>
-
-            <div className="pt-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground block mb-2">
-                Traços Marcantes:
-              </span>
-              <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                {pet.temperament.map((trait) => (
-                  <span
-                    key={trait}
-                    className="px-2.5 sm:px-3 py-1 rounded-xl bg-secondary font-semibold text-xs text-foreground"
-                  >
-                    #{trait}
-                  </span>
-                ))}
-              </div>
-            </div>
           </div>
 
           {/* Medical Record */}
