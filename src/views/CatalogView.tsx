@@ -270,7 +270,7 @@ function FilterPanel({
 
 export function CatalogView() {
   const searchParams = useSearchParams();
-  const { pets, petsLoading, petsError, reloadPets, favorites, showFavoritesOnly, setShowFavoritesOnly, currentUser, requireAuth } = useApp();
+  const { petsDoCatalogo, petsLoading, petsError, reloadPets, favorites, showFavoritesOnly, setShowFavoritesOnly, currentUser, requireAuth } = useApp();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [species, setSpecies] = useState("all");
@@ -317,13 +317,13 @@ export function CatalogView() {
   // Dynamic list of unique cities
   const availableCities = useMemo(() => {
     const set = new Set<string>();
-    pets.forEach((p) => {
+    petsDoCatalogo.forEach((p) => {
       if (p.location?.city) {
         set.add(`${p.location.city}, ${p.location.state}`);
       }
     });
     return Array.from(set);
-  }, [pets]);
+  }, [petsDoCatalogo]);
 
   // Reset Filters
   const resetFilters = () => {
@@ -341,7 +341,7 @@ export function CatalogView() {
 
   // Filter computation
   const filteredPets = useMemo(() => {
-    return pets.filter((pet) => {
+    return petsDoCatalogo.filter((pet) => {
       // Text Search
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
@@ -387,7 +387,7 @@ export function CatalogView() {
       return true;
     });
   }, [
-    pets,
+    petsDoCatalogo,
     searchQuery,
     species,
     size,
@@ -558,12 +558,12 @@ export function CatalogView() {
               <div className="space-y-1">
                 <h3 className="font-bold text-lg text-foreground">Nenhum animal encontrado</h3>
                 <p className="text-xs sm:text-sm text-muted-foreground max-w-sm mx-auto">
-                  {pets.length === 0
+                  {petsDoCatalogo.length === 0
                     ? "Ainda não há animais publicados para adoção. Volte em breve."
                     : "Tente alterar seus termos de busca ou remover alguns filtros acumulativos para visualizar outros pets."}
                 </p>
               </div>
-              {pets.length > 0 && <Button onClick={resetFilters} variant="outline" className="min-h-[44px] rounded-full text-xs">Limpar Todos os Filtros</Button>}
+              {petsDoCatalogo.length > 0 && <Button onClick={resetFilters} variant="outline" className="min-h-[44px] rounded-full text-xs">Limpar Todos os Filtros</Button>}
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">

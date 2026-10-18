@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 
 export function SmartMatchView() {
-  const { pets, calculateSmartMatch, enrichSmartMatchWithAI, currentUser } = useApp();
+  const { petsDoCatalogo, calculateSmartMatch, enrichSmartMatchWithAI, currentUser } = useApp();
 
   const [hasStarted, setHasStarted] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
@@ -129,11 +129,11 @@ export function SmartMatchView() {
   // Compute matches
   const resultadosLocais: MatchResult[] = React.useMemo(() => {
     if (!showResults) return [];
-    return pets
+    return petsDoCatalogo
       .filter((pet) => pet.status === "available")
       .map((pet) => calculateSmartMatch(quizData, pet))
       .sort((a, b) => b.score - a.score);
-  }, [showResults, pets, quizData, calculateSmartMatch]);
+  }, [showResults, petsDoCatalogo, quizData, calculateSmartMatch]);
 
   const matchResults = resultadosComIa.length > 0 ? resultadosComIa : resultadosLocais;
 

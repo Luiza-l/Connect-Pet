@@ -18,6 +18,7 @@ import {
 import { createClient } from '@/lib/client';
 import { removerFotosDoStorage } from '@/lib/petPhotos';
 import { normalizarFotosPet, obterUrlImagemPermitida } from '@/lib/origensImagem';
+import { obterPetsDoCatalogo } from '@/lib/catalogoPets';
 import type { AuthFeature, AuthPromptState } from '@/components/auth/auth-features';
 import {
   avaliarCandidaturaDeterministica,
@@ -52,9 +53,10 @@ interface AppContextType {
 
   // Pets
   pets: Pet[];
+  petsDoCatalogo: Pet[];
   petsLoading: boolean;
   petsError: string | null;
-  reloadPets: () => Promise<void>;
+  reloadPets: (opcoes?: { silencioso?: boolean }) => Promise<void>;
   addPet: (pet: Omit<Pet, 'id' | 'createdAt'>) => Promise<boolean>;
   updatePet: (id: string, updates: Partial<Pet>) => Promise<boolean>;
   deletePet: (id: string) => Promise<boolean>;
@@ -355,6 +357,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [pets, setPetsState] = useState<Pet[]>([]);
   const [petsLoading, setPetsLoading] = useState(true);
   const [petsError, setPetsError] = useState<string | null>(null);
+  const petsDoCatalogo = useMemo(() => obterPetsDoCatalogo(pets), [pets]);
 
   // 4. Favorites State - Isolado por usuário
   const [favorites, setFavoritesState] = useState<string[]>([]);
@@ -408,16 +411,21 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return null;
   }, []);
 
-  const reloadPets = useCallback(async () => {
+  const reloadPets = useCallback(async (opcoes?: { silencioso?: boolean }) => {
+    const silencioso = opcoes?.silencioso ?? false;
+
     if (!supabase) {
+      if (silencioso) return;
       setPetsState([]);
       setPetsError('A conexão com o catálogo não está configurada.');
       setPetsLoading(false);
       return;
     }
 
-    setPetsLoading(true);
-    setPetsError(null);
+    if (!silencioso) {
+      setPetsLoading(true);
+      setPetsError(null);
+    }
     try {
       const colunasBase = 'id, name, species, breed, size, approximate_age, age_category, sex, status, vaccinated, castrated, dewormed, vaccination_details, special_needs, photos, headline, story, temperament, temperament_description, guardian_id, guardian_name, guardian_type, guardian_phone, guardian_email, city, state, neighborhood, created_at';
       type ResultadoConsulta = { data: Record<string, unknown>[] | null; error: { message: string } | null };
@@ -437,12 +445,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       if (error) throw error;
 
       setPetsState((data ?? []).map((pet) => mapearPetDoBanco(pet)));
+      setPetsError(null);
     } catch (error) {
       console.warn('Não foi possível carregar o catálogo:', error);
-      setPetsState([]);
-      setPetsError('Não foi possível carregar os animais. Tente novamente.');
+      if (!silencioso) {
+        setPetsState([]);
+        setPetsError('Não foi possível carregar os animais. Tente novamente.');
+      }
     } finally {
-      setPetsLoading(false);
+      if (!silencioso) setPetsLoading(false);
     }
   }, [supabase]);
 
@@ -739,6 +750,59 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       isMounted = false;
     };
   }, [applicationsReloadToken, currentUser, reloadPets, supabase]);
+
+  // Mantém catálogo, vitrine e painel sincronizados entre dispositivos.
+  useEffect(() => {
+    if (!supabase) return;
+
+    const canalPets = supabase
+      .channel('sincronizacao-pets')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'pets' },
+        (mudanca) => {
+          if (mudanca.eventType === 'DELETE') {
+            const idRemovido = ehRegistro(mudanca.old) ? String(mudanca.old.id || '') : '';
+            if (idRemovido) {
+              setPetsState((anteriores) => anteriores.filter((pet) => pet.id !== idRemovido));
+            }
+            return;
+          }
+
+          if (!ehRegistro(mudanca.new)) return;
+          const petAtualizado = mapearPetDoBanco(mudanca.new);
+          setPetsState((anteriores) => {
+            const petJaExiste = anteriores.some((pet) => pet.id === petAtualizado.id);
+            if (!petJaExiste) return [petAtualizado, ...anteriores];
+            return anteriores.map((pet) => pet.id === petAtualizado.id ? petAtualizado : pet);
+          });
+        }
+      )
+      .subscribe((statusCanal) => {
+        if (statusCanal === 'CHANNEL_ERROR' || statusCanal === 'TIMED_OUT') {
+          console.warn('Não foi possível sincronizar as mudanças dos pets em tempo real.');
+        }
+      });
+
+    // Revalida em segundo plano como proteção para redes que bloqueiam WebSocket.
+    const sincronizarEmSegundoPlano = () => {
+      void reloadPets({ silencioso: true });
+    };
+    const aoAlterarVisibilidade = () => {
+      if (document.visibilityState === 'visible') sincronizarEmSegundoPlano();
+    };
+    const intervaloSincronizacao = window.setInterval(sincronizarEmSegundoPlano, 60_000);
+
+    window.addEventListener('focus', sincronizarEmSegundoPlano);
+    document.addEventListener('visibilitychange', aoAlterarVisibilidade);
+
+    return () => {
+      window.clearInterval(intervaloSincronizacao);
+      window.removeEventListener('focus', sincronizarEmSegundoPlano);
+      document.removeEventListener('visibilitychange', aoAlterarVisibilidade);
+      void supabase.removeChannel(canalPets);
+    };
+  }, [reloadPets, supabase]);
 
   // Set Theme with persistence
   const setTheme = useCallback((newTheme: ThemeMode) => {
@@ -1809,6 +1873,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     authPrompt,
     closeAuthPrompt,
     pets,
+    petsDoCatalogo,
     petsLoading,
     petsError,
     reloadPets,
@@ -1848,6 +1913,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     authPrompt,
     closeAuthPrompt,
     pets,
+    petsDoCatalogo,
     petsLoading,
     petsError,
     reloadPets,

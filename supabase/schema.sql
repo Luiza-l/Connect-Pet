@@ -46,6 +46,22 @@ create table if not exists public.pets (
 -- (idx_pets_status e idx_pets_species removidos: o catálogo filtra no navegador, nenhuma query usa esses filtros)
 create index if not exists idx_pets_guardian_id on public.pets (guardian_id);
 
+-- Propaga alterações dos pets para catálogo, vitrine e painel abertos em outros dispositivos.
+do $$
+begin
+  if exists (
+    select 1 from pg_publication where pubname = 'supabase_realtime'
+  ) and not exists (
+    select 1
+    from pg_publication_tables
+    where pubname = 'supabase_realtime'
+      and schemaname = 'public'
+      and tablename = 'pets'
+  ) then
+    execute 'alter publication supabase_realtime add table public.pets';
+  end if;
+end $$;
+
 -- Evita que integrações incompletas atribuam raça, idade ou localização fictícias.
 alter table public.pets alter column breed drop default;
 alter table public.pets alter column approximate_age drop default;

@@ -15,10 +15,10 @@ import {
 import { PawWatermark } from "@/components/ui/PawWatermark";
 
 export function HomeView() {
-  const { pets, petsLoading, petsError, isFavorite, toggleFavorite, currentUser, requireAuth } = useApp();
+  const { petsDoCatalogo, petsLoading, petsError, isFavorite, toggleFavorite, currentUser, requireAuth } = useApp();
 
   // 5 animais dinâmicos do catálogo real (Supabase / AppContext)
-  const dynamicPets = pets.slice(0, 4);
+  const dynamicPets = petsDoCatalogo.slice(0, 4);
 
   return (
     <div className="flex min-h-screen flex-col overflow-x-clip bg-background font-sans text-foreground selection:bg-sky-200 selection:text-sky-900 transition-colors duration-300 dark:selection:bg-sky-900 dark:selection:text-sky-100">

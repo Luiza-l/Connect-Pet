@@ -35,7 +35,7 @@ export function Navbar() {
     currentUser,
     logout,
     favorites,
-    pets,
+    petsDoCatalogo,
     theme,
     setTheme,
     showFavoritesOnly,
@@ -59,9 +59,9 @@ export function Navbar() {
     }
   };
 
-  const favoritesCount = pets.length > 0
-    ? favorites.filter((favId) => pets.some((p) => p.id === favId)).length
-    : favorites.filter((favId) => !favId.startsWith('pet-')).length;
+  const favoritesCount = favorites.filter((favId) =>
+    petsDoCatalogo.some((pet) => pet.id === favId)
+  ).length;
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);

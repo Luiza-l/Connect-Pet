@@ -1,5 +1,16 @@
 # Changelog
 
+## [v0.9.23] - 2026-10-18
+### Commit
+`feat: sincronizar status dos pets com o catálogo público`
+
+### Mudanças
+- Remove automaticamente animais adotados do catálogo, da vitrine inicial, das recomendações e da contagem pública de favoritos.
+- Mantém o cadastro completo no painel do responsável e faz o animal reaparecer nas áreas públicas quando seu status volta a disponível.
+- Sincroniza inserções, edições e remoções de pets entre dispositivos por meio do Supabase Realtime.
+
+---
+
 ## [v0.9.22] - 2026-10-12
 ### Commit
 `style: reduzir espaço superior da página do pet`
