@@ -43,6 +43,9 @@ export function Footer() {
             <Link href="/pets" className="inline-flex min-h-[44px] items-center transition-colors hover:text-primary">
               Catálogo
             </Link>
+            <Link href="/sobre-nos" className="inline-flex min-h-[44px] items-center transition-colors hover:text-primary">
+              Sobre nós
+            </Link>
             <Link href="/pets?favoritos=true" className="inline-flex min-h-[44px] items-center transition-colors hover:text-primary">
               Favoritos
             </Link>

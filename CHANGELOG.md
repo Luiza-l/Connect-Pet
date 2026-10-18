@@ -1,5 +1,27 @@
 # Changelog
 
+## [v0.9.27] - 2026-10-18
+### Commit
+`feat: criar página institucional sobre o ConnectPet`
+
+### Mudanças
+- Substitui o antigo acesso "Como Funciona" pela nova página "Sobre nós" na navegação principal e nos links relacionados.
+- Apresenta missão, participantes, recursos e impacto da adoção responsável em uma composição visual responsiva e interativa.
+- Reutiliza ilustrações, animações de rolagem, tokens de tema e componentes existentes, com metadados próprios e suporte a movimento reduzido.
+
+---
+
+## [v0.9.26] - 2026-10-18
+### Commit
+`feat: padronizar capitalização dos formulários`
+
+### Mudanças
+- Capitaliza nomes de pessoas, animais, organizações, profissões, bairros e raças ao sair do campo e antes da persistência.
+- Inicia frases e parágrafos de descrições, histórias, respostas, notas e mensagens com letra maiúscula sem alterar a caixa interna do texto.
+- Preserva partículas, siglas, algarismos romanos, grafias mistas, e-mails, perfis sociais e URLs por meio de regras centralizadas e testadas.
+
+---
+
 ## [v0.9.25] - 2026-10-18
 ### Commit
 `fix: tornar história do animal opcional`

@@ -27,6 +27,7 @@ import {
   validateIntegerRange,
   validateSocialProfile
 } from "@/lib/validation";
+import { capitalizarFrases, capitalizarNomeProprio } from "@/lib/capitalizacao";
 
 interface PreAdoptionModalProps {
   pet: Pet;
@@ -228,6 +229,14 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
         return;
       }
 
+      const profissaoNormalizada = capitalizarNomeProprio(formData.profession);
+      const detalhesProtecaoNormalizados = capitalizarFrases(formData.protectionDetails);
+      const detalhesAlergiaNormalizados = capitalizarFrases(formData.allergyDetails);
+      const planoCuidadosNormalizado = capitalizarFrases(formData.dailyCarePlan);
+      const planoViagensNormalizado = capitalizarFrases(formData.travelCarePlan);
+      const petsAtuaisNormalizados = capitalizarFrases(formData.currentPetsDescription);
+      const historicoPetsNormalizado = capitalizarFrases(formData.previousPetsHistory);
+
       // Build payload and submit
       const payload: Omit<PreAdoptionApplication, "id" | "createdAt" | "status" | "notes" | "messages" | "automatedAnalysis"> = {
         petId: pet.id,
@@ -241,7 +250,7 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
         candidate: {
           name: formData.name,
           birthDate: candidateBirthDate,
-          profession: formData.profession,
+          profession: profissaoNormalizada,
           primaryPhone: formData.primaryPhone,
           email: formData.email,
           socialMedia: formData.socialMedia,
@@ -252,19 +261,19 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
         housingStatus: formData.housingStatus as PreAdoptionApplication["housingStatus"],
         landlordPermission: formData.landlordPermission,
         hasProtection: formData.hasProtection,
-        protectionDetails: formData.protectionDetails,
+        protectionDetails: detalhesProtecaoNormalizados,
         accessArea: formData.accessArea as PreAdoptionApplication["accessArea"],
         adultsCount: Number(formData.adultsCount),
         childrenCount: Number(formData.childrenCount),
         familyAgreement: formData.familyAgreement,
         allergyCases: formData.allergyCases,
-        allergyDetails: formData.allergyDetails,
+        allergyDetails: detalhesAlergiaNormalizados,
         hoursAlone: Number(formData.hoursAlone),
-        dailyCarePlan: formData.dailyCarePlan.trim(),
-        travelCarePlan: formData.travelCarePlan,
+        dailyCarePlan: planoCuidadosNormalizado,
+        travelCarePlan: planoViagensNormalizado,
         hasCurrentPets: formData.hasCurrentPets,
-        currentPetsDescription: formData.currentPetsDescription.trim(),
-        previousPetsHistory: formData.previousPetsHistory,
+        currentPetsDescription: petsAtuaisNormalizados,
+        previousPetsHistory: historicoPetsNormalizado,
         costAwareness: formData.costAwareness
       };
 
@@ -462,6 +471,7 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
                     maxLength={80}
                     value={formData.profession}
                     onChange={(e) => setFormData({ ...formData, profession: e.target.value })}
+                    onBlur={() => setFormData((dados) => ({ ...dados, profession: capitalizarNomeProprio(dados.profession) }))}
                     placeholder="Ex: Designer, Engenheiro, Autônomo"
                     className="min-h-[44px] w-full rounded-xl border border-border bg-background px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                   />
@@ -632,6 +642,7 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
                     maxLength={500}
                     value={formData.protectionDetails}
                     onChange={(e) => setFormData({ ...formData, protectionDetails: e.target.value })}
+                    onBlur={() => setFormData((dados) => ({ ...dados, protectionDetails: capitalizarFrases(dados.protectionDetails) }))}
                     placeholder="Ex: Telas instaladas em 100% das janelas por empresa especializada com malha 5cm."
                     className="min-h-[88px] w-full rounded-xl border border-border bg-background px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
                   />
@@ -739,6 +750,7 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
                     maxLength={300}
                     value={formData.allergyDetails}
                     onChange={(e) => setFormData({ ...formData, allergyDetails: e.target.value })}
+                    onBlur={() => setFormData((dados) => ({ ...dados, allergyDetails: capitalizarFrases(dados.allergyDetails) }))}
                     placeholder="Descreva o caso e se já há acompanhamento médico..."
                     className="min-h-[44px] w-full rounded-xl border border-border bg-background px-3 py-2 text-xs"
                   />
@@ -774,6 +786,7 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
                   maxLength={500}
                   value={formData.dailyCarePlan}
                   onChange={(e) => setFormData({ ...formData, dailyCarePlan: e.target.value })}
+                  onBlur={() => setFormData((dados) => ({ ...dados, dailyCarePlan: capitalizarFrases(dados.dailyCarePlan) }))}
                   placeholder="Quem ficará responsável por alimentação, higiene, passeios e consultas? Como isso entra na rotina?"
                   className="min-h-[88px] w-full rounded-xl border border-border bg-background px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
                 />
@@ -788,6 +801,7 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
                   maxLength={500}
                   value={formData.travelCarePlan}
                   onChange={(e) => setFormData({ ...formData, travelCarePlan: e.target.value })}
+                  onBlur={() => setFormData((dados) => ({ ...dados, travelCarePlan: capitalizarFrases(dados.travelCarePlan) }))}
                   placeholder="Com quem ou onde o animal ficará quando a família viajar?"
                   className="min-h-[88px] w-full rounded-xl border border-border bg-background px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
                 />
@@ -821,6 +835,7 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
                     maxLength={500}
                     value={formData.currentPetsDescription}
                     onChange={(e) => setFormData({ ...formData, currentPetsDescription: e.target.value })}
+                    onBlur={() => setFormData((dados) => ({ ...dados, currentPetsDescription: capitalizarFrases(dados.currentPetsDescription) }))}
                     placeholder="Informe espécies, idades, temperamentos e como pretende fazer a apresentação ao novo pet."
                     className="min-h-[100px] w-full rounded-xl border border-border bg-background px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
                   />
@@ -836,6 +851,7 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
                   maxLength={500}
                   value={formData.previousPetsHistory}
                   onChange={(e) => setFormData({ ...formData, previousPetsHistory: e.target.value })}
+                  onBlur={() => setFormData((dados) => ({ ...dados, previousPetsHistory: capitalizarFrases(dados.previousPetsHistory) }))}
                   placeholder="Já teve animais antes? Por quanto tempo viveram e quais foram os cuidados?"
                   className="min-h-[100px] w-full rounded-xl border border-border bg-background px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
                 />

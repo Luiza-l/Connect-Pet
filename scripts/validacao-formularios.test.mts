@@ -17,6 +17,7 @@ import {
   validarIdadePet,
   validarNomePet,
 } from "../src/lib/validacaoPet.ts";
+import { capitalizarFrases, capitalizarNomeProprio } from "../src/lib/capitalizacao.ts";
 
 test("reconhece município oficial apesar de acentos e espaços", () => {
   const municipios = [
@@ -79,5 +80,25 @@ test("história do animal é opcional, mas é validada quando preenchida", () =>
   assert.equal(
     validarDescricoesPet("Amigo para toda hora", "Texto curto", "Dócil e sociável."),
     "Quando preenchida, a história do animal deve ter ao menos 20 caracteres.",
+  );
+});
+
+test("capitaliza nomes próprios preservando partículas, siglas e exceções", () => {
+  assert.equal(capitalizarNomeProprio("rex"), "Rex");
+  assert.equal(capitalizarNomeProprio("MARIA DA SILVA"), "Maria da Silva");
+  assert.equal(capitalizarNomeProprio("ONG AMOR ANIMAL LTDA"), "ONG Amor Animal LTDA");
+  assert.equal(capitalizarNomeProprio("Instituto AMAR"), "Instituto AMAR");
+  assert.equal(capitalizarNomeProprio("Ana Clara d'ávila"), "Ana Clara d'Ávila");
+  assert.equal(capitalizarNomeProprio("iFood Pet"), "iFood Pet");
+});
+
+test("capitaliza frases sem modificar endereços, siglas ou a caixa interna", () => {
+  assert.equal(
+    capitalizarFrases("rex é dócil. convive bem com crianças! também gosta da ONG."),
+    "Rex é dócil. Convive bem com crianças! Também gosta da ONG.",
+  );
+  assert.equal(
+    capitalizarFrases("acesse https://exemplo.com/pets. depois envie para contato@exemplo.com."),
+    "Acesse https://exemplo.com/pets. Depois envie para contato@exemplo.com.",
   );
 });

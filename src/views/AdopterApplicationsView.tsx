@@ -16,6 +16,7 @@ import {
   Loader2,
   AlertCircle
 } from "lucide-react";
+import { capitalizarFrases } from "@/lib/capitalizacao";
 
 export function AdopterApplicationsView() {
   const {
@@ -46,8 +47,10 @@ export function AdopterApplicationsView() {
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedApp || !chatMessage.trim()) return;
-    if (await sendApplicationMessage(selectedApp.id, chatMessage)) setChatMessage("");
+    const mensagemNormalizada = capitalizarFrases(chatMessage);
+    setChatMessage(mensagemNormalizada);
+    if (!selectedApp || !mensagemNormalizada) return;
+    if (await sendApplicationMessage(selectedApp.id, mensagemNormalizada)) setChatMessage("");
   };
 
   const stepsList: { status: ApplicationStatus; label: string; desc: string }[] = [
@@ -304,6 +307,7 @@ export function AdopterApplicationsView() {
                       type="text"
                       value={chatMessage}
                       onChange={(e) => setChatMessage(e.target.value)}
+                      onBlur={() => setChatMessage(capitalizarFrases(chatMessage))}
                       placeholder="Envie uma mensagem ou tire dúvidas sobre a visita..."
                       aria-label="Mensagem para o responsável"
                       className="min-h-[44px] min-w-0 flex-1 rounded-full border border-border bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"

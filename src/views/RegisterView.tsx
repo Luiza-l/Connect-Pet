@@ -40,6 +40,7 @@ import {
 } from "@/lib/validation";
 import { validarLocalidadeIbge } from "@/lib/localidadesIbge";
 import { SeletorLocalidade } from "@/components/forms/SeletorLocalidade";
+import { capitalizarNomeProprio } from "@/lib/capitalizacao";
 
 export function RegisterView() {
   const router = useRouter();
@@ -90,11 +91,18 @@ export function RegisterView() {
       const isAdopterRole = roleTab === "adopter";
       const targetEmail = isAdopterRole ? adopterEmail.trim() : ngoEmail.trim();
       const targetPassword = isAdopterRole ? adopterPassword : ngoPassword;
+      const nomeAdotanteNormalizado = capitalizarNomeProprio(adopterName);
+      const profissaoAdotanteNormalizada = capitalizarNomeProprio(adopterProfession);
+      const nomeGuardiaoNormalizado = capitalizarNomeProprio(ngoName);
       let localidadeGuardiao: { cidade: string; estado: string } | null = null;
+
+      setAdopterName(nomeAdotanteNormalizado);
+      setAdopterProfession(profissaoAdotanteNormalizada);
+      setNgoName(nomeGuardiaoNormalizado);
 
       // Validação detalhada dos campos para o perfil Adotante
       if (isAdopterRole) {
-        const nameValidation = validateFullName(adopterName, "Nome completo");
+        const nameValidation = validateFullName(nomeAdotanteNormalizado, "Nome completo");
         if (!nameValidation.valid) {
           const msg = nameValidation.error || "Por favor, informe seu nome completo (nome e sobrenome).";
           setErrorMessage(msg);
@@ -134,7 +142,7 @@ export function RegisterView() {
           return;
         }
 
-        if (!adopterProfession.trim() || adopterProfession.trim().length < 2) {
+        if (!profissaoAdotanteNormalizada || profissaoAdotanteNormalizada.length < 2) {
           const msg = "Por favor, informe sua profissão ou ocupação.";
           setErrorMessage(msg);
           showToast("Atenção", msg, "warning");
@@ -173,8 +181,8 @@ export function RegisterView() {
       } else {
         // Validações robustas para Guardião / ONG / Doador
         const guardianNameValidation = guardianType === "individual"
-          ? validateFullName(ngoName, "Nome completo")
-          : validateOrganizationName(ngoName);
+          ? validateFullName(nomeGuardiaoNormalizado, "Nome completo")
+          : validateOrganizationName(nomeGuardiaoNormalizado);
         if (!guardianNameValidation.valid) {
           const msg = guardianNameValidation.error || "Por favor, informe o nome do responsável.";
           setErrorMessage(msg);
@@ -241,17 +249,17 @@ export function RegisterView() {
       const metadata = isAdopterRole
         ? {
             role: "adopter",
-            name: adopterName.trim(),
+            name: nomeAdotanteNormalizado,
             birthDate: adopterBirthDate,
             cpf: adopterCpf.trim(),
             socialMedia: adopterSocialMedia.trim() || undefined,
-            profession: adopterProfession.trim(),
+            profession: profissaoAdotanteNormalizada,
             primaryPhone: adopterPhone.trim()
           }
         : {
             role: "guardian",
             guardianType,
-            name: ngoName.trim(),
+            name: nomeGuardiaoNormalizado,
             document: ngoDocument.trim(),
             primaryPhone: ngoPhone.trim(),
             city: localidadeGuardiao?.cidade || "",
@@ -387,6 +395,7 @@ export function RegisterView() {
                     value={adopterName}
                     aria-label="Nome completo"
                     onChange={(e) => setAdopterName(e.target.value)}
+                    onBlur={() => setAdopterName(capitalizarNomeProprio(adopterName))}
                     placeholder="Ex: Mariana da Silva Sauro"
                     className="min-h-[44px] w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-4 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
                   />
@@ -470,6 +479,7 @@ export function RegisterView() {
                       value={adopterProfession}
                       aria-label="Profissão ou ocupação"
                       onChange={(e) => setAdopterProfession(e.target.value)}
+                      onBlur={() => setAdopterProfession(capitalizarNomeProprio(adopterProfession))}
                       placeholder="Ex: Designer, Engenheiro"
                       className="min-h-[44px] w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-3 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
                     />
@@ -593,6 +603,7 @@ export function RegisterView() {
                     value={ngoName}
                     aria-label={guardianType === "ngo" ? "Nome da ONG ou instituição" : "Nome completo do doador"}
                     onChange={(e) => setNgoName(e.target.value)}
+                    onBlur={() => setNgoName(capitalizarNomeProprio(ngoName))}
                     placeholder={guardianType === "ngo" ? "Nome da organização" : "Nome e sobrenome"}
                     className="min-h-[44px] w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-4 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
                   />

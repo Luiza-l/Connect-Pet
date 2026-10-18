@@ -37,6 +37,7 @@ import type { ApplicationStatus, Pet, PetAdoptionStatus, PreAdoptionApplication 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SeletorDeslizante } from "@/components/ui/SeletorDeslizante";
+import { capitalizarFrases } from "@/lib/capitalizacao";
 import {
   AlertDialogContent,
   AlertDialogDescription,
@@ -235,16 +236,20 @@ function PainelDossie({
   const simOuNao = (valor: boolean) => valor ? "Sim" : "Não";
 
   const salvarNotas = async () => {
+    const notasNormalizadas = capitalizarFrases(notas);
+    setNotas(notasNormalizadas);
     setEstaSalvandoNotas(true);
-    await aoSalvarNotas(notas);
+    await aoSalvarNotas(notasNormalizadas);
     setEstaSalvandoNotas(false);
   };
 
   const enviarMensagem = async (evento: React.FormEvent) => {
     evento.preventDefault();
-    if (!mensagem.trim() || estaEnviandoMensagem) return;
+    const mensagemNormalizada = capitalizarFrases(mensagem);
+    setMensagem(mensagemNormalizada);
+    if (!mensagemNormalizada || estaEnviandoMensagem) return;
     setEstaEnviandoMensagem(true);
-    if (await aoEnviarMensagem(mensagem)) setMensagem("");
+    if (await aoEnviarMensagem(mensagemNormalizada)) setMensagem("");
     setEstaEnviandoMensagem(false);
   };
 
@@ -433,6 +438,7 @@ function PainelDossie({
             rows={4}
             value={notas}
             onChange={(evento) => setNotas(evento.target.value)}
+            onBlur={() => setNotas(capitalizarFrases(notas))}
             placeholder="Registre impressões da entrevista, combinados ou informações para a equipe."
             className="w-full rounded-xl border border-border bg-background px-3.5 py-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary"
           />
@@ -473,6 +479,7 @@ function PainelDossie({
             id={`mensagem-${contexto}-${candidatura.id}`}
             value={mensagem}
             onChange={(evento) => setMensagem(evento.target.value)}
+            onBlur={() => setMensagem(capitalizarFrases(mensagem))}
             placeholder="Escreva uma mensagem..."
             className="min-h-[44px] flex-1 rounded-full border border-border bg-background px-4 text-xs text-foreground outline-none focus:ring-2 focus:ring-primary"
           />

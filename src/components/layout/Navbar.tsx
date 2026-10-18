@@ -17,7 +17,7 @@ import {
   Laptop,
   LogOut,
   ChevronDown,
-  Compass,
+  HeartHandshake,
   FileCheck2,
   LayoutDashboard,
   User,
@@ -102,7 +102,7 @@ export function Navbar() {
   const navLinks = [
     { label: "Início", href: "/", icon: null },
     { label: "Catálogo de Pets", href: "/pets", icon: PawPrint },
-    { label: "Como Funciona", href: "/#como-funciona", icon: Compass },
+    { label: "Sobre nós", href: "/sobre-nos", icon: HeartHandshake },
     { label: "Smart Match", href: "/match", icon: Sparkles },
   ];
 

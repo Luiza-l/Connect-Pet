@@ -22,6 +22,7 @@ import { obterPetsDoCatalogo } from '@/lib/catalogoPets';
 import { validarLocalidadeIbge } from '@/lib/localidadesIbge';
 import { isValidBirthDate, isValidPhone, validateFullName, validateIntegerRange, validateOrganizationName, validateSocialProfile } from '@/lib/validation';
 import { validarDescricoesPet, validarIdadePersistidaPet, validarNomePet, validarRacaPet, validarTemperamentos } from '@/lib/validacaoPet';
+import { capitalizarFrases, capitalizarNomeProprio } from '@/lib/capitalizacao';
 import type { AuthFeature, AuthPromptState } from '@/components/auth/auth-features';
 import {
   avaliarCandidaturaDeterministica,
@@ -875,17 +876,35 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       return false;
     }
 
-    if (updates.name !== undefined) {
+    const updatesNormalizados = { ...updates } as Partial<CurrentUser> & { avatar?: string | null };
+    const textosPerfil = updatesNormalizados as {
+      name?: string;
+      profession?: string;
+      responsibleName?: string;
+      neighborhood?: string;
+      otherPetsDetails?: string;
+      bio?: string;
+      description?: string;
+    };
+    if (textosPerfil.name !== undefined) textosPerfil.name = capitalizarNomeProprio(textosPerfil.name);
+    if (textosPerfil.profession !== undefined) textosPerfil.profession = capitalizarNomeProprio(textosPerfil.profession);
+    if (textosPerfil.responsibleName !== undefined) textosPerfil.responsibleName = capitalizarNomeProprio(textosPerfil.responsibleName);
+    if (textosPerfil.neighborhood !== undefined) textosPerfil.neighborhood = capitalizarNomeProprio(textosPerfil.neighborhood);
+    if (textosPerfil.otherPetsDetails !== undefined) textosPerfil.otherPetsDetails = capitalizarFrases(textosPerfil.otherPetsDetails);
+    if (textosPerfil.bio !== undefined) textosPerfil.bio = capitalizarFrases(textosPerfil.bio);
+    if (textosPerfil.description !== undefined) textosPerfil.description = capitalizarFrases(textosPerfil.description);
+
+    if (updatesNormalizados.name !== undefined) {
       const validacaoNome = currentUser.role === 'guardian' && currentUser.guardianType === 'ngo'
-        ? validateOrganizationName(updates.name)
-        : validateFullName(updates.name, 'Nome completo');
+        ? validateOrganizationName(updatesNormalizados.name)
+        : validateFullName(updatesNormalizados.name, 'Nome completo');
       if (!validacaoNome.valid) {
         showToast('Nome inválido', validacaoNome.error, 'error');
         return false;
       }
     }
-    if ('responsibleName' in updates && updates.responsibleName?.trim()) {
-      const validacaoResponsavel = validateFullName(updates.responsibleName, 'Nome do responsável');
+    if (textosPerfil.responsibleName) {
+      const validacaoResponsavel = validateFullName(textosPerfil.responsibleName, 'Nome do responsável');
       if (!validacaoResponsavel.valid) {
         showToast('Responsável inválido', validacaoResponsavel.error, 'error');
         return false;
@@ -903,7 +922,6 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    const updatesNormalizados = { ...updates } as Partial<CurrentUser> & { avatar?: string | null };
     if ('city' in updates || 'state' in updates) {
       const localidade = await validarLocalidadeIbge(
         String(updates.state ?? currentUser.state ?? ''),
@@ -1033,15 +1051,27 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       return false;
     }
 
-    const erroPet = validarNomePet(newPetData.name)
-      || validarRacaPet(newPetData.breed)
-      || validarIdadePersistidaPet(newPetData.approximateAge, newPetData.ageCategory)
-      || validarTemperamentos(newPetData.temperament);
+    const dadosPetNormalizados: Omit<Pet, 'id' | 'createdAt'> = {
+      ...newPetData,
+      name: capitalizarNomeProprio(newPetData.name),
+      breed: capitalizarNomeProprio(newPetData.breed),
+      headline: capitalizarFrases(newPetData.headline),
+      story: capitalizarFrases(newPetData.story),
+      temperament: newPetData.temperament.map(capitalizarNomeProprio),
+      temperamentDescription: capitalizarFrases(newPetData.temperamentDescription),
+      vaccinationDetails: capitalizarFrases(newPetData.vaccinationDetails || ''),
+      specialNeeds: capitalizarFrases(newPetData.specialNeeds || ''),
+    };
+
+    const erroPet = validarNomePet(dadosPetNormalizados.name)
+      || validarRacaPet(dadosPetNormalizados.breed)
+      || validarIdadePersistidaPet(dadosPetNormalizados.approximateAge, dadosPetNormalizados.ageCategory)
+      || validarTemperamentos(dadosPetNormalizados.temperament);
     if (erroPet) {
       showToast('Dados do animal inválidos', erroPet, 'error');
       return false;
     }
-    const erroDescricoes = validarDescricoesPet(newPetData.headline, newPetData.story, newPetData.temperamentDescription);
+    const erroDescricoes = validarDescricoesPet(dadosPetNormalizados.headline, dadosPetNormalizados.story, dadosPetNormalizados.temperamentDescription);
     if (erroDescricoes) {
       showToast('Cadastro incompleto', erroDescricoes, 'error');
       return false;
@@ -1051,30 +1081,30 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const { data, error } = await supabase
             .from('pets')
             .insert({
-              name: newPetData.name,
-              species: newPetData.species,
-              breed: newPetData.breed,
-              size: newPetData.size,
-              approximate_age: newPetData.approximateAge,
-              age_category: newPetData.ageCategory,
-              energy_level: newPetData.energyLevel,
-              compatible_with_children: newPetData.compatibleWithChildren,
-              compatible_with_dogs: newPetData.compatibleWithDogs,
-              compatible_with_cats: newPetData.compatibleWithCats,
-              sex: newPetData.sex,
-              status: newPetData.status,
-              vaccinated: newPetData.vaccinated,
-              castrated: newPetData.castrated,
-              dewormed: newPetData.dewormed,
-              vaccination_details: newPetData.vaccinationDetails,
-              special_needs: newPetData.specialNeeds,
-              photos: newPetData.photos,
-              headline: newPetData.headline,
-              story: newPetData.story,
-              temperament: newPetData.temperament,
-              temperament_description: newPetData.temperamentDescription,
+              name: dadosPetNormalizados.name,
+              species: dadosPetNormalizados.species,
+              breed: dadosPetNormalizados.breed,
+              size: dadosPetNormalizados.size,
+              approximate_age: dadosPetNormalizados.approximateAge,
+              age_category: dadosPetNormalizados.ageCategory,
+              energy_level: dadosPetNormalizados.energyLevel,
+              compatible_with_children: dadosPetNormalizados.compatibleWithChildren,
+              compatible_with_dogs: dadosPetNormalizados.compatibleWithDogs,
+              compatible_with_cats: dadosPetNormalizados.compatibleWithCats,
+              sex: dadosPetNormalizados.sex,
+              status: dadosPetNormalizados.status,
+              vaccinated: dadosPetNormalizados.vaccinated,
+              castrated: dadosPetNormalizados.castrated,
+              dewormed: dadosPetNormalizados.dewormed,
+              vaccination_details: dadosPetNormalizados.vaccinationDetails,
+              special_needs: dadosPetNormalizados.specialNeeds,
+              photos: dadosPetNormalizados.photos,
+              headline: dadosPetNormalizados.headline,
+              story: dadosPetNormalizados.story,
+              temperament: dadosPetNormalizados.temperament,
+              temperament_description: dadosPetNormalizados.temperamentDescription,
               guardian_id: currentUser.id,
-              guardian_name: currentUser.name,
+              guardian_name: capitalizarNomeProprio(currentUser.name),
               guardian_type: currentUser.guardianType,
               guardian_phone: currentUser.primaryPhone,
               guardian_email: currentUser.email,
@@ -1093,7 +1123,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       return true;
     } catch (err) {
       console.warn('Não foi possível cadastrar o animal:', err);
-      await removerFotosDoStorage(supabase, newPetData.photos);
+      await removerFotosDoStorage(supabase, dadosPetNormalizados.photos);
       showToast('Não foi possível cadastrar', 'O animal não foi publicado. Confira os dados e tente novamente.', 'error');
       return false;
     }
@@ -1108,11 +1138,23 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       return false;
     }
 
+    const atualizacoesNormalizadas: Partial<Pet> = {
+      ...updates,
+      ...(updates.name !== undefined ? { name: capitalizarNomeProprio(updates.name) } : {}),
+      ...(updates.breed !== undefined ? { breed: capitalizarNomeProprio(updates.breed) } : {}),
+      ...(updates.headline !== undefined ? { headline: capitalizarFrases(updates.headline) } : {}),
+      ...(updates.story !== undefined ? { story: capitalizarFrases(updates.story) } : {}),
+      ...(updates.temperament !== undefined ? { temperament: updates.temperament.map(capitalizarNomeProprio) } : {}),
+      ...(updates.temperamentDescription !== undefined ? { temperamentDescription: capitalizarFrases(updates.temperamentDescription) } : {}),
+      ...(updates.vaccinationDetails !== undefined ? { vaccinationDetails: capitalizarFrases(updates.vaccinationDetails) } : {}),
+      ...(updates.specialNeeds !== undefined ? { specialNeeds: capitalizarFrases(updates.specialNeeds) } : {}),
+    };
+
     const camposEstruturadosAlterados = [
       'name', 'breed', 'approximateAge', 'ageCategory', 'temperament',
-    ].some((campo) => Object.prototype.hasOwnProperty.call(updates, campo));
+    ].some((campo) => Object.prototype.hasOwnProperty.call(atualizacoesNormalizadas, campo));
     if (camposEstruturadosAlterados) {
-      const petResultante = { ...petAnterior, ...updates };
+      const petResultante = { ...petAnterior, ...atualizacoesNormalizadas };
       const erroPet = validarNomePet(petResultante.name)
         || validarRacaPet(petResultante.breed)
         || validarIdadePersistidaPet(petResultante.approximateAge, petResultante.ageCategory)
@@ -1123,9 +1165,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       }
     }
     const camposDescritivosAlterados = ['headline', 'story', 'temperamentDescription']
-      .some((campo) => Object.prototype.hasOwnProperty.call(updates, campo));
+      .some((campo) => Object.prototype.hasOwnProperty.call(atualizacoesNormalizadas, campo));
     if (camposDescritivosAlterados) {
-      const petResultante = { ...petAnterior, ...updates };
+      const petResultante = { ...petAnterior, ...atualizacoesNormalizadas };
       const erroDescricoes = validarDescricoesPet(
         petResultante.headline,
         petResultante.story,
@@ -1141,28 +1183,28 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
     try {
         const remoteUpdates: Record<string, unknown> = {};
-          if (updates.name !== undefined) remoteUpdates.name = updates.name;
-          if (updates.species !== undefined) remoteUpdates.species = updates.species;
-          if (updates.breed !== undefined) remoteUpdates.breed = updates.breed;
-          if (updates.size !== undefined) remoteUpdates.size = updates.size;
-          if (updates.approximateAge !== undefined) remoteUpdates.approximate_age = updates.approximateAge;
-          if (updates.ageCategory !== undefined) remoteUpdates.age_category = updates.ageCategory;
-          if (updates.energyLevel !== undefined) remoteUpdates.energy_level = updates.energyLevel;
-          if (updates.compatibleWithChildren !== undefined) remoteUpdates.compatible_with_children = updates.compatibleWithChildren;
-          if (updates.compatibleWithDogs !== undefined) remoteUpdates.compatible_with_dogs = updates.compatibleWithDogs;
-          if (updates.compatibleWithCats !== undefined) remoteUpdates.compatible_with_cats = updates.compatibleWithCats;
-          if (updates.sex !== undefined) remoteUpdates.sex = updates.sex;
-          if (updates.status !== undefined) remoteUpdates.status = updates.status;
-          if (updates.story !== undefined) remoteUpdates.story = updates.story;
-          if (updates.headline !== undefined) remoteUpdates.headline = updates.headline;
-          if (updates.temperament !== undefined) remoteUpdates.temperament = updates.temperament;
-          if (updates.temperamentDescription !== undefined) remoteUpdates.temperament_description = updates.temperamentDescription;
-          if (updates.vaccinationDetails !== undefined) remoteUpdates.vaccination_details = updates.vaccinationDetails;
-          if (updates.specialNeeds !== undefined) remoteUpdates.special_needs = updates.specialNeeds;
-          if (updates.photos !== undefined) remoteUpdates.photos = updates.photos;
-          if (updates.vaccinated !== undefined) remoteUpdates.vaccinated = updates.vaccinated;
-          if (updates.castrated !== undefined) remoteUpdates.castrated = updates.castrated;
-          if (updates.dewormed !== undefined) remoteUpdates.dewormed = updates.dewormed;
+          if (atualizacoesNormalizadas.name !== undefined) remoteUpdates.name = atualizacoesNormalizadas.name;
+          if (atualizacoesNormalizadas.species !== undefined) remoteUpdates.species = atualizacoesNormalizadas.species;
+          if (atualizacoesNormalizadas.breed !== undefined) remoteUpdates.breed = atualizacoesNormalizadas.breed;
+          if (atualizacoesNormalizadas.size !== undefined) remoteUpdates.size = atualizacoesNormalizadas.size;
+          if (atualizacoesNormalizadas.approximateAge !== undefined) remoteUpdates.approximate_age = atualizacoesNormalizadas.approximateAge;
+          if (atualizacoesNormalizadas.ageCategory !== undefined) remoteUpdates.age_category = atualizacoesNormalizadas.ageCategory;
+          if (atualizacoesNormalizadas.energyLevel !== undefined) remoteUpdates.energy_level = atualizacoesNormalizadas.energyLevel;
+          if (atualizacoesNormalizadas.compatibleWithChildren !== undefined) remoteUpdates.compatible_with_children = atualizacoesNormalizadas.compatibleWithChildren;
+          if (atualizacoesNormalizadas.compatibleWithDogs !== undefined) remoteUpdates.compatible_with_dogs = atualizacoesNormalizadas.compatibleWithDogs;
+          if (atualizacoesNormalizadas.compatibleWithCats !== undefined) remoteUpdates.compatible_with_cats = atualizacoesNormalizadas.compatibleWithCats;
+          if (atualizacoesNormalizadas.sex !== undefined) remoteUpdates.sex = atualizacoesNormalizadas.sex;
+          if (atualizacoesNormalizadas.status !== undefined) remoteUpdates.status = atualizacoesNormalizadas.status;
+          if (atualizacoesNormalizadas.story !== undefined) remoteUpdates.story = atualizacoesNormalizadas.story;
+          if (atualizacoesNormalizadas.headline !== undefined) remoteUpdates.headline = atualizacoesNormalizadas.headline;
+          if (atualizacoesNormalizadas.temperament !== undefined) remoteUpdates.temperament = atualizacoesNormalizadas.temperament;
+          if (atualizacoesNormalizadas.temperamentDescription !== undefined) remoteUpdates.temperament_description = atualizacoesNormalizadas.temperamentDescription;
+          if (atualizacoesNormalizadas.vaccinationDetails !== undefined) remoteUpdates.vaccination_details = atualizacoesNormalizadas.vaccinationDetails;
+          if (atualizacoesNormalizadas.specialNeeds !== undefined) remoteUpdates.special_needs = atualizacoesNormalizadas.specialNeeds;
+          if (atualizacoesNormalizadas.photos !== undefined) remoteUpdates.photos = atualizacoesNormalizadas.photos;
+          if (atualizacoesNormalizadas.vaccinated !== undefined) remoteUpdates.vaccinated = atualizacoesNormalizadas.vaccinated;
+          if (atualizacoesNormalizadas.castrated !== undefined) remoteUpdates.castrated = atualizacoesNormalizadas.castrated;
+          if (atualizacoesNormalizadas.dewormed !== undefined) remoteUpdates.dewormed = atualizacoesNormalizadas.dewormed;
 
         if (Object.keys(remoteUpdates).length > 0) {
           const { data, error } = await supabase
@@ -1174,10 +1216,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
             .maybeSingle();
 
           if (error || !data) {
-            if (updates.photos !== undefined) {
+            if (atualizacoesNormalizadas.photos !== undefined) {
               await removerFotosDoStorage(
                 supabase,
-                updates.photos.filter((url) => !fotosAnteriores.includes(url))
+                atualizacoesNormalizadas.photos.filter((url) => !fotosAnteriores.includes(url))
               );
             }
 
@@ -1187,22 +1229,22 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           }
 
           setPetsState((anteriores) =>
-            anteriores.map((pet) => pet.id === id ? { ...pet, ...updates } : pet)
+            anteriores.map((pet) => pet.id === id ? { ...pet, ...atualizacoesNormalizadas } : pet)
           );
 
-          if (updates.photos !== undefined) {
+          if (atualizacoesNormalizadas.photos !== undefined) {
             await removerFotosDoStorage(
               supabase,
-              fotosAnteriores.filter((url) => !updates.photos!.includes(url))
+              fotosAnteriores.filter((url) => !atualizacoesNormalizadas.photos!.includes(url))
             );
           }
         }
     } catch (err) {
         console.warn('Supabase pet update error:', err);
-        if (updates.photos !== undefined) {
+        if (atualizacoesNormalizadas.photos !== undefined) {
           await removerFotosDoStorage(
             supabase,
-            updates.photos.filter((url) => !fotosAnteriores.includes(url))
+            atualizacoesNormalizadas.photos.filter((url) => !fotosAnteriores.includes(url))
           );
         }
         showToast('Não foi possível salvar', 'Ocorreu um erro inesperado. Tente novamente.', 'error');
@@ -1709,8 +1751,23 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       return null;
     }
 
+    const dadosNormalizados = {
+      ...data,
+      candidate: {
+        ...data.candidate,
+        name: capitalizarNomeProprio(data.candidate.name),
+        profession: capitalizarNomeProprio(data.candidate.profession),
+      },
+      protectionDetails: capitalizarFrases(data.protectionDetails || ''),
+      allergyDetails: capitalizarFrases(data.allergyDetails || ''),
+      dailyCarePlan: capitalizarFrases(data.dailyCarePlan),
+      travelCarePlan: capitalizarFrases(data.travelCarePlan),
+      currentPetsDescription: capitalizarFrases(data.currentPetsDescription || ''),
+      previousPetsHistory: capitalizarFrases(data.previousPetsHistory),
+    };
+
     const validacaoNome = validateFullName(currentUser.name, 'Nome completo');
-    const validacaoPerfilSocial = validateSocialProfile(data.candidate.socialMedia || '');
+    const validacaoPerfilSocial = validateSocialProfile(dadosNormalizados.candidate.socialMedia || '');
     const validacaoAdultos = validateIntegerRange(data.adultsCount, 1, 20, 'Quantidade de adultos');
     const validacaoCriancas = validateIntegerRange(data.childrenCount, 0, 15, 'Quantidade de crianças');
     const validacaoHoras = validateIntegerRange(data.hoursAlone, 0, 14, 'Horas sem companhia');
@@ -1739,9 +1796,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       showToast('Candidatura não enviada', 'A moradia precisa atender às condições de segurança e autorização informadas.', 'error');
       return null;
     }
-    if (data.dailyCarePlan.trim().length < 20 || data.dailyCarePlan.trim().length > 500
-      || (data.allergyCases && (data.allergyDetails || '').trim().length < 10)
-      || (data.hasCurrentPets && (data.currentPetsDescription || '').trim().length < 10)) {
+    if (dadosNormalizados.dailyCarePlan.length < 20 || dadosNormalizados.dailyCarePlan.length > 500
+      || (data.allergyCases && dadosNormalizados.allergyDetails.length < 10)
+      || (data.hasCurrentPets && dadosNormalizados.currentPetsDescription.length < 10)) {
       showToast('Candidatura não enviada', 'Complete os detalhes de rotina, alergias e convivência antes de enviar.', 'error');
       return null;
     }
@@ -1763,11 +1820,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
 
     const sanitizedData = {
-      ...data,
+      ...dadosNormalizados,
       candidateId: currentUser.id,
       candidate: {
-        ...data.candidate,
-        name: currentUser.name,
+        ...dadosNormalizados.candidate,
+        name: capitalizarNomeProprio(currentUser.name),
         email: currentUser.email,
         birthDate: effectiveBirthDate,
         primaryPhone: currentUser.primaryPhone,
@@ -1778,26 +1835,26 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
     const analysis = analyzeDossier(sanitizedData);
     const dadosMoradia = {
-      housingType: data.housingType,
-      housingStatus: data.housingStatus,
-      landlordPermission: data.landlordPermission,
-      hasProtection: data.hasProtection,
-      protectionDetails: data.protectionDetails,
-      accessArea: data.accessArea
+      housingType: dadosNormalizados.housingType,
+      housingStatus: dadosNormalizados.housingStatus,
+      landlordPermission: dadosNormalizados.landlordPermission,
+      hasProtection: dadosNormalizados.hasProtection,
+      protectionDetails: dadosNormalizados.protectionDetails,
+      accessArea: dadosNormalizados.accessArea
     };
     const dadosRotina = {
-      adultsCount: data.adultsCount,
-      childrenCount: data.childrenCount,
-      hoursAlone: data.hoursAlone,
-      dailyCarePlan: data.dailyCarePlan,
-      familyAgreement: data.familyAgreement,
-      allergyCases: data.allergyCases,
-      allergyDetails: data.allergyDetails,
-      travelCarePlan: data.travelCarePlan,
-      hasCurrentPets: data.hasCurrentPets,
-      currentPetsDescription: data.currentPetsDescription,
-      currentPetsDetails: data.currentPetsDetails,
-      previousPetsHistory: data.previousPetsHistory
+      adultsCount: dadosNormalizados.adultsCount,
+      childrenCount: dadosNormalizados.childrenCount,
+      hoursAlone: dadosNormalizados.hoursAlone,
+      dailyCarePlan: dadosNormalizados.dailyCarePlan,
+      familyAgreement: dadosNormalizados.familyAgreement,
+      allergyCases: dadosNormalizados.allergyCases,
+      allergyDetails: dadosNormalizados.allergyDetails,
+      travelCarePlan: dadosNormalizados.travelCarePlan,
+      hasCurrentPets: dadosNormalizados.hasCurrentPets,
+      currentPetsDescription: dadosNormalizados.currentPetsDescription,
+      currentPetsDetails: dadosNormalizados.currentPetsDetails,
+      previousPetsHistory: dadosNormalizados.previousPetsHistory
     };
     const dadosFinanceiros = {
       costAwareness: data.costAwareness
@@ -1939,9 +1996,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
   const updateGuardianNotes = useCallback(async (appId: string, notes: string) => {
     if (!supabase || currentUser?.role !== 'guardian') return false;
+    const notasNormalizadas = capitalizarFrases(notes);
     const { data, error } = await supabase
       .from('applications')
-      .update({ guardian_notes: notes })
+      .update({ guardian_notes: notasNormalizadas })
       .eq('id', appId)
       .eq('guardian_id', currentUser.id)
       .select('id')
@@ -1953,13 +2011,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       return false;
     }
 
-    setApplicationsState((anteriores) => anteriores.map((app) => app.id === appId ? { ...app, guardianNotes: notes } : app));
+    setApplicationsState((anteriores) => anteriores.map((app) => app.id === appId ? { ...app, guardianNotes: notasNormalizadas } : app));
     showToast('Nota salva', 'Anotações internas da ONG atualizadas.', 'info');
     return true;
   }, [currentUser, showToast, supabase]);
 
   const sendApplicationMessage = useCallback(async (appId: string, content: string) => {
-    const mensagem = content.trim();
+    const mensagem = capitalizarFrases(content);
     if (!mensagem || !supabase || !currentUser) return false;
 
     const { data, error } = await supabase
@@ -1967,7 +2025,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       .insert({
         application_id: appId,
         sender_id: currentUser.id,
-        sender_name: currentUser.name,
+        sender_name: capitalizarNomeProprio(currentUser.name),
         sender_role: currentUser.role === 'guardian' ? 'guardian' : 'candidate',
         message: mensagem
       })
@@ -1982,7 +2040,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
     const novaMensagem = {
       id: String(data.id),
-      senderName: currentUser.name,
+      senderName: capitalizarNomeProprio(currentUser.name),
       senderRole: currentUser.role === 'guardian' ? ('guardian' as const) : ('adopter' as const),
       content: mensagem,
       sentAt: String(data.created_at)

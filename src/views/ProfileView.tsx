@@ -36,6 +36,7 @@ import { isValidBirthDate, isValidPhone, validateFullName, validateOrganizationN
 import { enviarAvatarPerfil, removerAvatarPerfil } from "@/lib/profileAvatar";
 import { validarLocalidadeIbge } from "@/lib/localidadesIbge";
 import { SeletorLocalidade } from "@/components/forms/SeletorLocalidade";
+import { capitalizarFrases, capitalizarNomeProprio } from "@/lib/capitalizacao";
 
 function ProfileForm({ user }: { user: CurrentUser }) {
   const router = useRouter();
@@ -162,9 +163,23 @@ function ProfileForm({ user }: { user: CurrentUser }) {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const nomeNormalizado = capitalizarNomeProprio(name);
+    const profissaoNormalizada = capitalizarNomeProprio(profession);
+    const responsavelNormalizado = capitalizarNomeProprio(responsibleName);
+    const bairroNormalizado = capitalizarNomeProprio(neighborhood);
+    const outrosPetsNormalizados = capitalizarFrases(otherPetsDetails);
+    const bioNormalizada = capitalizarFrases(bio);
+
+    setName(nomeNormalizado);
+    setProfession(profissaoNormalizada);
+    setResponsibleName(responsavelNormalizado);
+    setNeighborhood(bairroNormalizado);
+    setOtherPetsDetails(outrosPetsNormalizados);
+    setBio(bioNormalizada);
+
     const nameValidation = !isAdopter && guardianUser?.guardianType === "ngo"
-      ? validateOrganizationName(name)
-      : validateFullName(name, "Nome completo");
+      ? validateOrganizationName(nomeNormalizado)
+      : validateFullName(nomeNormalizado, "Nome completo");
     if (!nameValidation.valid) {
       showToast("Campo obrigatório", nameValidation.error || "O nome completo não pode ficar em branco.", "error");
       return;
@@ -175,8 +190,8 @@ function ProfileForm({ user }: { user: CurrentUser }) {
       return;
     }
 
-    if (!isAdopter && responsibleName.trim()) {
-      const validacaoResponsavel = validateFullName(responsibleName, "Nome do responsável");
+    if (!isAdopter && responsavelNormalizado) {
+      const validacaoResponsavel = validateFullName(responsavelNormalizado, "Nome do responsável");
       if (!validacaoResponsavel.valid) {
         showToast("Responsável inválido", validacaoResponsavel.error, "error");
         return;
@@ -211,10 +226,10 @@ function ProfileForm({ user }: { user: CurrentUser }) {
       if (isAdopter) {
         const finalBirthDate = isBirthDateLocked ? (adopterUser?.birthDate || birthDate) : birthDate;
         salvou = await updateUserProfile({
-          name: name.trim(),
+          name: nomeNormalizado,
           primaryPhone: primaryPhone.trim(),
           birthDate: finalBirthDate,
-          profession: profession.trim(),
+          profession: profissaoNormalizada,
           socialMedia: socialMedia.trim(),
           avatar: avatarRemoto || null,
           city: localidade.cidade,
@@ -222,22 +237,22 @@ function ProfileForm({ user }: { user: CurrentUser }) {
           housingType,
           hasAdequateSpace,
           hasOtherPets,
-          otherPetsDetails: hasOtherPets ? otherPetsDetails.trim() : "",
+          otherPetsDetails: hasOtherPets ? outrosPetsNormalizados : "",
           hasChildren,
           speciesPreference,
           sizePreference,
-          bio: bio.trim()
+          bio: bioNormalizada
         });
       } else {
         salvou = await updateUserProfile({
-          name: name.trim(),
+          name: nomeNormalizado,
           primaryPhone: primaryPhone.trim(),
           avatar: avatarRemoto || null,
           city: localidade.cidade,
           state: localidade.estado,
-          neighborhood: neighborhood.trim(),
-          responsibleName: responsibleName.trim(),
-          bio: bio.trim(),
+          neighborhood: bairroNormalizado,
+          responsibleName: responsavelNormalizado,
+          bio: bioNormalizada,
           socialMedia: socialMedia.trim()
         });
       }
@@ -397,6 +412,7 @@ function ProfileForm({ user }: { user: CurrentUser }) {
                   maxLength={100}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
+                  onBlur={() => setName(capitalizarNomeProprio(name))}
                   placeholder="Seu nome completo"
                   required
                   className="rounded-xl border-border bg-background"
@@ -509,6 +525,7 @@ function ProfileForm({ user }: { user: CurrentUser }) {
                       maxLength={80}
                       value={profession}
                       onChange={(e) => setProfession(e.target.value)}
+                      onBlur={() => setProfession(capitalizarNomeProprio(profession))}
                       placeholder="Ex: Engenheira, Designer, Professor..."
                       className="rounded-xl border-border bg-background pl-9"
                     />
@@ -564,6 +581,7 @@ function ProfileForm({ user }: { user: CurrentUser }) {
                     maxLength={100}
                     value={responsibleName}
                     onChange={(e) => setResponsibleName(e.target.value)}
+                    onBlur={() => setResponsibleName(capitalizarNomeProprio(responsibleName))}
                     placeholder="Nome da pessoa responsável pela entidade"
                     className="rounded-xl border-border bg-background"
                   />
@@ -698,6 +716,7 @@ function ProfileForm({ user }: { user: CurrentUser }) {
                         maxLength={300}
                         value={otherPetsDetails}
                         onChange={(e) => setOtherPetsDetails(e.target.value)}
+                        onBlur={() => setOtherPetsDetails(capitalizarFrases(otherPetsDetails))}
                         placeholder="Ex: 1 cão castrado e 1 gata de 4 anos"
                         className="rounded-xl border-border bg-background text-xs mt-2"
                       />
@@ -794,6 +813,7 @@ function ProfileForm({ user }: { user: CurrentUser }) {
                     id="bio"
                     value={bio}
                     onChange={(e) => setBio(e.target.value.slice(0, 500))}
+                    onBlur={() => setBio(capitalizarFrases(bio))}
                     rows={4}
                     placeholder="Conte um pouco sobre sua rotina, tempo disponível, experiência prévia com pets e por que você deseja adotar. Essa mensagem cria uma conexão calorosa com os protetores."
                     className="rounded-2xl border-border bg-background text-xs sm:text-sm leading-relaxed"
@@ -841,6 +861,7 @@ function ProfileForm({ user }: { user: CurrentUser }) {
                     maxLength={60}
                     value={neighborhood}
                     onChange={(e) => setNeighborhood(e.target.value)}
+                    onBlur={() => setNeighborhood(capitalizarNomeProprio(neighborhood))}
                     className="rounded-xl border-border bg-background min-h-[44px]"
                   />
                 </div>
@@ -855,6 +876,7 @@ function ProfileForm({ user }: { user: CurrentUser }) {
                     maxLength={500}
                     value={bio}
                     onChange={(e) => setBio(e.target.value.slice(0, 500))}
+                    onBlur={() => setBio(capitalizarFrases(bio))}
                     rows={3}
                     placeholder="Conte sobre a missão da ONG, anos de atuação e histórico de resgates..."
                     className="rounded-2xl border-border bg-background"

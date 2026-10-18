@@ -24,6 +24,7 @@ import {
   validarRacaPet,
   validarTemperamentos,
 } from "@/lib/validacaoPet";
+import { capitalizarFrases, capitalizarNomeProprio } from "@/lib/capitalizacao";
 
 const FOTO_PADRAO = "/images/pet-placeholder.svg";
 
@@ -91,15 +92,33 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
     if (isSubmitting) return;
     const guardiaoAtual = currentUser?.role === "guardian" ? currentUser : null;
 
-    const erroNome = validarNomePet(name);
-    const erroRaca = validarRacaPet(breed);
-    const erroTemperamento = validarTemperamentos(temperament);
+    const nomeNormalizado = capitalizarNomeProprio(name);
+    const racaNormalizada = capitalizarNomeProprio(breed);
+    const destaqueNormalizado = capitalizarFrases(headline);
+    const historiaNormalizada = capitalizarFrases(story);
+    const descricaoTemperamentoNormalizada = capitalizarFrases(temperamentDescription);
+    const detalhesVacinacaoNormalizados = capitalizarFrases(vaccinationDetails);
+    const necessidadesEspeciaisNormalizadas = capitalizarFrases(specialNeeds);
+    const temperamentosNormalizados = temperament.map(capitalizarNomeProprio);
+
+    setName(nomeNormalizado);
+    setBreed(racaNormalizada);
+    setHeadline(destaqueNormalizado);
+    setStory(historiaNormalizada);
+    setTemperamentDescription(descricaoTemperamentoNormalizada);
+    setVaccinationDetails(detalhesVacinacaoNormalizados);
+    setSpecialNeeds(necessidadesEspeciaisNormalizadas);
+    setTemperament(temperamentosNormalizados);
+
+    const erroNome = validarNomePet(nomeNormalizado);
+    const erroRaca = validarRacaPet(racaNormalizada);
+    const erroTemperamento = validarTemperamentos(temperamentosNormalizados);
     if (erroNome || erroRaca || !idadeValidada.valida || erroTemperamento) {
       setErroFormulario(erroNome || erroRaca || (!idadeValidada.valida ? idadeValidada.erro : null) || erroTemperamento);
       return;
     }
 
-    const erroDescricoes = validarDescricoesPet(headline, story, temperamentDescription);
+    const erroDescricoes = validarDescricoesPet(destaqueNormalizado, historiaNormalizada, descricaoTemperamentoNormalizada);
     if (erroDescricoes) {
       setErroFormulario(erroDescricoes);
       return;
@@ -129,9 +148,9 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
 
     if (isEditing && initialData) {
       const salvou = await updatePet(initialData.id, {
-        name: name.trim(),
+        name: nomeNormalizado,
         species,
-        breed: breed.trim(),
+        breed: racaNormalizada,
         size,
         approximateAge: idadeValidada.idadeAproximada,
         ageCategory: idadeValidada.categoria,
@@ -141,15 +160,15 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
         compatibleWithCats,
         sex,
         status,
-        story: story.trim(),
-        headline: headline.trim(),
-        temperament,
-        temperamentDescription: temperamentDescription.trim(),
+        story: historiaNormalizada,
+        headline: destaqueNormalizado,
+        temperament: temperamentosNormalizados,
+        temperamentDescription: descricaoTemperamentoNormalizada,
         vaccinated,
         castrated,
         dewormed,
-        vaccinationDetails,
-        specialNeeds,
+        vaccinationDetails: detalhesVacinacaoNormalizados,
+        specialNeeds: necessidadesEspeciaisNormalizadas,
         photos: photos.length > 0 ? photos : [FOTO_PADRAO]
       });
       if (!salvou) {
@@ -165,9 +184,9 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
       }
 
       const salvou = await addPet({
-        name: name.trim(),
+        name: nomeNormalizado,
         species,
-        breed: breed.trim(),
+        breed: racaNormalizada,
         size,
         approximateAge: idadeValidada.idadeAproximada,
         ageCategory: idadeValidada.categoria,
@@ -180,13 +199,13 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
         vaccinated,
         castrated,
         dewormed,
-        vaccinationDetails: vaccinationDetails.trim(),
-        specialNeeds: specialNeeds.trim(),
+        vaccinationDetails: detalhesVacinacaoNormalizados,
+        specialNeeds: necessidadesEspeciaisNormalizadas,
         photos: photos.length > 0 ? photos : [FOTO_PADRAO],
-        headline: headline.trim(),
-        story: story.trim(),
-        temperament,
-        temperamentDescription: temperamentDescription.trim(),
+        headline: destaqueNormalizado,
+        story: historiaNormalizada,
+        temperament: temperamentosNormalizados,
+        temperamentDescription: descricaoTemperamentoNormalizada,
         guardianId: guardiaoAtual.id,
         guardianName: guardiaoAtual.name,
         guardianType: guardiaoAtual.guardianType,
@@ -242,7 +261,7 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1">
               <Label>Nome *</Label>
-              <Input aria-label="Nome do animal" required maxLength={50} value={name} onChange={(e) => setName(e.target.value)} />
+              <Input aria-label="Nome do animal" required maxLength={50} value={name} onChange={(e) => setName(e.target.value)} onBlur={() => setName(capitalizarNomeProprio(name))} />
             </div>
             <div className="space-y-1">
               <Label>Raça *</Label>
@@ -264,6 +283,7 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
                   maxLength={50}
                   value={breed}
                   onChange={(e) => setBreed(e.target.value)}
+                  onBlur={() => setBreed(capitalizarNomeProprio(breed))}
                   placeholder="Informe a raça"
                 />
               )}
@@ -391,7 +411,7 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
 
           <div className="space-y-1">
             <Label>Frase de Destaque *</Label>
-            <Input aria-label="Frase de destaque" required maxLength={120} value={headline} onChange={(e) => setHeadline(e.target.value)} />
+            <Input aria-label="Frase de destaque" required maxLength={120} value={headline} onChange={(e) => setHeadline(e.target.value)} onBlur={() => setHeadline(capitalizarFrases(headline))} />
           </div>
 
           <div className="space-y-1">
@@ -399,7 +419,7 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
               <Label>História do Animal <span className="font-normal text-muted-foreground">(opcional)</span></Label>
               <span className="text-xs text-muted-foreground">{story.length}/1000</span>
             </div>
-            <Textarea aria-label="História do animal" rows={3} maxLength={1000} value={story} onChange={(e) => setStory(e.target.value.slice(0, 1000))} />
+            <Textarea aria-label="História do animal" rows={3} maxLength={1000} value={story} onChange={(e) => setStory(e.target.value.slice(0, 1000))} onBlur={() => setStory(capitalizarFrases(story))} />
           </div>
 
           <fieldset className="space-y-2">
@@ -436,17 +456,18 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
               maxLength={500}
               value={temperamentDescription}
               onChange={(e) => setTemperamentDescription(e.target.value.slice(0, 500))}
+              onBlur={() => setTemperamentDescription(capitalizarFrases(temperamentDescription))}
             />
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1">
               <Label>Detalhes da vacinação</Label>
-              <Input aria-label="Detalhes da vacinação" maxLength={200} value={vaccinationDetails} onChange={(e) => setVaccinationDetails(e.target.value)} />
+              <Input aria-label="Detalhes da vacinação" maxLength={200} value={vaccinationDetails} onChange={(e) => setVaccinationDetails(e.target.value)} onBlur={() => setVaccinationDetails(capitalizarFrases(vaccinationDetails))} />
             </div>
             <div className="space-y-1">
               <Label>Necessidades especiais</Label>
-              <Input aria-label="Necessidades especiais" maxLength={200} value={specialNeeds} onChange={(e) => setSpecialNeeds(e.target.value)} />
+              <Input aria-label="Necessidades especiais" maxLength={200} value={specialNeeds} onChange={(e) => setSpecialNeeds(e.target.value)} onBlur={() => setSpecialNeeds(capitalizarFrases(specialNeeds))} />
             </div>
           </div>
 

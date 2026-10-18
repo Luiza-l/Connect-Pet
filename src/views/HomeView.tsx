@@ -165,7 +165,7 @@ export function HomeView() {
 
             {/* Card 2: Conheça antes de adotar (Gatinho Laranja) */}
             <Link
-              href="/#como-funciona"
+              href="/sobre-nos"
               className="group relative mx-auto flex min-h-[320px] w-full max-w-sm flex-col items-center justify-between rounded-3xl border border-primary/20 bg-gradient-to-b from-primary/15 to-primary/5 px-5 pb-6 pt-14 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl dark:from-primary/20 dark:to-card sm:max-w-none sm:px-6 sm:pt-16"
             >
               {/* Pet Sobreposto no Topo */}
@@ -195,7 +195,7 @@ export function HomeView() {
               </div>
 
               <div className="mt-5 flex min-h-[44px] w-full items-center justify-center gap-2 border-t border-border/60 pt-3 text-sm font-bold text-primary transition-colors">
-                <span>Como funciona</span>
+                <span>Sobre nós</span>
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </div>
             </Link>
@@ -287,7 +287,7 @@ export function HomeView() {
       {/* ========================================================================= */}
       {/* 3. SEÇÃO: OS 3 PILARES DA ADOÇÃO NO CONNECTPET                            */}
       {/* ========================================================================= */}
-      <section id="como-funciona" className="relative w-full bg-background py-12 sm:py-16 overflow-hidden transition-colors duration-300">
+      <section id="nossa-jornada" className="relative w-full bg-background py-12 sm:py-16 overflow-hidden transition-colors duration-300">
         <div className="container mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
 
           {/* Título Estilizado em Azul Celeste */}
@@ -454,7 +454,7 @@ export function HomeView() {
           />
         </div>  */}
         
-        {/* Onda Superior Estilo Nuvem Conectando 'Como Funciona' e 'Dicas' */}
+        {/* Onda Superior Estilo Nuvem Conectando 'Nossa Jornada' e 'Dicas' */}
         <div className="w-full overflow-hidden leading-none absolute top-0 left-0 right-0 z-10 -mt-0.5">
           <svg
             viewBox="0 0 1440 120"
