@@ -17,7 +17,6 @@ import {
   Briefcase,
   Globe,
   Home,
-  MapPin,
   Heart,
   Sparkles,
   ShieldCheck,
@@ -33,14 +32,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { HousingType, SpeciesPreference, SizePreference, AdopterProfile, GuardianProfile, CurrentUser } from "@/types";
-import { isValidPhone, validateFullName } from "@/lib/validation";
+import { isValidBirthDate, isValidPhone, validateFullName, validateOrganizationName, validateSocialProfile } from "@/lib/validation";
 import { enviarAvatarPerfil, removerAvatarPerfil } from "@/lib/profileAvatar";
-
-const BRAZILIAN_STATES = [
-  "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA",
-  "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN",
-  "RS", "RO", "RR", "SC", "SP", "SE", "TO"
-];
+import { validarLocalidadeIbge } from "@/lib/localidadesIbge";
+import { SeletorLocalidade } from "@/components/forms/SeletorLocalidade";
 
 function ProfileForm({ user }: { user: CurrentUser }) {
   const router = useRouter();
@@ -167,7 +162,9 @@ function ProfileForm({ user }: { user: CurrentUser }) {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const nameValidation = validateFullName(name, "Nome completo");
+    const nameValidation = !isAdopter && guardianUser?.guardianType === "ngo"
+      ? validateOrganizationName(name)
+      : validateFullName(name, "Nome completo");
     if (!nameValidation.valid) {
       showToast("Campo obrigatório", nameValidation.error || "O nome completo não pode ficar em branco.", "error");
       return;
@@ -178,13 +175,31 @@ function ProfileForm({ user }: { user: CurrentUser }) {
       return;
     }
 
-    if (city.trim().length < 2) {
-      showToast("Campo obrigatório", "Por favor, informe a cidade onde mora ou atua.", "error");
+    if (!isAdopter && responsibleName.trim()) {
+      const validacaoResponsavel = validateFullName(responsibleName, "Nome do responsável");
+      if (!validacaoResponsavel.valid) {
+        showToast("Responsável inválido", validacaoResponsavel.error, "error");
+        return;
+      }
+    }
+
+    if (isAdopter && !isBirthDateLocked) {
+      const validacaoNascimento = isValidBirthDate(birthDate, 18, 120);
+      if (!validacaoNascimento.valid) {
+        showToast("Data inválida", validacaoNascimento.error || "Informe uma data de nascimento válida.", "error");
+        return;
+      }
+    }
+
+    const validacaoPerfilSocial = validateSocialProfile(socialMedia);
+    if (!validacaoPerfilSocial.valid) {
+      showToast("Perfil social inválido", validacaoPerfilSocial.error || "Informe um perfil social válido.", "error");
       return;
     }
 
-    if (!BRAZILIAN_STATES.includes(state)) {
-      showToast("Campo obrigatório", "Por favor, selecione o estado onde mora ou atua.", "error");
+    const localidade = await validarLocalidadeIbge(state, city);
+    if (!localidade.valida) {
+      showToast("Localização inválida", localidade.erro || "Selecione um município válido.", "error");
       return;
     }
 
@@ -202,8 +217,8 @@ function ProfileForm({ user }: { user: CurrentUser }) {
           profession: profession.trim(),
           socialMedia: socialMedia.trim(),
           avatar: avatarRemoto || null,
-          city: city.trim(),
-          state,
+          city: localidade.cidade,
+          state: localidade.estado,
           housingType,
           hasAdequateSpace,
           hasOtherPets,
@@ -218,8 +233,8 @@ function ProfileForm({ user }: { user: CurrentUser }) {
           name: name.trim(),
           primaryPhone: primaryPhone.trim(),
           avatar: avatarRemoto || null,
-          city: city.trim(),
-          state,
+          city: localidade.cidade,
+          state: localidade.estado,
           neighborhood: neighborhood.trim(),
           responsibleName: responsibleName.trim(),
           bio: bio.trim(),
@@ -451,10 +466,13 @@ function ProfileForm({ user }: { user: CurrentUser }) {
                     <Input
                       id="birthDate"
                       type="date"
+                      min="1900-01-01"
+                      max={new Date().toISOString().split("T")[0]}
                       value={birthDate}
                       disabled={isBirthDateLocked}
                       readOnly={isBirthDateLocked}
                       onChange={(e) => !isBirthDateLocked && setBirthDate(e.target.value)}
+                      required={!isBirthDateLocked}
                       className={`min-h-[44px] rounded-xl border-border pl-9 ${
                         isBirthDateLocked
                           ? "bg-muted/60 dark:bg-muted/40 text-muted-foreground cursor-not-allowed opacity-85 select-none"
@@ -578,43 +596,16 @@ function ProfileForm({ user }: { user: CurrentUser }) {
 
               <div className="space-y-6">
 
-                {/* 1. Localização (Cidade e Estado) */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="sm:col-span-2 space-y-2">
-                    <Label htmlFor="city" className="text-xs font-bold text-foreground">
-                      Cidade onde mora *
-                    </Label>
-                    <div className="relative">
-                      <Input
-                        id="city"
-                        type="text"
-                        maxLength={60}
-                        value={city}
-                        onChange={(e) => setCity(e.target.value)}
-                        placeholder="Ex: São Paulo, Campinas, Curitiba..."
-                        className="rounded-xl border-border bg-background pl-9"
-                      />
-                      <MapPin className="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="state" className="text-xs font-bold text-foreground">
-                      Estado (UF) *
-                    </Label>
-                    <select
-                      id="state"
-                      value={state}
-                      onChange={(e) => setState(e.target.value)}
-                    className="w-full min-h-[44px] rounded-xl border border-border bg-background px-3 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-primary shadow-sm"
-                    >
-                      <option value="" disabled>Selecione</option>
-                      {BRAZILIAN_STATES.map((uf) => (
-                        <option key={uf} value={uf}>{uf}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
+                {/* 1. Localização oficial (Estado e Município) */}
+                <SeletorLocalidade
+                  idBase="perfil-adotante"
+                  estado={state}
+                  cidade={city}
+                  aoAlterarEstado={setState}
+                  aoAlterarCidade={setCity}
+                  rotuloCidade="Município onde mora"
+                  desabilitado={isSaving}
+                />
 
                 {/* 2. Moradia e Espaço Adequado */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-2 border-t border-border/50">
@@ -830,31 +821,16 @@ function ProfileForm({ user }: { user: CurrentUser }) {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div className="sm:col-span-2 space-y-2">
-                  <Label htmlFor="city" className="text-xs font-bold text-foreground">Cidade sede</Label>
-                  <Input
-                    id="city"
-                    type="text"
-                    maxLength={60}
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    className="rounded-xl border-border bg-background"
+                <div className="sm:col-span-3">
+                  <SeletorLocalidade
+                    idBase="perfil-guardiao"
+                    estado={state}
+                    cidade={city}
+                    aoAlterarEstado={setState}
+                    aoAlterarCidade={setCity}
+                    rotuloCidade="Município sede"
+                    desabilitado={isSaving}
                   />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="state" className="text-xs font-bold text-foreground">Estado (UF)</Label>
-                  <select
-                    id="state"
-                    value={state}
-                    onChange={(e) => setState(e.target.value)}
-                    className="w-full min-h-[44px] rounded-xl border border-border bg-background px-3 text-xs text-foreground cursor-pointer"
-                  >
-                    <option value="" disabled>Selecione</option>
-                    {BRAZILIAN_STATES.map((uf) => (
-                      <option key={uf} value={uf}>{uf}</option>
-                    ))}
-                  </select>
                 </div>
 
                 <div className="sm:col-span-3 space-y-2">

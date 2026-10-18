@@ -12,6 +12,18 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { AlertCircle, Loader2 } from "lucide-react";
 import { PetPhotoUploader } from "@/components/pets/PetPhotoUploader";
 import { FotoPet, enviarFotosPet, fotosRemotasIniciais } from "@/lib/petPhotos";
+import {
+  interpretarIdadePet,
+  RACAS_POR_ESPECIE,
+  ROTULOS_FAIXA_ETARIA,
+  TEMPERAMENTOS_PREDEFINIDOS,
+  UnidadeIdadePet,
+  validarDescricoesPet,
+  validarIdadePet,
+  validarNomePet,
+  validarRacaPet,
+  validarTemperamentos,
+} from "@/lib/validacaoPet";
 
 const FOTO_PADRAO = "/images/pet-placeholder.svg";
 
@@ -24,21 +36,25 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
   const router = useRouter();
   const { addPet, updatePet, currentUser } = useApp();
 
+  const idadeInicial = interpretarIdadePet(initialData?.approximateAge);
+  const especieInicial = initialData?.species || "dog";
+  const racaInicial = initialData?.breed || RACAS_POR_ESPECIE[especieInicial][0];
+
   const [name, setName] = useState(initialData?.name || "");
-  const [species, setSpecies] = useState<"dog" | "cat">(initialData?.species || "dog");
-  const [breed, setBreed] = useState(initialData?.breed || "Vira-lata (SRD)");
+  const [species, setSpecies] = useState<"dog" | "cat">(especieInicial);
+  const [breed, setBreed] = useState(racaInicial);
   const [size, setSize] = useState<"small" | "medium" | "large">(initialData?.size || "medium");
-  const [approximateAge, setApproximateAge] = useState(initialData?.approximateAge || "");
+  const [valorIdade, setValorIdade] = useState(idadeInicial.valor);
+  const [unidadeIdade, setUnidadeIdade] = useState<UnidadeIdadePet>(idadeInicial.unidade);
   const [sex, setSex] = useState<"male" | "female">(initialData?.sex || "male");
   const [status, setStatus] = useState(initialData?.status || "available");
-  const [ageCategory, setAgeCategory] = useState(initialData?.ageCategory || "young");
   const [energyLevel, setEnergyLevel] = useState<Pet["energyLevel"]>(initialData?.energyLevel || "moderate");
   const [compatibleWithChildren, setCompatibleWithChildren] = useState<Pet["compatibleWithChildren"]>(initialData?.compatibleWithChildren || "unknown");
   const [compatibleWithDogs, setCompatibleWithDogs] = useState<Pet["compatibleWithDogs"]>(initialData?.compatibleWithDogs || "unknown");
   const [compatibleWithCats, setCompatibleWithCats] = useState<Pet["compatibleWithCats"]>(initialData?.compatibleWithCats || "unknown");
   const [story, setStory] = useState(initialData?.story || "");
   const [headline, setHeadline] = useState(initialData?.headline || "");
-  const [temperament, setTemperament] = useState(initialData?.temperament?.join(", ") || "");
+  const [temperament, setTemperament] = useState<string[]>(initialData?.temperament || []);
   const [temperamentDescription, setTemperamentDescription] = useState(initialData?.temperamentDescription || "");
   const [vaccinated, setVaccinated] = useState(initialData ? initialData.vaccinated : false);
   const [castrated, setCastrated] = useState(initialData ? initialData.castrated : false);
@@ -50,15 +66,42 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
   const [erroFotos, setErroFotos] = useState<string | null>(null);
   const [erroFormulario, setErroFormulario] = useState<string | null>(null);
 
+  const racasDisponiveis = RACAS_POR_ESPECIE[species];
+  const racaSelecionada = racasDisponiveis.includes(breed) ? breed : "__outra__";
+  const idadeValidada = validarIdadePet(valorIdade, unidadeIdade);
+  const limiteIdade = unidadeIdade === "semanas" ? 52 : unidadeIdade === "meses" ? 359 : 30;
+
+  const alterarEspecie = (novaEspecie: "dog" | "cat") => {
+    setSpecies(novaEspecie);
+    if (!RACAS_POR_ESPECIE[novaEspecie].includes(breed)) {
+      setBreed(RACAS_POR_ESPECIE[novaEspecie][0]);
+    }
+  };
+
+  const alternarTemperamento = (opcao: string) => {
+    setTemperament((atuais) => {
+      if (atuais.includes(opcao)) return atuais.filter((item) => item !== opcao);
+      if (atuais.length >= 6) return atuais;
+      return [...atuais, opcao];
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmitting) return;
     const guardiaoAtual = currentUser?.role === "guardian" ? currentUser : null;
 
-    const temperamentArray = temperament.split(",").map((t) => t.trim()).filter(Boolean);
+    const erroNome = validarNomePet(name);
+    const erroRaca = validarRacaPet(breed);
+    const erroTemperamento = validarTemperamentos(temperament);
+    if (erroNome || erroRaca || !idadeValidada.valida || erroTemperamento) {
+      setErroFormulario(erroNome || erroRaca || (!idadeValidada.valida ? idadeValidada.erro : null) || erroTemperamento);
+      return;
+    }
 
-    if (!name.trim() || !breed.trim() || !approximateAge.trim() || !headline.trim() || !story.trim() || !temperamentDescription.trim()) {
-      setErroFormulario("Preencha os campos obrigatórios antes de salvar.");
+    const erroDescricoes = validarDescricoesPet(headline, story, temperamentDescription);
+    if (erroDescricoes) {
+      setErroFormulario(erroDescricoes);
       return;
     }
 
@@ -90,8 +133,8 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
         species,
         breed: breed.trim(),
         size,
-        approximateAge: approximateAge.trim(),
-        ageCategory,
+        approximateAge: idadeValidada.idadeAproximada,
+        ageCategory: idadeValidada.categoria,
         energyLevel,
         compatibleWithChildren,
         compatibleWithDogs,
@@ -100,7 +143,7 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
         status,
         story: story.trim(),
         headline: headline.trim(),
-        temperament: temperamentArray,
+        temperament,
         temperamentDescription: temperamentDescription.trim(),
         vaccinated,
         castrated,
@@ -126,8 +169,8 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
         species,
         breed: breed.trim(),
         size,
-        approximateAge: approximateAge.trim(),
-        ageCategory,
+        approximateAge: idadeValidada.idadeAproximada,
+        ageCategory: idadeValidada.categoria,
         energyLevel,
         compatibleWithChildren,
         compatibleWithDogs,
@@ -142,7 +185,7 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
         photos: photos.length > 0 ? photos : [FOTO_PADRAO],
         headline: headline.trim(),
         story: story.trim(),
-        temperament: temperamentArray,
+        temperament,
         temperamentDescription: temperamentDescription.trim(),
         guardianId: guardiaoAtual.id,
         guardianName: guardiaoAtual.name,
@@ -203,7 +246,27 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
             </div>
             <div className="space-y-1">
               <Label>Raça *</Label>
-              <Input aria-label="Raça do animal" required maxLength={50} value={breed} onChange={(e) => setBreed(e.target.value)} />
+              <select
+                aria-label="Raça do animal"
+                value={racaSelecionada}
+                onChange={(e) => setBreed(e.target.value === "__outra__" ? "" : e.target.value)}
+                className="min-h-[44px] w-full rounded-md border border-input bg-background px-3 text-sm"
+                required
+              >
+                {racasDisponiveis.map((raca) => <option key={raca} value={raca}>{raca}</option>)}
+                <option value="__outra__">Outra raça</option>
+              </select>
+              {racaSelecionada === "__outra__" && (
+                <Input
+                  aria-label="Nome da outra raça"
+                  required
+                  minLength={2}
+                  maxLength={50}
+                  value={breed}
+                  onChange={(e) => setBreed(e.target.value)}
+                  placeholder="Informe a raça"
+                />
+              )}
             </div>
           </div>
 
@@ -213,7 +276,7 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
               <select
                 aria-label="Espécie"
                 value={species}
-                onChange={(e) => setSpecies(e.target.value as "dog" | "cat")}
+                onChange={(e) => alterarEspecie(e.target.value as "dog" | "cat")}
                 className="min-h-[44px] w-full rounded-md border border-input bg-background px-3 text-sm"
               >
                 <option value="dog">Cão</option>
@@ -249,13 +312,35 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-1">
-              <Label>Faixa etária</Label>
-              <select aria-label="Faixa etária" value={ageCategory} onChange={(e) => setAgeCategory(e.target.value as typeof ageCategory)} className="min-h-[44px] w-full rounded-xl border border-input bg-background px-3 text-sm">
-                <option value="puppy">Filhote</option>
-                <option value="young">Jovem</option>
-                <option value="adult">Adulto</option>
-                <option value="senior">Idoso</option>
-              </select>
+              <Label htmlFor="idade-pet">Idade aproximada *</Label>
+              <div className="grid grid-cols-2 gap-2">
+                <Input
+                  id="idade-pet"
+                  aria-label="Valor da idade aproximada"
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  max={limiteIdade}
+                  step={1}
+                  required
+                  value={valorIdade}
+                  onChange={(e) => setValorIdade(e.target.value)}
+                  placeholder="Ex: 2"
+                />
+                <select
+                  aria-label="Unidade da idade aproximada"
+                  value={unidadeIdade}
+                  onChange={(e) => setUnidadeIdade(e.target.value as UnidadeIdadePet)}
+                  className="min-h-[44px] w-full rounded-xl border border-input bg-background px-3 text-sm"
+                >
+                  <option value="semanas">Semanas</option>
+                  <option value="meses">Meses</option>
+                  <option value="anos">Anos</option>
+                </select>
+              </div>
+              <p className="text-xs text-muted-foreground" aria-live="polite">
+                Faixa etária calculada: {idadeValidada.valida ? ROTULOS_FAIXA_ETARIA[idadeValidada.categoria] : "informe uma idade válida"}.
+              </p>
             </div>
             {isEditing && (
               <div className="space-y-1">
@@ -267,11 +352,6 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
                 </select>
               </div>
             )}
-          </div>
-
-          <div className="space-y-1">
-            <Label>Idade Aproximada *</Label>
-            <Input aria-label="Idade aproximada" required maxLength={30} value={approximateAge} onChange={(e) => setApproximateAge(e.target.value)} />
           </div>
 
           <div className="space-y-3 rounded-xl border border-border bg-secondary/30 p-4">
@@ -316,16 +396,36 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
 
           <div className="space-y-1">
             <div className="flex justify-between items-center">
-              <Label>História de Resgate *</Label>
+              <Label>História do Animal <span className="font-normal text-muted-foreground">(opcional)</span></Label>
               <span className="text-xs text-muted-foreground">{story.length}/1000</span>
             </div>
-            <Textarea aria-label="História de resgate" required rows={3} maxLength={1000} value={story} onChange={(e) => setStory(e.target.value.slice(0, 1000))} />
+            <Textarea aria-label="História do animal" rows={3} maxLength={1000} value={story} onChange={(e) => setStory(e.target.value.slice(0, 1000))} />
           </div>
 
-          <div className="space-y-1">
-            <Label>Temperamento (separado por vírgula)</Label>
-            <Input aria-label="Temperamento" maxLength={150} value={temperament} onChange={(e) => setTemperament(e.target.value)} />
-          </div>
+          <fieldset className="space-y-2">
+            <legend className="text-sm font-medium text-foreground">Temperamento * <span className="font-normal text-muted-foreground">(até 6)</span></legend>
+            <div className="flex flex-wrap gap-2">
+              {[...new Set([...TEMPERAMENTOS_PREDEFINIDOS, ...temperament])].map((opcao) => {
+                const selecionado = temperament.includes(opcao);
+                return (
+                  <button
+                    key={opcao}
+                    type="button"
+                    aria-pressed={selecionado}
+                    onClick={() => alternarTemperamento(opcao)}
+                    className={`min-h-[44px] rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+                      selecionado
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-background text-foreground hover:bg-secondary"
+                    }`}
+                  >
+                    {opcao}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-xs text-muted-foreground">{temperament.length}/6 características selecionadas.</p>
+          </fieldset>
 
           <div className="space-y-1">
             <Label>Descrição de comportamento e convivência *</Label>

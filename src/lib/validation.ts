@@ -289,5 +289,57 @@ export function validateFullName(name: string, fieldLabel = "Nome completo"): { 
   if (parts.length < 2) {
     return { valid: false, error: `Por favor, informe ${fieldLabel.toLowerCase()} (nome e sobrenome).` };
   }
+  if (!parts.every((parte) => /^[\p{L}\p{M}'’-]+$/u.test(parte))) {
+    return { valid: false, error: `${fieldLabel} deve conter apenas letras, espaços, hífens e apóstrofos.` };
+  }
+  return { valid: true };
+}
+
+export function validateOrganizationName(name: string): { valid: boolean; error?: string } {
+  const texto = name.trim();
+  if (texto.length < 3 || texto.length > 100) {
+    return { valid: false, error: "O nome da organização deve ter entre 3 e 100 caracteres." };
+  }
+  if (!/[\p{L}]/u.test(texto) || !/^[\p{L}\p{M}\p{N}\s&'’()./-]+$/u.test(texto)) {
+    return { valid: false, error: "Informe um nome de organização válido." };
+  }
+  return { valid: true };
+}
+
+/**
+ * Aceita identificadores iniciados por @ ou endereços públicos HTTP(S).
+ */
+export function validateSocialProfile(value: string): { valid: boolean; error?: string } {
+  const texto = value.trim();
+  if (!texto) return { valid: true };
+
+  if (/^@[a-zA-Z0-9._-]{2,30}$/.test(texto)) return { valid: true };
+
+  try {
+    const endereco = new URL(/^https?:\/\//i.test(texto) ? texto : `https://${texto}`);
+    if (!endereco.hostname.includes(".") || endereco.username || endereco.password) {
+      throw new Error("Endereço inválido");
+    }
+    return { valid: true };
+  } catch {
+    return {
+      valid: false,
+      error: "Informe um usuário como @perfil ou um link público válido, como instagram.com/perfil.",
+    };
+  }
+}
+
+export function validateIntegerRange(
+  value: number,
+  minimum: number,
+  maximum: number,
+  fieldLabel: string,
+): { valid: boolean; error?: string } {
+  if (!Number.isInteger(value) || value < minimum || value > maximum) {
+    return {
+      valid: false,
+      error: `${fieldLabel} deve ser um número inteiro entre ${minimum} e ${maximum}.`,
+    };
+  }
   return { valid: true };
 }

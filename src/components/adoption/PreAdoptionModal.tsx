@@ -23,7 +23,9 @@ import {
   isValidCPF,
   isValidPhone,
   isValidEmail,
-  validateFullName
+  validateFullName,
+  validateIntegerRange,
+  validateSocialProfile
 } from "@/lib/validation";
 
 interface PreAdoptionModalProps {
@@ -159,6 +161,11 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
         setValidationError("O CPF informado é inválido. Verifique os números digitados.");
         return;
       }
+      const validacaoPerfilSocial = validateSocialProfile(formData.socialMedia);
+      if (!validacaoPerfilSocial.valid) {
+        setValidationError(validacaoPerfilSocial.error || "Informe um perfil social válido.");
+        return;
+      }
       setStep(2);
       return;
     }
@@ -187,8 +194,11 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
         setValidationError("Todos os moradores da residência devem estar de acordo com a adoção antes do envio.");
         return;
       }
-      if (formData.adultsCount < 1 || formData.childrenCount < 0) {
-        setValidationError("Informe corretamente a quantidade de adultos e crianças na residência.");
+      const validacaoAdultos = validateIntegerRange(formData.adultsCount, 1, 20, "Quantidade de adultos");
+      const validacaoCriancas = validateIntegerRange(formData.childrenCount, 0, 15, "Quantidade de crianças");
+      const validacaoHoras = validateIntegerRange(formData.hoursAlone, 0, 14, "Horas sem companhia");
+      if (!validacaoAdultos.valid || !validacaoCriancas.valid || !validacaoHoras.valid) {
+        setValidationError(validacaoAdultos.error || validacaoCriancas.error || validacaoHoras.error || "Confira os dados da residência.");
         return;
       }
       if (formData.allergyCases && !formData.allergyDetails.trim()) {
@@ -667,6 +677,9 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
                   <input
                     type="number"
                     min={1}
+                    max={20}
+                    step={1}
+                    inputMode="numeric"
                     value={formData.adultsCount}
                     onChange={(e) => setFormData({ ...formData, adultsCount: Number(e.target.value) })}
                     className="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"
@@ -678,6 +691,9 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
                   <input
                     type="number"
                     min={0}
+                    max={15}
+                    step={1}
+                    inputMode="numeric"
                     value={formData.childrenCount}
                     onChange={(e) => setFormData({ ...formData, childrenCount: Number(e.target.value) })}
                     className="w-full min-h-[44px] px-3.5 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary"

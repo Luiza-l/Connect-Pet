@@ -17,7 +17,6 @@ import {
   ArrowRight,
   Phone,
   User,
-  MapPin,
   FileText,
   Briefcase,
   AtSign,
@@ -35,14 +34,12 @@ import {
   isValidEmail,
   validateCNPJ,
   validateCPF,
-  validateFullName
+  validateFullName,
+  validateOrganizationName,
+  validateSocialProfile,
 } from "@/lib/validation";
-
-const ESTADOS_BRASILEIROS = [
-  "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA",
-  "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN",
-  "RS", "RO", "RR", "SC", "SP", "SE", "TO"
-];
+import { validarLocalidadeIbge } from "@/lib/localidadesIbge";
+import { SeletorLocalidade } from "@/components/forms/SeletorLocalidade";
 
 export function RegisterView() {
   const router = useRouter();
@@ -93,6 +90,7 @@ export function RegisterView() {
       const isAdopterRole = roleTab === "adopter";
       const targetEmail = isAdopterRole ? adopterEmail.trim() : ngoEmail.trim();
       const targetPassword = isAdopterRole ? adopterPassword : ngoPassword;
+      let localidadeGuardiao: { cidade: string; estado: string } | null = null;
 
       // Validação detalhada dos campos para o perfil Adotante
       if (isAdopterRole) {
@@ -119,6 +117,16 @@ export function RegisterView() {
         const cpfValidation = validateCPF(adopterCpf);
         if (!cpfValidation.valid) {
           const msg = cpfValidation.error || "CPF inválido. Por favor, confira os números digitados.";
+          setErrorMessage(msg);
+          showToast("Atenção", msg, "warning");
+          isSubmittingRef.current = false;
+          setIsSubmitting(false);
+          return;
+        }
+
+        const socialValidation = validateSocialProfile(adopterSocialMedia);
+        if (!socialValidation.valid) {
+          const msg = socialValidation.error || "Rede social inválida.";
           setErrorMessage(msg);
           showToast("Atenção", msg, "warning");
           isSubmittingRef.current = false;
@@ -166,7 +174,7 @@ export function RegisterView() {
         // Validações robustas para Guardião / ONG / Doador
         const guardianNameValidation = guardianType === "individual"
           ? validateFullName(ngoName, "Nome completo")
-          : { valid: ngoName.trim().length >= 3, error: "Informe o nome da ONG ou instituição (mínimo 3 caracteres)." };
+          : validateOrganizationName(ngoName);
         if (!guardianNameValidation.valid) {
           const msg = guardianNameValidation.error || "Por favor, informe o nome do responsável.";
           setErrorMessage(msg);
@@ -188,23 +196,19 @@ export function RegisterView() {
           return;
         }
 
-        if (!ngoCity.trim() || ngoCity.trim().length < 2) {
-          const msg = "Por favor, informe a cidade de atuação.";
+        const validacaoLocalidade = await validarLocalidadeIbge(ngoState, ngoCity);
+        if (!validacaoLocalidade.valida) {
+          const msg = validacaoLocalidade.erro;
           setErrorMessage(msg);
           showToast("Atenção", msg, "warning");
           isSubmittingRef.current = false;
           setIsSubmitting(false);
           return;
         }
-
-        if (!ESTADOS_BRASILEIROS.includes(ngoState)) {
-          const msg = "Por favor, selecione o estado de atuação.";
-          setErrorMessage(msg);
-          showToast("Atenção", msg, "warning");
-          isSubmittingRef.current = false;
-          setIsSubmitting(false);
-          return;
-        }
+        localidadeGuardiao = {
+          cidade: validacaoLocalidade.cidade,
+          estado: validacaoLocalidade.estado,
+        };
 
         if (!isValidPhone(ngoPhone)) {
           const msg = "WhatsApp/Celular inválido. Informe o DDD e o número completo.";
@@ -250,8 +254,8 @@ export function RegisterView() {
             name: ngoName.trim(),
             document: ngoDocument.trim(),
             primaryPhone: ngoPhone.trim(),
-            city: ngoCity.trim(),
-            state: ngoState,
+            city: localidadeGuardiao?.cidade || "",
+            state: localidadeGuardiao?.estado || "",
             neighborhood: ""
           };
 
@@ -644,35 +648,16 @@ export function RegisterView() {
                   )}
                 </div>
 
-                <div className="space-y-1">
-                  <label className="font-bold text-foreground">Cidade de Atuação *</label>
-                  <div className="relative">
-                    <MapPin className="w-4 h-4 text-muted-foreground absolute left-3 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="text"
-                      required
-                      maxLength={60}
-                      value={ngoCity}
-                      aria-label="Cidade de atuação"
-                      onChange={(e) => setNgoCity(e.target.value)}
-                      placeholder="São Paulo"
-                      className="min-h-[44px] w-full rounded-xl border border-border bg-background py-2.5 pl-9 pr-3 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-1">
-                  <label htmlFor="guardian-state" className="font-bold text-foreground">Estado *</label>
-                  <select
-                    id="guardian-state"
-                    value={ngoState}
-                    aria-label="Estado de atuação"
-                    onChange={(e) => setNgoState(e.target.value)}
-                    className="min-h-[44px] w-full rounded-xl border border-border bg-background px-3 text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                  >
-                    <option value="" disabled>Selecione</option>
-                    {ESTADOS_BRASILEIROS.map((estado) => <option key={estado} value={estado}>{estado}</option>)}
-                  </select>
+                <div className="sm:col-span-2">
+                  <SeletorLocalidade
+                    idBase="cadastro-guardiao"
+                    estado={ngoState}
+                    cidade={ngoCity}
+                    aoAlterarEstado={setNgoState}
+                    aoAlterarCidade={setNgoCity}
+                    rotuloCidade="Município de atuação"
+                    desabilitado={isSubmitting}
+                  />
                 </div>
               </div>
 

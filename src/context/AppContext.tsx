@@ -19,6 +19,9 @@ import { createClient } from '@/lib/client';
 import { removerFotosDoStorage } from '@/lib/petPhotos';
 import { normalizarFotosPet, obterUrlImagemPermitida } from '@/lib/origensImagem';
 import { obterPetsDoCatalogo } from '@/lib/catalogoPets';
+import { validarLocalidadeIbge } from '@/lib/localidadesIbge';
+import { isValidBirthDate, isValidPhone, validateFullName, validateIntegerRange, validateOrganizationName, validateSocialProfile } from '@/lib/validation';
+import { validarDescricoesPet, validarIdadePersistidaPet, validarNomePet, validarRacaPet, validarTemperamentos } from '@/lib/validacaoPet';
 import type { AuthFeature, AuthPromptState } from '@/components/auth/auth-features';
 import {
   avaliarCandidaturaDeterministica,
@@ -872,15 +875,64 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       return false;
     }
 
+    if (updates.name !== undefined) {
+      const validacaoNome = currentUser.role === 'guardian' && currentUser.guardianType === 'ngo'
+        ? validateOrganizationName(updates.name)
+        : validateFullName(updates.name, 'Nome completo');
+      if (!validacaoNome.valid) {
+        showToast('Nome inválido', validacaoNome.error, 'error');
+        return false;
+      }
+    }
+    if ('responsibleName' in updates && updates.responsibleName?.trim()) {
+      const validacaoResponsavel = validateFullName(updates.responsibleName, 'Nome do responsável');
+      if (!validacaoResponsavel.valid) {
+        showToast('Responsável inválido', validacaoResponsavel.error, 'error');
+        return false;
+      }
+    }
+    if (updates.primaryPhone !== undefined && !isValidPhone(updates.primaryPhone)) {
+      showToast('Telefone inválido', 'Informe um celular com DDD e número completo.', 'error');
+      return false;
+    }
+    if (updates.socialMedia !== undefined) {
+      const validacaoPerfil = validateSocialProfile(updates.socialMedia || '');
+      if (!validacaoPerfil.valid) {
+        showToast('Perfil social inválido', validacaoPerfil.error, 'error');
+        return false;
+      }
+    }
+
+    const updatesNormalizados = { ...updates } as Partial<CurrentUser> & { avatar?: string | null };
+    if ('city' in updates || 'state' in updates) {
+      const localidade = await validarLocalidadeIbge(
+        String(updates.state ?? currentUser.state ?? ''),
+        String(updates.city ?? currentUser.city ?? ''),
+      );
+      if (!localidade.valida) {
+        showToast('Localização inválida', localidade.erro, 'error');
+        return false;
+      }
+      updatesNormalizados.city = localidade.cidade;
+      updatesNormalizados.state = localidade.estado;
+    }
+
     // Regra estrita: a data de nascimento só pode ser preenchida uma única vez no cadastro
     // Se o usuário atual já tiver birthDate registrado, ele não pode ser sobrescrito
     const currentBirthDate = currentUser.role === 'adopter' ? (currentUser as AdopterProfile).birthDate : undefined;
-    const incomingBirthDate = 'birthDate' in updates ? (updates as { birthDate?: string }).birthDate : undefined;
+    const incomingBirthDate = 'birthDate' in updatesNormalizados ? (updatesNormalizados as { birthDate?: string }).birthDate : undefined;
+    if (incomingBirthDate) {
+      const validacaoNascimento = isValidBirthDate(incomingBirthDate, 18, 120);
+      if (!validacaoNascimento.valid) {
+        showToast('Data inválida', validacaoNascimento.error, 'error');
+        return false;
+      }
+    }
     const safeBirthDate = currentBirthDate || incomingBirthDate;
 
     const updatedUser = {
       ...currentUser,
-      ...updates,
+      ...updatesNormalizados,
       ...(safeBirthDate && currentUser.role === 'adopter' ? { birthDate: safeBirthDate } : {}),
       avatar: newAvatar
     } as CurrentUser;
@@ -981,6 +1033,20 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       return false;
     }
 
+    const erroPet = validarNomePet(newPetData.name)
+      || validarRacaPet(newPetData.breed)
+      || validarIdadePersistidaPet(newPetData.approximateAge, newPetData.ageCategory)
+      || validarTemperamentos(newPetData.temperament);
+    if (erroPet) {
+      showToast('Dados do animal inválidos', erroPet, 'error');
+      return false;
+    }
+    const erroDescricoes = validarDescricoesPet(newPetData.headline, newPetData.story, newPetData.temperamentDescription);
+    if (erroDescricoes) {
+      showToast('Cadastro incompleto', erroDescricoes, 'error');
+      return false;
+    }
+
     try {
       const { data, error } = await supabase
             .from('pets')
@@ -1040,6 +1106,35 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     if (!pertenceAoUsuario || !supabase) {
       showToast('Edição não permitida', 'Você só pode editar animais publicados por este perfil.', 'error');
       return false;
+    }
+
+    const camposEstruturadosAlterados = [
+      'name', 'breed', 'approximateAge', 'ageCategory', 'temperament',
+    ].some((campo) => Object.prototype.hasOwnProperty.call(updates, campo));
+    if (camposEstruturadosAlterados) {
+      const petResultante = { ...petAnterior, ...updates };
+      const erroPet = validarNomePet(petResultante.name)
+        || validarRacaPet(petResultante.breed)
+        || validarIdadePersistidaPet(petResultante.approximateAge, petResultante.ageCategory)
+        || validarTemperamentos(petResultante.temperament);
+      if (erroPet) {
+        showToast('Dados do animal inválidos', erroPet, 'error');
+        return false;
+      }
+    }
+    const camposDescritivosAlterados = ['headline', 'story', 'temperamentDescription']
+      .some((campo) => Object.prototype.hasOwnProperty.call(updates, campo));
+    if (camposDescritivosAlterados) {
+      const petResultante = { ...petAnterior, ...updates };
+      const erroDescricoes = validarDescricoesPet(
+        petResultante.headline,
+        petResultante.story,
+        petResultante.temperamentDescription,
+      );
+      if (erroDescricoes) {
+        showToast('Dados do animal incompletos', erroDescricoes, 'error');
+        return false;
+      }
     }
 
     const fotosAnteriores = petAnterior.photos;
@@ -1611,6 +1706,43 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const submitApplication = useCallback(async (data: Omit<PreAdoptionApplication, 'id' | 'createdAt' | 'status' | 'notes' | 'messages' | 'automatedAnalysis'>): Promise<PreAdoptionApplication | null> => {
     if (!supabase || currentUser?.role !== 'adopter') {
       showToast('Candidatura não enviada', 'Entre com um perfil de adotante para continuar.', 'error');
+      return null;
+    }
+
+    const validacaoNome = validateFullName(currentUser.name, 'Nome completo');
+    const validacaoPerfilSocial = validateSocialProfile(data.candidate.socialMedia || '');
+    const validacaoAdultos = validateIntegerRange(data.adultsCount, 1, 20, 'Quantidade de adultos');
+    const validacaoCriancas = validateIntegerRange(data.childrenCount, 0, 15, 'Quantidade de crianças');
+    const validacaoHoras = validateIntegerRange(data.hoursAlone, 0, 14, 'Horas sem companhia');
+    const tiposMoradiaValidos: PreAdoptionApplication['housingType'][] = ['casa', 'apartamento', 'sobrado', 'sitio'];
+    const condicoesMoradiaValidas: PreAdoptionApplication['housingStatus'][] = ['proprio', 'alugado'];
+    const areasValidas: PreAdoptionApplication['accessArea'][] = ['livre_total', 'area_especifica'];
+    const erroEstruturado = validacaoNome.error
+      || (!isValidPhone(currentUser.primaryPhone) ? 'O telefone do perfil é inválido.' : undefined)
+      || validacaoPerfilSocial.error
+      || validacaoAdultos.error
+      || validacaoCriancas.error
+      || validacaoHoras.error
+      || (!tiposMoradiaValidos.includes(data.housingType) ? 'O tipo de imóvel é inválido.' : undefined)
+      || (!condicoesMoradiaValidas.includes(data.housingStatus) ? 'A condição do imóvel é inválida.' : undefined)
+      || (!areasValidas.includes(data.accessArea) ? 'A área de circulação é inválida.' : undefined);
+    if (erroEstruturado) {
+      showToast('Candidatura não enviada', erroEstruturado, 'error');
+      return null;
+    }
+    if (!data.familyAgreement || !data.costAwareness) {
+      showToast('Candidatura não enviada', 'Confirme a concordância familiar e a ciência dos custos da adoção.', 'error');
+      return null;
+    }
+    if ((data.housingType === 'apartamento' && !data.hasProtection)
+      || (data.housingStatus === 'alugado' && !data.landlordPermission)) {
+      showToast('Candidatura não enviada', 'A moradia precisa atender às condições de segurança e autorização informadas.', 'error');
+      return null;
+    }
+    if (data.dailyCarePlan.trim().length < 20 || data.dailyCarePlan.trim().length > 500
+      || (data.allergyCases && (data.allergyDetails || '').trim().length < 10)
+      || (data.hasCurrentPets && (data.currentPetsDescription || '').trim().length < 10)) {
+      showToast('Candidatura não enviada', 'Complete os detalhes de rotina, alergias e convivência antes de enviar.', 'error');
       return null;
     }
 

@@ -1,5 +1,27 @@
 # Changelog
 
+## [v0.9.25] - 2026-10-18
+### Commit
+`fix: tornar história do animal opcional`
+
+### Mudanças
+- Remove a obrigatoriedade da história de resgate no cadastro e na edição de animais.
+- Renomeia o campo para história do animal e mantém a validação de conteúdo somente quando houver preenchimento.
+
+---
+
+## [v0.9.24] - 2026-10-18
+### Commit
+`fix: validar dados estruturados dos formulários`
+
+### Mudanças
+- Substitui cidade livre por seletores dependentes de estado e município, alimentados e validados pela API oficial de Localidades do IBGE.
+- Troca a idade textual do animal por valor numérico e unidade, calculando automaticamente a faixa etária correspondente.
+- Adiciona opções orientadas para raça e temperamento e reforça nome, perfil social, data de nascimento e campos numéricos.
+- Revalida perfil, animais e candidaturas antes de persistir os dados no Supabase e inclui testes para os casos inválidos críticos.
+
+---
+
 ## [v0.9.23] - 2026-10-18
 ### Commit
 `feat: sincronizar status dos pets com o catálogo público`
