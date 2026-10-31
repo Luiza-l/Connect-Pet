@@ -342,14 +342,12 @@ export function CatalogView() {
   // Filter computation
   const filteredPets = useMemo(() => {
     return petsDoCatalogo.filter((pet) => {
-      // Text Search
+      // Busca por nome e raça
       if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase();
-        const matchName = pet.name.toLowerCase().includes(q);
-        const matchBreed = pet.breed.toLowerCase().includes(q);
-        const matchCity = pet.location.city.toLowerCase().includes(q);
-        const matchTemperament = pet.temperament.some((t) => t.toLowerCase().includes(q));
-        if (!matchName && !matchBreed && !matchCity && !matchTemperament) {
+        const termoBusca = searchQuery.trim().toLowerCase();
+        const correspondeNome = pet.name.toLowerCase().includes(termoBusca);
+        const correspondeRaca = pet.breed.toLowerCase().includes(termoBusca);
+        if (!correspondeNome && !correspondeRaca) {
           return false;
         }
       }
@@ -424,10 +422,10 @@ export function CatalogView() {
             <Search className="w-4 h-4 text-muted-foreground absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
-              aria-label="Buscar animais"
+              aria-label="Buscar animais por nome ou raça"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar por nome, raça, cidade..."
+              placeholder="Buscar por nome ou raça..."
               className="w-full pl-10 pr-9 py-2.5 min-h-[44px] rounded-full border border-border bg-card text-xs sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary shadow-sm"
             />
             {searchQuery && (

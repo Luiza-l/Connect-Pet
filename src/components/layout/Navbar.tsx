@@ -9,17 +9,17 @@ import { useApp } from "@/context/AppContext";
 import {
   PawPrint,
   Sparkles,
-  Heart,
   Menu,
   X,
   Sun,
   Moon,
-  Laptop,
+  SunMoon,
   LogOut,
   ChevronDown,
   HeartHandshake,
   FileCheck2,
   LayoutDashboard,
+  ArrowRight,
   User,
   UserCog
 } from "lucide-react";
@@ -34,34 +34,9 @@ export function Navbar() {
   const {
     currentUser,
     logout,
-    favorites,
-    petsDoCatalogo,
     theme,
-    setTheme,
-    showFavoritesOnly,
-    setShowFavoritesOnly,
-    requireAuth
+    setTheme
   } = useApp();
-
-  const isCatalog = pathname === "/pets";
-
-  const handleFavoritesClick = (e: React.MouseEvent) => {
-    if (!currentUser) {
-      e.preventDefault();
-      requireAuth("favorites", { redirectTo: "/pets?favoritos=true" });
-      return;
-    }
-    if (isCatalog) {
-      e.preventDefault();
-      setShowFavoritesOnly((prev) => !prev);
-    } else {
-      setShowFavoritesOnly(true);
-    }
-  };
-
-  const favoritesCount = favorites.filter((favId) =>
-    petsDoCatalogo.some((pet) => pet.id === favId)
-  ).length;
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
@@ -138,7 +113,7 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/90 shadow-sm shadow-foreground/[0.02] backdrop-blur-xl transition-colors">
-      <div className="mx-auto flex h-16 w-full max-w-screen-2xl items-center justify-between gap-2 px-4 sm:h-20 sm:gap-3 sm:px-6 lg:grid lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:gap-6 lg:px-8">
+      <div className="mx-auto flex h-16 w-full max-w-screen-2xl items-center justify-between gap-2 px-4 sm:h-20 sm:gap-3 sm:px-6 lg:px-8 xl:grid xl:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] xl:gap-4 2xl:gap-6">
         
         {/* Logo */}
         <Link href="/" aria-label="ConnectPet — página inicial" className="group flex min-h-[44px] shrink-0 items-center gap-2 sm:gap-3 lg:justify-self-start">
@@ -160,7 +135,7 @@ export function Navbar() {
         </Link>
 
         {/* Center Desktop Navigation */}
-        <nav aria-label="Navegação principal" className="relative hidden items-center gap-2 rounded-full border border-border/60 bg-secondary/50 p-1.5 lg:flex lg:justify-self-center lg:gap-3 xl:gap-5">
+        <nav aria-label="Navegação principal" className="relative hidden items-center gap-1 rounded-full border border-border/60 bg-secondary/50 p-1.5 xl:flex xl:justify-self-center 2xl:gap-3">
           <span
             aria-hidden="true"
             className={`pointer-events-none absolute left-0 top-1.5 bottom-1.5 rounded-full bg-background shadow-sm ring-1 ring-border/50 transition-[transform,width,opacity] duration-300 ease-out motion-reduce:transition-none ${
@@ -179,7 +154,7 @@ export function Navbar() {
                   refsLinks.current[link.href] = el;
                 }}
                 aria-current={isActive ? "page" : undefined}
-                className={`relative z-10 flex min-h-[44px] items-center gap-2 rounded-full px-3.5 py-2 text-[.980rem] font-semibold transition-colors duration-300 xl:px-5 ${
+                className={`relative z-10 flex min-h-[44px] items-center gap-2 whitespace-nowrap rounded-full px-3 py-2 text-sm font-semibold transition-colors duration-300 2xl:px-4 ${
                   isActive
                     ? "text-foreground font-bold"
                     : "text-muted-foreground hover:text-foreground"
@@ -192,29 +167,28 @@ export function Navbar() {
           })}
         </nav>
 
-        {/* Right Section: Favorites, Theme & User Profile */}
-        <div className="flex shrink-0 items-center gap-1.5 sm:gap-3 lg:justify-self-end">
+        {/* A gestão fica visível sem depender do menu da conta. */}
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-3 xl:justify-self-end">
+          {isGuardian && (
+            <Link
+              href="/dashboard"
+              aria-label="Painel de gestão"
+              aria-current={estaAtivo("/dashboard") ? "page" : undefined}
+              onClick={() => {
+                setMobileMenuOpen(false);
+                setProfileDropdownOpen(false);
+                setThemeDropdownOpen(false);
+              }}
+              className={`inline-flex min-h-[44px] shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-primary px-3 py-2 text-xs font-bold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 sm:px-4 sm:text-sm ${
+                estaAtivo("/dashboard") ? "ring-2 ring-primary/40 ring-offset-2 ring-offset-background" : ""
+              }`}
+            >
+              <LayoutDashboard aria-hidden="true" className="hidden h-4 w-4 shrink-0 sm:block" />
+              <span className="sm:hidden">Gestão</span>
+              <span className="hidden sm:inline">Painel de gestão</span>
+            </Link>
+          )}
           
-          {/* Favorites Button */}
-          <Link
-            href="/pets?favoritos=true"
-            onClick={handleFavoritesClick}
-            className={`relative p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full border transition-all ${
-              isCatalog && showFavoritesOnly
-                ? "bg-rose-500/15 border-rose-500/40 text-rose-500 shadow-sm"
-                : "border-border/50 bg-card hover:bg-secondary/50 text-muted-foreground hover:text-rose-500"
-            }`}
-            title={isCatalog && showFavoritesOnly ? "Ver Todos os Pets" : "Ver Pets Favoritos"}
-            aria-label={isCatalog && showFavoritesOnly ? "Exibir todos os pets" : `Exibir favoritos${favoritesCount ? `, ${favoritesCount} salvos` : ""}`}
-          >
-            <Heart className={`w-5 h-5 ${favoritesCount > 0 || (isCatalog && showFavoritesOnly) ? "text-rose-500 fill-rose-500/20" : ""}`} />
-            {favoritesCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-rose-500 text-xs font-bold text-white shadow-sm animate-in zoom-in-50">
-                {favoritesCount}
-              </span>
-            )}
-          </Link>
-
           {/* Theme Selector Button */}
           <div className="relative">
             <button
@@ -230,7 +204,7 @@ export function Navbar() {
             >
               {temaVisivel === "light" && <Sun className="w-5 h-5 text-amber-500" />}
               {temaVisivel === "dark" && <Moon className="w-5 h-5 text-indigo-400" />}
-              {temaVisivel === "system" && <Laptop className="w-5 h-5 text-muted-foreground" />}
+              {temaVisivel === "system" && <SunMoon className="w-5 h-5 text-muted-foreground" />}
             </button>
 
             {themeDropdownOpen && (
@@ -272,7 +246,7 @@ export function Navbar() {
                     theme === "system" ? "bg-primary/10 text-primary font-bold" : "hover:bg-secondary text-foreground"
                   }`}
                 >
-                  <Laptop className="w-4 h-4 text-muted-foreground" /> Sistema
+                  <SunMoon className="w-4 h-4 text-muted-foreground" /> Sistema
                 </button>
               </div>
             )}
@@ -280,7 +254,7 @@ export function Navbar() {
 
           {/* User Account / Demo Profile Switcher */}
           {currentUser ? (
-            <div className="relative">
+            <div className={isGuardian ? "relative hidden xl:block" : "relative"}>
               <button
                 onClick={() => {
                   setProfileDropdownOpen(!profileDropdownOpen);
@@ -304,8 +278,8 @@ export function Navbar() {
                     <User className="w-4 h-4 text-sky-700 dark:text-sky-300" />
                   )}
                 </div>
-                <div className="hidden md:flex flex-col">
-                  <span className="max-w-32 truncate text-xs font-bold leading-tight text-foreground">
+                <div className={`hidden flex-col ${isGuardian ? "2xl:flex" : "md:flex"}`}>
+                  <span className="max-w-24 truncate text-xs font-bold leading-tight text-foreground">
                     {currentUser.name}
                   </span>
                   <span className="text-xs font-medium text-primary leading-none">
@@ -351,6 +325,7 @@ export function Navbar() {
                     <Link
                       href="/dashboard"
                       role="menuitem"
+                      aria-current={estaAtivo("/dashboard") ? "page" : undefined}
                       onClick={() => setProfileDropdownOpen(false)}
                       className="flex min-h-[44px] items-center gap-2.5 px-3 py-2 text-xs font-medium text-foreground rounded-xl hover:bg-secondary transition-colors"
                     >
@@ -395,7 +370,7 @@ export function Navbar() {
               setProfileDropdownOpen(false);
               setThemeDropdownOpen(false);
             }}
-            className="lg:hidden p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full border border-border/60 bg-card text-foreground"
+            className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full border border-border/60 bg-card text-foreground xl:hidden"
             aria-label={mobileMenuOpen ? "Fechar menu" : "Abrir menu"}
             aria-expanded={mobileMenuOpen}
             aria-controls="menu-movel"
@@ -412,12 +387,33 @@ export function Navbar() {
             type="button"
             aria-label="Fechar menu"
             onClick={() => setMobileMenuOpen(false)}
-            className="fixed inset-x-0 bottom-0 top-16 z-40 cursor-default bg-foreground/30 backdrop-blur-sm sm:top-20 lg:hidden"
+            className="fixed inset-x-0 bottom-0 top-16 z-40 cursor-default bg-foreground/30 backdrop-blur-sm sm:top-20 xl:hidden"
           />
           <div
             id="menu-movel"
-            className="fixed bottom-0 right-0 top-16 z-50 w-full max-w-sm overflow-y-auto border-l border-border bg-background px-4 py-5 shadow-2xl animate-in slide-in-from-right-4 sm:top-20 sm:px-6 lg:hidden"
+            className="fixed bottom-0 right-0 top-16 z-50 w-full max-w-sm overflow-y-auto border-l border-border bg-background px-4 py-5 shadow-2xl animate-in slide-in-from-right-4 sm:top-20 sm:px-6 xl:hidden"
           >
+          {isGuardian && (
+            <Link
+              href="/dashboard"
+              onClick={() => setMobileMenuOpen(false)}
+              aria-current={estaAtivo("/dashboard") ? "page" : undefined}
+              className={`mb-5 flex min-h-[44px] items-center gap-3 rounded-2xl border p-4 transition-colors ${
+                estaAtivo("/dashboard")
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-primary/25 bg-primary/10 text-foreground hover:bg-primary/15"
+              }`}
+            >
+              <LayoutDashboard aria-hidden="true" className="h-6 w-6 shrink-0" />
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-bold">Painel de gestão</span>
+                <span className="mt-1 block text-xs leading-relaxed">
+                  Gerencie seus pets e acompanhe candidaturas.
+                </span>
+              </span>
+              <ArrowRight aria-hidden="true" className="h-4 w-4 shrink-0" />
+            </Link>
+          )}
           <nav aria-label="Navegação móvel" className="flex flex-col space-y-1">
             {navLinks.map((link) => {
               const isActive = estaAtivo(link.href);
@@ -448,15 +444,6 @@ export function Navbar() {
               </Link>
             )}
 
-            {isGuardian && (
-              <Link
-                href="/dashboard"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-semibold text-muted-foreground hover:bg-secondary"
-              >
-                <LayoutDashboard className="w-4 h-4 text-primary" /> Painel de gestão
-              </Link>
-            )}
           </nav>
 
           {/* Mobile User Actions */}

@@ -1,5 +1,47 @@
 # Changelog
 
+## [v0.9.35] - 2026-10-31
+### Commit
+`fix: restringir busca do catálogo a nome e raça`
+
+### Mudanças
+- Pesquisa somente o nome e a raça dos pets na caixa de busca do catálogo.
+- Atualiza o texto de orientação e o rótulo acessível do campo e desconsidera espaços nas extremidades do termo.
+
+---
+
+## [v0.9.34] - 2026-10-31
+### Commit
+`style: usar ícone neutro para o tema do sistema`
+
+### Mudanças
+- Substitui o notebook por um ícone de sol e lua na opção Sistema e no botão de tema quando ela está selecionada.
+- Mantém a representação do tema independente do dispositivo e adaptada aos modos claro e escuro.
+
+---
+
+## [v0.9.33] - 2026-10-31
+### Commit
+`fix: recentralizar navegação e remover favoritos do cabeçalho`
+
+### Mudanças
+- Restaura colunas laterais simétricas para manter a navegação centralizada independentemente das ações da conta.
+- Remove o ícone e o contador de favoritos da navbar, mantendo o recurso disponível no catálogo.
+- Mantém o destaque da gestão exclusivo de ONGs e protetores e limita o nome da conta para evitar sobreposição.
+
+---
+
+## [v0.9.32] - 2026-10-31
+### Commit
+`feat: destacar acesso ao painel de gestão na navegação`
+
+### Mudanças
+- Exibe um botão de acesso direto ao painel no cabeçalho para ONGs e protetores, com indicação da seção ativa.
+- Destaca a gestão no início do menu móvel com uma descrição das tarefas disponíveis.
+- Adapta a navegação e o acesso à conta ao espaço disponível, preservando áreas de toque e os temas claro e escuro.
+
+---
+
 ## [v0.9.31] - 2026-10-31
 ### Commit
 `style: suavizar barra de rolagem dos filtros do catálogo`
