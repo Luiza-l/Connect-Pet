@@ -127,7 +127,7 @@ function FilterPanel({
       {/* Porte */}
       <div className="space-y-2">
         <label className="text-xs font-bold text-foreground uppercase tracking-wider">Porte</label>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
+        <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4 lg:grid-cols-2">
           {[
             { id: "all", label: "Todos" },
             { id: "small", label: "Pequeno" },
@@ -420,7 +420,7 @@ export function CatalogView() {
 
         {/* Search & Mobile Filter Toggle */}
         <div className="flex items-center gap-3 w-full md:w-auto">
-          <div className="relative flex-1 md:w-80">
+          <div className="relative min-w-0 flex-1 md:w-80">
             <Search className="w-4 h-4 text-muted-foreground absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
             <input
               type="text"
@@ -459,8 +459,17 @@ export function CatalogView() {
       {/* Main Catalog Layout: Sidebar + Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 lg:gap-8 items-start">
         
-        {/* Desktop Sticky Sidebar */}
-        <aside className="hidden lg:block lg:col-span-1 p-6 rounded-3xl bg-card border border-border/60 shadow-sm sticky top-28">
+        {/* Mantém todos os filtros acessíveis com rolagem independente do catálogo. */}
+        <aside
+          aria-label="Filtros do catálogo"
+          className="hidden overflow-hidden rounded-3xl border border-border/60 bg-card p-2 shadow-sm lg:sticky lg:top-28 lg:col-span-1 lg:flex lg:max-h-[calc(100dvh-8rem)] lg:flex-col"
+        >
+          <div
+            role="region"
+            aria-label="Opções de filtros"
+            tabIndex={0}
+            className="rolagem-discreta min-h-0 overflow-y-auto overscroll-y-contain rounded-2xl p-4"
+          >
           <FilterPanel
             species={species}
             setSpecies={setSpecies}
@@ -483,6 +492,7 @@ export function CatalogView() {
             availableCities={availableCities}
             resetFilters={resetFilters}
           />
+          </div>
         </aside>
 
         {/* Mobile Drawer */}
@@ -490,14 +500,14 @@ export function CatalogView() {
           isOpen={isMobileDrawerOpen}
           onOpenChange={setIsMobileDrawerOpen}
           side="right"
-          className="w-full max-w-sm gap-0 bg-card lg:hidden"
+          className="max-h-dvh w-full max-w-sm gap-0 bg-card lg:hidden"
         >
-              <SheetHeader className="border-b border-border px-5 py-5 pr-16">
+              <SheetHeader className="shrink-0 border-b border-border px-5 py-5 pr-16">
                 <SheetTitle className="text-lg font-bold">Filtros do catálogo</SheetTitle>
                 <SheetDescription>Ajuste os critérios e veja o resultado em tempo real.</SheetDescription>
               </SheetHeader>
 
-              <div className="flex-1 space-y-6 overflow-y-auto px-5 py-5">
+              <div className="rolagem-discreta min-h-0 flex-1 space-y-6 overflow-y-auto overscroll-y-contain px-5 py-5">
               <FilterPanel
                 species={species}
                 setSpecies={setSpecies}
@@ -522,7 +532,7 @@ export function CatalogView() {
               />
               </div>
 
-              <SheetFooter className="border-t border-border bg-card p-4">
+              <SheetFooter className="shrink-0 border-t border-border bg-card p-4">
               <Button
                 onClick={() => setIsMobileDrawerOpen(false)}
                 className="w-full rounded-full bg-primary min-h-[44px]"

@@ -1,5 +1,47 @@
 # Changelog
 
+## [v0.9.31] - 2026-10-31
+### Commit
+`style: suavizar barra de rolagem dos filtros do catálogo`
+
+### Mudanças
+- Usa uma barra fina com trilho transparente e cores suaves nos filtros, adaptada aos temas claro e escuro.
+- Recua a rolagem para dentro do cartão lateral, preservando as bordas arredondadas e o acesso independente às opções.
+- Reforça a visibilidade da barra ao passar o mouse ou navegar pelo teclado e respeita o modo de alto contraste.
+
+---
+
+## [v0.9.30] - 2026-10-31
+### Commit
+`fix: permitir rolagem independente dos filtros do catálogo`
+
+### Mudanças
+- Limita a altura do painel lateral à área disponível da tela e permite rolar todos os filtros sem percorrer a lista de pets.
+- Mantém o cabeçalho e o botão de resultados visíveis no painel móvel, com rolagem própria para as opções.
+- Ajusta a busca em telas estreitas e a distribuição dos botões de porte no painel lateral, preservando os temas claro e escuro.
+
+---
+
+## [v0.9.29] - 2026-10-31
+### Commit
+`style: reduzir espaçamentos da seção dos três pilares`
+
+### Mudanças
+- Reduz o espaçamento vertical da seção dos três pilares na página inicial em telas pequenas e grandes.
+- Mantém a ilustração fluida e o layout responsivo.
+
+---
+
+## [v0.9.28] - 2026-10-31
+### Commit
+`feat: destacar Smart Match na página inicial`
+
+### Mudanças
+- Substitui o card de favoritos da página inicial por um acesso direto ao Smart Match.
+- Apresenta uma chamada para descobrir os pets mais compatíveis com o estilo de vida do adotante.
+
+---
+
 ## [v0.9.27] - 2026-10-18
 ### Commit
 `feat: criar página institucional sobre o ConnectPet`

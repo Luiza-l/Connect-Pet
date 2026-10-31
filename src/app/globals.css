@@ -207,6 +207,40 @@
 }
 
 @layer utilities {
+  .rolagem-discreta {
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklch, var(--muted-foreground) 25%, transparent) transparent;
+  }
+
+  .rolagem-discreta:hover,
+  .rolagem-discreta:focus-within {
+    scrollbar-color: color-mix(in oklch, var(--muted-foreground) 50%, transparent) transparent;
+  }
+
+  .rolagem-discreta::-webkit-scrollbar {
+    width: 0.375rem;
+  }
+
+  .rolagem-discreta::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .rolagem-discreta::-webkit-scrollbar-thumb {
+    border-radius: 9999px;
+    background: color-mix(in oklch, var(--muted-foreground) 25%, transparent);
+  }
+
+  .rolagem-discreta:hover::-webkit-scrollbar-thumb,
+  .rolagem-discreta:focus-within::-webkit-scrollbar-thumb {
+    background: color-mix(in oklch, var(--muted-foreground) 50%, transparent);
+  }
+
+  @media (forced-colors: active) {
+    .rolagem-discreta {
+      scrollbar-color: auto;
+    }
+  }
+
   @keyframes entrada-rota {
     from {
       opacity: 0.96;

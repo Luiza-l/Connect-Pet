@@ -15,7 +15,7 @@ import {
 import { PawWatermark } from "@/components/ui/PawWatermark";
 
 export function HomeView() {
-  const { petsDoCatalogo, petsLoading, petsError, isFavorite, toggleFavorite, currentUser, requireAuth } = useApp();
+  const { petsDoCatalogo, petsLoading, petsError, isFavorite, toggleFavorite } = useApp();
 
   // 5 animais dinâmicos do catálogo real (Supabase / AppContext)
   const dynamicPets = petsDoCatalogo.slice(0, 4);
@@ -200,15 +200,9 @@ export function HomeView() {
               </div>
             </Link>
 
-            {/* Card 3: Salve seus favoritos (Dachshund) */}
+            {/* Card 3: Smart Match (Dachshund) */}
             <Link
-              href="/pets?favoritos=true"
-              onClick={(e) => {
-                if (!currentUser) {
-                  e.preventDefault();
-                  requireAuth("favorites", { redirectTo: "/pets?favoritos=true" });
-                }
-              }}
+              href="/match"
               className="group relative mx-auto flex min-h-[320px] w-full max-w-sm flex-col items-center justify-between rounded-3xl border border-primary/20 bg-gradient-to-b from-primary/15 to-primary/5 px-5 pb-6 pt-14 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl dark:from-primary/20 dark:to-card sm:max-w-none sm:px-6 sm:pt-16"
             >
               {/* Pet Sobreposto no Topo */}
@@ -223,22 +217,22 @@ export function HomeView() {
               </div>
 
               <div className="flex flex-col items-center">
-                {/* Ícone Estilizado: Coração */}
-                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-sky-300/40 bg-card/95 text-rose-500 shadow-sm transition-all group-hover:scale-110 group-hover:bg-card dark:bg-white/95 dark:group-hover:bg-white sm:h-16 sm:w-16">
-                  <Heart className="h-7 w-7 sm:h-8 sm:w-8 stroke-[2.2] text-rose-500 fill-rose-100" />
+                {/* Ícone Estilizado: Smart Match */}
+                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-sky-300/40 bg-card/95 text-sky-700 shadow-sm transition-all group-hover:scale-110 group-hover:bg-card dark:bg-white/95 dark:group-hover:bg-white sm:h-16 sm:w-16">
+                  <Sparkles className="h-7 w-7 stroke-[2.2] text-sky-800 sm:h-8 sm:w-8" />
                 </div>
 
                 <h2 className="text-lg font-bold leading-snug tracking-tight text-foreground transition-colors group-hover:text-primary sm:text-xl">
-                  Salve seus favoritos
+                  Encontre seu Smart Match
                 </h2>
 
                 <p className="mt-2.5 text-sm leading-relaxed text-muted-foreground sm:text-[0.9375rem]">
-                  Encontrou um pet que chamou sua atenção? Salve seus favoritos para encontrá-los novamente depois.
+                  Responda algumas perguntas e descubra quais pets mais combinam com seu estilo de vida.
                 </p>
               </div>
 
               <div className="mt-5 flex min-h-[44px] w-full items-center justify-center gap-2 border-t border-border/60 pt-3 text-sm font-bold text-primary transition-colors">
-                <span>Ver favoritos</span>
+                <span>Fazer Smart Match</span>
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
               </div>
             </Link>
@@ -287,7 +281,7 @@ export function HomeView() {
       {/* ========================================================================= */}
       {/* 3. SEÇÃO: OS 3 PILARES DA ADOÇÃO NO CONNECTPET                            */}
       {/* ========================================================================= */}
-      <section id="nossa-jornada" className="relative w-full bg-background py-12 sm:py-16 overflow-hidden transition-colors duration-300">
+      <section id="nossa-jornada" className="relative w-full bg-background py-10 sm:py-12 overflow-hidden transition-colors duration-300">
         <div className="container mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
 
           {/* Título Estilizado em Azul Celeste */}
@@ -296,7 +290,7 @@ export function HomeView() {
           </h2>
 
           {/* Ilustração Panorâmica da Trilha com Pins e Patinhas */}
-          <div className="relative mx-auto my-6 aspect-[3/1] w-full max-w-6xl overflow-hidden sm:my-8">
+          <div className="relative mx-auto my-5 aspect-[3/1] w-full max-w-6xl overflow-hidden sm:my-6">
             <Image
               src="/images/imagem-sobre.png"
               alt="Os 3 Pilares da Adoção no ConnectPet"
@@ -308,7 +302,7 @@ export function HomeView() {
           </div>
 
           {/* 3 Colunas de Texto com os Títulos e Descrições de Cada Pilar */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-6 mt-4 text-center">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-6 mt-3 text-center">
             {/* Pilar 1 */}
             <div className="flex flex-col items-center px-4 p-4 rounded-2xl bg-sky-50/50 dark:bg-sky-950/20 md:bg-transparent md:dark:bg-transparent">
               <span className="w-9 h-9 rounded-full bg-sky-100 dark:bg-sky-900/60 text-sky-700 dark:text-sky-300 font-bold text-sm flex items-center justify-center mb-3">
