@@ -41,6 +41,8 @@ import {
 import { validarLocalidadeIbge } from "@/lib/localidadesIbge";
 import { SeletorLocalidade } from "@/components/forms/SeletorLocalidade";
 import { capitalizarNomeProprio } from "@/lib/capitalizacao";
+import { LocalizacaoOngForm } from "@/components/forms/LocalizacaoOngForm";
+import { criarLocalizacaoOng, validarLocalizacaoOng } from "@/lib/localizacaoOng";
 
 export function RegisterView() {
   const router = useRouter();
@@ -70,6 +72,8 @@ export function RegisterView() {
   const [ngoState, setNgoState] = useState("");
   const [ngoPhone, setNgoPhone] = useState("");
   const [ngoPassword, setNgoPassword] = useState("");
+  const [localizacaoOng, setLocalizacaoOng] = useState(criarLocalizacaoOng);
+  const [bairroOng, setBairroOng] = useState("");
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isSubmittingRef = useRef(false);
@@ -246,6 +250,11 @@ export function RegisterView() {
         }
       }
 
+      if (!isAdopterRole && guardianType === "ngo") {
+        const erroLocalizacao = validarLocalizacaoOng(localizacaoOng);
+        if (erroLocalizacao) throw new Error(erroLocalizacao);
+      }
+
       const metadata = isAdopterRole
         ? {
             role: "adopter",
@@ -264,7 +273,14 @@ export function RegisterView() {
             primaryPhone: ngoPhone.trim(),
             city: localidadeGuardiao?.cidade || "",
             state: localidadeGuardiao?.estado || "",
-            neighborhood: ""
+            neighborhood: guardianType === "ngo" ? bairroOng.trim() : "",
+            ...(guardianType === "ngo" ? {
+              latitudePublica: localizacaoOng.confirmada ? localizacaoOng.ponto?.latitude ?? null : null,
+              longitudePublica: localizacaoOng.confirmada ? localizacaoOng.ponto?.longitude ?? null : null,
+              localizacaoPublica: localizacaoOng.publica && localizacaoOng.confirmada,
+              cep: localizacaoOng.cep,
+              enderecoPrivado: localizacaoOng.enderecoPrivado.trim(),
+            } : {}),
           };
 
       // 1. Criar usuário no Supabase Auth (apenas uma chamada única)
@@ -664,13 +680,18 @@ export function RegisterView() {
                     idBase="cadastro-guardiao"
                     estado={ngoState}
                     cidade={ngoCity}
-                    aoAlterarEstado={setNgoState}
-                    aoAlterarCidade={setNgoCity}
+                    aoAlterarEstado={(valor) => { setNgoState(valor); setLocalizacaoOng((anterior) => ({ ...anterior, ponto: null, publica: false, confirmada: false })); }}
+                    aoAlterarCidade={(valor) => { setNgoCity(valor); setLocalizacaoOng((anterior) => ({ ...anterior, ponto: null, publica: false, confirmada: false })); }}
                     rotuloCidade="Município de atuação"
                     desabilitado={isSubmitting}
                   />
                 </div>
               </div>
+
+              {guardianType === "ngo" && <>
+                <label className="block space-y-2 font-bold text-foreground">Bairro (opcional)<input value={bairroOng} maxLength={60} onChange={(evento) => setBairroOng(evento.target.value)} className="min-h-[44px] w-full rounded-xl border border-border bg-background px-3 font-normal" /></label>
+                <LocalizacaoOngForm key={`${ngoState}:${ngoCity}`} cidade={ngoCity} estado={ngoState} valor={localizacaoOng} aoAlterar={setLocalizacaoOng} desabilitado={isSubmitting} />
+              </>}
 
               <div className="space-y-1">
                 <label className="font-bold text-foreground">WhatsApp / Celular *</label>

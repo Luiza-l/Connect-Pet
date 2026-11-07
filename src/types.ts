@@ -57,6 +57,11 @@ export interface GuardianProfile {
   socialMedia?: string;
   verified?: boolean;
   avatar?: string | null;
+  latitudePublica?: number | null;
+  longitudePublica?: number | null;
+  localizacaoPublica?: boolean;
+  cep?: string;
+  enderecoPrivado?: string;
 }
 
 export type CurrentUser = AdopterProfile | GuardianProfile;

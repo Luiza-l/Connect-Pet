@@ -37,6 +37,8 @@ import { enviarAvatarPerfil, removerAvatarPerfil } from "@/lib/profileAvatar";
 import { validarLocalidadeIbge } from "@/lib/localidadesIbge";
 import { SeletorLocalidade } from "@/components/forms/SeletorLocalidade";
 import { capitalizarFrases, capitalizarNomeProprio } from "@/lib/capitalizacao";
+import { LocalizacaoOngForm } from "@/components/forms/LocalizacaoOngForm";
+import { validarLocalizacaoOng, type LocalizacaoOng } from "@/lib/localizacaoOng";
 
 function ProfileForm({ user }: { user: CurrentUser }) {
   const router = useRouter();
@@ -71,6 +73,14 @@ function ProfileForm({ user }: { user: CurrentUser }) {
   // Form states - ONG / Protetor
   const [responsibleName, setResponsibleName] = useState(guardianUser?.responsibleName || "");
   const [neighborhood, setNeighborhood] = useState(guardianUser?.neighborhood || "");
+  const [localizacaoOng, setLocalizacaoOng] = useState<LocalizacaoOng>(() => ({
+    ponto: guardianUser?.latitudePublica != null && guardianUser?.longitudePublica != null
+      ? { latitude: guardianUser.latitudePublica, longitude: guardianUser.longitudePublica } : null,
+    publica: guardianUser?.localizacaoPublica ?? false,
+    confirmada: guardianUser?.latitudePublica != null && guardianUser?.longitudePublica != null,
+    cep: guardianUser?.cep || "",
+    enderecoPrivado: guardianUser?.enderecoPrivado || "",
+  }));
 
   const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -218,6 +228,11 @@ function ProfileForm({ user }: { user: CurrentUser }) {
       return;
     }
 
+    if (guardianUser?.guardianType === "ngo") {
+      const erroLocalizacao = validarLocalizacaoOng(localizacaoOng);
+      if (erroLocalizacao) { showToast("Localização inválida", erroLocalizacao, "error"); return; }
+    }
+
     setIsSaving(true);
     try {
       const avatarAnterior = user.avatar;
@@ -252,6 +267,13 @@ function ProfileForm({ user }: { user: CurrentUser }) {
           state: localidade.estado,
           neighborhood: bairroNormalizado,
           responsibleName: responsavelNormalizado,
+          ...(guardianUser?.guardianType === "ngo" ? {
+            latitudePublica: localizacaoOng.confirmada ? localizacaoOng.ponto?.latitude ?? null : null,
+            longitudePublica: localizacaoOng.confirmada ? localizacaoOng.ponto?.longitude ?? null : null,
+            localizacaoPublica: localizacaoOng.publica && localizacaoOng.confirmada,
+            cep: localizacaoOng.cep,
+            enderecoPrivado: localizacaoOng.enderecoPrivado.trim(),
+          } : {}),
           bio: bioNormalizada,
           socialMedia: socialMedia.trim()
         });
@@ -846,8 +868,8 @@ function ProfileForm({ user }: { user: CurrentUser }) {
                     idBase="perfil-guardiao"
                     estado={state}
                     cidade={city}
-                    aoAlterarEstado={setState}
-                    aoAlterarCidade={setCity}
+                    aoAlterarEstado={(valor) => { setState(valor); setLocalizacaoOng((anterior) => ({ ...anterior, ponto: null, publica: false, confirmada: false })); }}
+                    aoAlterarCidade={(valor) => { setCity(valor); setLocalizacaoOng((anterior) => ({ ...anterior, ponto: null, publica: false, confirmada: false })); }}
                     rotuloCidade="Município sede"
                     desabilitado={isSaving}
                   />
@@ -885,6 +907,8 @@ function ProfileForm({ user }: { user: CurrentUser }) {
               </div>
             </div>
           )}
+
+          {guardianUser?.guardianType === "ngo" && <LocalizacaoOngForm key={`${state}:${city}`} cidade={city} estado={state} valor={localizacaoOng} aoAlterar={setLocalizacaoOng} desabilitado={isSaving} />}
 
           {/* Botões de Ação */}
           <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-4">

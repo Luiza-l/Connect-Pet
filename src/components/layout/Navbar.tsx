@@ -21,7 +21,8 @@ import {
   LayoutDashboard,
   ArrowRight,
   User,
-  UserCog
+  UserCog,
+  MapPin
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -77,6 +78,7 @@ export function Navbar() {
   const navLinks = [
     { label: "Início", href: "/", icon: null },
     { label: "Catálogo de Pets", href: "/pets", icon: PawPrint },
+    { label: "Mapa de ONGs", href: "/mapa-ongs", icon: MapPin },
     { label: "Sobre nós", href: "/sobre-nos", icon: HeartHandshake },
     { label: "Smart Match", href: "/match", icon: Sparkles },
   ];
@@ -113,7 +115,7 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/90 shadow-sm shadow-foreground/[0.02] backdrop-blur-xl transition-colors">
-      <div className="mx-auto flex h-16 w-full max-w-screen-2xl items-center justify-between gap-2 px-4 sm:h-20 sm:gap-3 sm:px-6 lg:px-8 xl:grid xl:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] xl:gap-4 2xl:gap-6">
+      <div className="mx-auto flex h-16 w-full max-w-screen-2xl items-center justify-between gap-2 px-4 sm:h-20 sm:gap-3 sm:px-6 lg:px-8 2xl:grid 2xl:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] 2xl:gap-6">
         
         {/* Logo */}
         <Link href="/" aria-label="ConnectPet — página inicial" className="group flex min-h-[44px] shrink-0 items-center gap-2 sm:gap-3 lg:justify-self-start">
@@ -135,7 +137,7 @@ export function Navbar() {
         </Link>
 
         {/* Center Desktop Navigation */}
-        <nav aria-label="Navegação principal" className="relative hidden items-center gap-1 rounded-full border border-border/60 bg-secondary/50 p-1.5 xl:flex xl:justify-self-center 2xl:gap-3">
+        <nav aria-label="Navegação principal" className="relative hidden items-center gap-1 rounded-full border border-border/60 bg-secondary/50 p-1.5 2xl:flex 2xl:justify-self-center 2xl:gap-3">
           <span
             aria-hidden="true"
             className={`pointer-events-none absolute left-0 top-1.5 bottom-1.5 rounded-full bg-background shadow-sm ring-1 ring-border/50 transition-[transform,width,opacity] duration-300 ease-out motion-reduce:transition-none ${
@@ -168,7 +170,7 @@ export function Navbar() {
         </nav>
 
         {/* A gestão fica visível sem depender do menu da conta. */}
-        <div className="flex shrink-0 items-center gap-1.5 sm:gap-3 xl:justify-self-end">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-3 2xl:justify-self-end">
           {isGuardian && (
             <Link
               href="/dashboard"
@@ -254,7 +256,7 @@ export function Navbar() {
 
           {/* User Account / Demo Profile Switcher */}
           {currentUser ? (
-            <div className={isGuardian ? "relative hidden xl:block" : "relative"}>
+            <div className={isGuardian ? "relative hidden 2xl:block" : "relative"}>
               <button
                 onClick={() => {
                   setProfileDropdownOpen(!profileDropdownOpen);
@@ -370,7 +372,7 @@ export function Navbar() {
               setProfileDropdownOpen(false);
               setThemeDropdownOpen(false);
             }}
-            className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full border border-border/60 bg-card text-foreground xl:hidden"
+            className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full border border-border/60 bg-card text-foreground 2xl:hidden"
             aria-label={mobileMenuOpen ? "Fechar menu" : "Abrir menu"}
             aria-expanded={mobileMenuOpen}
             aria-controls="menu-movel"
@@ -387,11 +389,11 @@ export function Navbar() {
             type="button"
             aria-label="Fechar menu"
             onClick={() => setMobileMenuOpen(false)}
-            className="fixed inset-x-0 bottom-0 top-16 z-40 cursor-default bg-foreground/30 backdrop-blur-sm sm:top-20 xl:hidden"
+            className="fixed inset-x-0 bottom-0 top-16 z-40 cursor-default bg-foreground/30 backdrop-blur-sm sm:top-20 2xl:hidden"
           />
           <div
             id="menu-movel"
-            className="fixed bottom-0 right-0 top-16 z-50 w-full max-w-sm overflow-y-auto border-l border-border bg-background px-4 py-5 shadow-2xl animate-in slide-in-from-right-4 sm:top-20 sm:px-6 xl:hidden"
+            className="fixed bottom-0 right-0 top-16 z-50 w-full max-w-sm overflow-y-auto border-l border-border bg-background px-4 py-5 shadow-2xl animate-in slide-in-from-right-4 sm:top-20 sm:px-6 2xl:hidden"
           >
           {isGuardian && (
             <Link

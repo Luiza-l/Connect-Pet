@@ -289,6 +289,12 @@ async function fetchUserProfile(supabaseClient: ReturnType<typeof createClient>,
         : cleanAvatar(profile.avatar);
 
       if (profile.role === 'guardian') {
+        // A consulta adicional mantém as contas existentes utilizáveis antes da migração do mapa.
+        const { data: localizacao } = profile.guardian_type === 'ngo'
+          ? await supabaseClient.from('profiles')
+            .select('latitude_publica, longitude_publica, localizacao_publica, cep, endereco_privado')
+            .eq('id', sessionUser.id).maybeSingle()
+          : { data: null };
         return {
           id: profile.id,
           role: 'guardian',
@@ -301,6 +307,13 @@ async function fetchUserProfile(supabaseClient: ReturnType<typeof createClient>,
           city: profile.city || '',
           state: profile.state || '',
           neighborhood: profile.neighborhood || '',
+          ...(localizacao ? {
+            latitudePublica: localizacao.latitude_publica ?? null,
+            longitudePublica: localizacao.longitude_publica ?? null,
+            localizacaoPublica: localizacao.localizacao_publica ?? false,
+            cep: localizacao.cep || '',
+            enderecoPrivado: localizacao.endereco_privado || '',
+          } : {}),
           description: profile.description || undefined,
           bio: profile.bio || undefined,
           socialMedia: profile.social_media || undefined,
@@ -985,6 +998,13 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           if (updatedUser.bio !== undefined) dbUpdates.bio = updatedUser.bio;
           if (updatedUser.description !== undefined) dbUpdates.description = updatedUser.description;
           if (updatedUser.socialMedia !== undefined) dbUpdates.social_media = updatedUser.socialMedia;
+          if (updatedUser.guardianType === 'ngo') {
+            if (updatedUser.latitudePublica !== undefined) dbUpdates.latitude_publica = updatedUser.latitudePublica;
+            if (updatedUser.longitudePublica !== undefined) dbUpdates.longitude_publica = updatedUser.longitudePublica;
+            if (updatedUser.localizacaoPublica !== undefined) dbUpdates.localizacao_publica = updatedUser.localizacaoPublica;
+            if (updatedUser.cep !== undefined) dbUpdates.cep = updatedUser.cep;
+            if (updatedUser.enderecoPrivado !== undefined) dbUpdates.endereco_privado = updatedUser.enderecoPrivado;
+          }
         }
 
         const { data: savedProfile, error: profileError } = await supabase

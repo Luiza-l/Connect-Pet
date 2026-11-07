@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useMemo, useEffect, useId } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { filtrarPetsDaOng } from "@/lib/catalogoPets";
 import { useApp } from "@/context/AppContext";
 import { PetCard } from "@/components/pets/PetCard";
 import { Button } from "@/components/ui/button";
@@ -270,6 +271,8 @@ function FilterPanel({
 
 export function CatalogView() {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const idOng = searchParams.get("ong");
   const { petsDoCatalogo, petsLoading, petsError, reloadPets, favorites, showFavoritesOnly, setShowFavoritesOnly, currentUser, requireAuth } = useApp();
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -291,7 +294,8 @@ export function CatalogView() {
     city !== "all",
     onlyCastrated,
     onlyVaccinated,
-    showFavoritesOnly
+    showFavoritesOnly,
+    idOng !== null
   ].filter(Boolean).length;
 
   const isFavoritosUrl = searchParams.get("favoritos") === "true";
@@ -337,11 +341,16 @@ export function CatalogView() {
     setOnlyCastrated(false);
     setOnlyVaccinated(false);
     setShowFavoritesOnly(false);
+    if (idOng !== null) {
+      const parametros = new URLSearchParams(searchParams.toString());
+      parametros.delete("ong");
+      router.replace(`/pets${parametros.size ? `?${parametros}` : ""}`, { scroll: false });
+    }
   };
 
   // Filter computation
   const filteredPets = useMemo(() => {
-    return petsDoCatalogo.filter((pet) => {
+    return filtrarPetsDaOng(petsDoCatalogo, idOng).filter((pet) => {
       // Busca por nome e raça
       if (searchQuery.trim()) {
         const termoBusca = searchQuery.trim().toLowerCase();
@@ -386,6 +395,7 @@ export function CatalogView() {
     });
   }, [
     petsDoCatalogo,
+    idOng,
     searchQuery,
     species,
     size,
@@ -414,6 +424,7 @@ export function CatalogView() {
           <p className="text-xs sm:text-sm text-muted-foreground mt-1">
             {filteredPets.length} {filteredPets.length === 1 ? "animal encontrado" : "animais encontrados"} no catálogo de adoção responsável.
           </p>
+          {idOng !== null && <p role="status" className="mt-2 text-sm font-semibold text-primary">Mostrando somente pets disponíveis da ONG selecionada. Use Limpar filtros para ver todo o catálogo.</p>}
         </div>
 
         {/* Search & Mobile Filter Toggle */}
@@ -566,12 +577,14 @@ export function CatalogView() {
               <div className="space-y-1">
                 <h3 className="font-bold text-lg text-foreground">Nenhum animal encontrado</h3>
                 <p className="text-xs sm:text-sm text-muted-foreground max-w-sm mx-auto">
-                  {petsDoCatalogo.length === 0
+                  {idOng !== null
+                    ? "Esta ONG não possui pets disponíveis ou o identificador informado não corresponde a uma ONG."
+                    : petsDoCatalogo.length === 0
                     ? "Ainda não há animais publicados para adoção. Volte em breve."
                     : "Tente alterar seus termos de busca ou remover alguns filtros acumulativos para visualizar outros pets."}
                 </p>
               </div>
-              {petsDoCatalogo.length > 0 && <Button onClick={resetFilters} variant="outline" className="min-h-[44px] rounded-full text-xs">Limpar Todos os Filtros</Button>}
+              {(petsDoCatalogo.length > 0 || idOng !== null) && <Button onClick={resetFilters} variant="outline" className="min-h-[44px] rounded-full text-xs">Limpar Todos os Filtros</Button>}
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">

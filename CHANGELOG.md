@@ -1,5 +1,18 @@
 # Changelog
 
+## [v0.10.0] - 2026-11-06
+### Commit
+`feat: adicionar mapa público de ONGs com localização consentida`
+
+### Mudanças
+- Adiciona `/mapa-ongs` à navegação com Leaflet, agrupamento de marcadores, pesquisa, filtros, lista integrada e distância aproximada mediante geolocalização autorizada.
+- Permite escolher, confirmar, alterar e revogar a localização pública de ONGs no cadastro e no perfil, preservando CEP e endereço privados.
+- Integra o parâmetro `ong` ao catálogo, limitando os resultados aos pets disponíveis da organização selecionada.
+- Centraliza a migração idempotente na seção 14 de `supabase/schema.sql`, mantendo as políticas de proprietário e uma consulta pública restrita aos dados autorizados.
+- Adiciona testes de RLS, consentimento, cadastro, privacidade e filtro de pets; documenta a configuração e as políticas dos serviços cartográficos.
+
+---
+
 ## [v0.9.35] - 2026-10-31
 ### Commit
 `fix: restringir busca do catálogo a nome e raça`

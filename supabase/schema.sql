@@ -887,49 +887,7 @@ update public.pets p
 -- Evita perfil ausente quando o cadastro exige confirmação de e-mail (ainda sem sessão para gravar via RLS).
 -- Uma falha é propagada para impedir a criação silenciosa de uma conta sem perfil utilizável.
 -- Observação: "verified" nasce sempre falso; a verificação de ONGs deve ser feita pelo administrador.
-create or replace function public.handle_new_user()
-returns trigger
-language plpgsql
-security definer
-set search_path = ''
-as $$
-declare
-  meta jsonb := coalesce(new.raw_user_meta_data, '{}'::jsonb);
-  papel text := case when meta ->> 'role' = 'guardian' then 'guardian' else 'adopter' end;
-begin
-  insert into public.profiles (
-    id, role, name, email, primary_phone,
-    cpf, birth_date, profession, social_media,
-    guardian_type, document, city, state, neighborhood
-  )
-  values (
-    new.id,
-    papel,
-    coalesce(nullif(meta ->> 'name', ''), split_part(coalesce(new.email, ''), '@', 1), 'Usuário'),
-    coalesce(new.email, ''),
-    meta ->> 'primaryPhone',
-    case when papel = 'adopter' then meta ->> 'cpf' end,
-    case when papel = 'adopter' then meta ->> 'birthDate' end,
-    case when papel = 'adopter' then meta ->> 'profession' end,
-    meta ->> 'socialMedia',
-    case when papel = 'guardian'
-      then case when meta ->> 'guardianType' in ('individual', 'ngo') then meta ->> 'guardianType' else 'ngo' end
-    end,
-    case when papel = 'guardian' then meta ->> 'document' end,
-    meta ->> 'city',
-    meta ->> 'state',
-    case when papel = 'guardian' then meta ->> 'neighborhood' end
-  )
-  on conflict (id) do nothing;
-
-  return new;
-end;
-$$;
-
-drop trigger if exists trg_on_auth_user_created on auth.users;
-create trigger trg_on_auth_user_created
-  after insert on auth.users
-  for each row execute function public.handle_new_user();
+-- Definição movida para a seção 14, junto dos campos opcionais do mapa.
 
 -- 10.7 Proteção da tabela profiles: atualiza updated_at automaticamente e impede que o próprio
 -- usuário se marque como "verified" pela API (só o painel/admin do Supabase pode alterar esse campo).
@@ -974,7 +932,6 @@ revoke execute on function public.applications_marcar_pet_em_processo() from pub
 revoke execute on function public.atualizar_data_modificacao() from public, anon, authenticated;
 revoke execute on function public.applications_validar_transicao_status() from public, anon, authenticated;
 revoke execute on function public.applications_registrar_mudanca_status() from public, anon, authenticated;
-revoke execute on function public.handle_new_user() from public, anon, authenticated;
 revoke execute on function public.profiles_antes_de_gravar() from public, anon, authenticated;
 
 -- ==============================================================================
@@ -1147,4 +1104,162 @@ from auth.users u
 where not exists (select 1 from public.profiles p where p.id = u.id)
 on conflict (id) do nothing;
 
+-- ==============================================================================
+-- 14. Mapa de ONGs: ponto público opcional, endereço privado e consentimento explícito.
+-- Aplicar esta seção antes de publicar o frontend. Não geocodifica nem publica contas antigas.
+-- Inclui o trigger de cadastro completo; pode ser aplicada isoladamente em bases existentes.
+-- ==============================================================================
+alter table public.profiles add column if not exists latitude_publica double precision;
+alter table public.profiles add column if not exists longitude_publica double precision;
+alter table public.profiles add column if not exists localizacao_publica boolean not null default false;
+alter table public.profiles add column if not exists cep text;
+alter table public.profiles add column if not exists endereco_privado text;
 
+do $$
+begin
+  if not exists (select 1 from pg_constraint where conrelid = 'public.profiles'::regclass and conname = 'profiles_ponto_publico_valido') then
+    alter table public.profiles add constraint profiles_ponto_publico_valido check (
+      (latitude_publica is null and longitude_publica is null)
+      or (latitude_publica is not null and longitude_publica is not null
+        and latitude_publica between -90 and 90 and longitude_publica between -180 and 180)
+    );
+  end if;
+  if not exists (select 1 from pg_constraint where conrelid = 'public.profiles'::regclass and conname = 'profiles_consentimento_mapa') then
+    alter table public.profiles add constraint profiles_consentimento_mapa check (
+      not localizacao_publica or (role = 'guardian' and guardian_type = 'ngo'
+        and latitude_publica is not null and longitude_publica is not null
+        and nullif(btrim(city), '') is not null and nullif(btrim(state), '') is not null)
+    );
+  end if;
+  if not exists (select 1 from pg_constraint where conrelid = 'public.profiles'::regclass and conname = 'profiles_endereco_privado_valido') then
+    alter table public.profiles add constraint profiles_endereco_privado_valido check (
+      (cep is null or cep = '' or cep ~ '^[0-9]{5}-?[0-9]{3}$')
+      and (endereco_privado is null or char_length(endereco_privado) <= 300)
+    );
+  end if;
+end;
+$$;
+
+-- A chave primária id e as políticas de profiles existentes mantêm SELECT/UPDATE
+-- restritos ao titular, incluindo CEP, endereço e coordenadas não autorizadas.
+alter table public.profiles enable row level security;
+create index if not exists idx_profiles_ongs_no_mapa on public.profiles (id)
+  where role = 'guardian' and guardian_type = 'ngo' and localizacao_publica;
+create index if not exists idx_pets_disponiveis_guardiao on public.pets (guardian_id)
+  where status = 'available';
+
+-- Alterar município pela API também revoga um ponto antigo. Não toca em endereços
+-- nem transforma dados privados em coordenadas públicas automaticamente.
+create or replace function public.validar_alteracao_localizacao_ong()
+returns trigger language plpgsql security invoker set search_path = '' as $$
+begin
+  if (new.city is distinct from old.city or new.state is distinct from old.state)
+    and new.latitude_publica is not distinct from old.latitude_publica
+    and new.longitude_publica is not distinct from old.longitude_publica then
+    new.latitude_publica := null;
+    new.longitude_publica := null;
+    new.localizacao_publica := false;
+  end if;
+  return new;
+end;
+$$;
+drop trigger if exists trg_validar_alteracao_localizacao_ong on public.profiles;
+create trigger trg_validar_alteracao_localizacao_ong before update on public.profiles
+  for each row execute function public.validar_alteracao_localizacao_ong();
+revoke all on function public.validar_alteracao_localizacao_ong() from public, anon, authenticated;
+
+-- A projeção privilegiada fica em esquema não exposto na Data API. Ela é necessária
+-- porque profiles contém dados pessoais e sua RLS não deve ser aberta a visitantes.
+-- Somente campos institucionais e pontos consentidos (ou do próprio titular) saem
+-- desta função; a RPC pública abaixo exclui também os pontos privados do titular.
+create schema if not exists privado;
+revoke all on schema privado from public;
+grant usage on schema privado to anon, authenticated;
+create or replace function privado.consultar_ongs_mapa()
+returns table (
+  id uuid, nome text, cidade text, estado text, descricao text, avatar text,
+  latitude double precision, longitude double precision, pets_disponiveis bigint, visivel boolean
+)
+language sql stable security definer set search_path = '' as $$
+  select p.id, p.name, p.city, p.state, coalesce(nullif(btrim(p.bio), ''), nullif(btrim(p.description), '')),
+    p.avatar, p.latitude_publica, p.longitude_publica,
+    (select count(*) from public.pets pet where pet.guardian_id = p.id::text and pet.status = 'available'),
+    p.localizacao_publica
+  from public.profiles p
+  where p.role = 'guardian' and p.guardian_type = 'ngo'
+    and p.latitude_publica is not null and p.longitude_publica is not null
+    and (p.localizacao_publica or p.id = (select auth.uid()));
+$$;
+revoke all on function privado.consultar_ongs_mapa() from public, anon, authenticated;
+grant execute on function privado.consultar_ongs_mapa() to anon, authenticated;
+
+-- Contrato público fechado: nunca retorna CEP, bairro, endereço, telefone, e-mail,
+-- documento ou ponto sem consentimento, mesmo quando o visitante é o titular.
+create or replace function public.listar_ongs_no_mapa()
+returns table (
+  id uuid, nome text, cidade text, estado text, descricao text, avatar text,
+  latitude double precision, longitude double precision, pets_disponiveis bigint
+)
+language sql stable security invoker set search_path = '' as $$
+  select ong.id, ong.nome, ong.cidade, ong.estado, ong.descricao, ong.avatar,
+    ong.latitude, ong.longitude, ong.pets_disponiveis
+  from privado.consultar_ongs_mapa() ong where ong.visivel
+  order by ong.id;
+$$;
+revoke all on function public.listar_ongs_no_mapa() from public, anon, authenticated;
+grant execute on function public.listar_ongs_no_mapa() to anon, authenticated;
+
+
+
+create or replace function public.handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  meta jsonb := coalesce(new.raw_user_meta_data, '{}'::jsonb);
+  papel text := case when meta ->> 'role' = 'guardian' then 'guardian' else 'adopter' end;
+begin
+  insert into public.profiles (
+    id, role, name, email, primary_phone,
+    cpf, birth_date, profession, social_media,
+    guardian_type, document, city, state, neighborhood,
+    latitude_publica, longitude_publica, localizacao_publica, cep, endereco_privado
+  )
+  values (
+    new.id,
+    papel,
+    coalesce(nullif(meta ->> 'name', ''), split_part(coalesce(new.email, ''), '@', 1), 'Usuário'),
+    coalesce(new.email, ''),
+    meta ->> 'primaryPhone',
+    case when papel = 'adopter' then meta ->> 'cpf' end,
+    case when papel = 'adopter' then meta ->> 'birthDate' end,
+    case when papel = 'adopter' then meta ->> 'profession' end,
+    meta ->> 'socialMedia',
+    case when papel = 'guardian'
+      then case when meta ->> 'guardianType' in ('individual', 'ngo') then meta ->> 'guardianType' else 'ngo' end
+    end,
+    case when papel = 'guardian' then meta ->> 'document' end,
+    meta ->> 'city',
+    meta ->> 'state',
+    case when papel = 'guardian' then meta ->> 'neighborhood' end,
+    case when papel = 'guardian' and meta ->> 'guardianType' = 'ngo' then (meta ->> 'latitudePublica')::double precision end,
+    case when papel = 'guardian' and meta ->> 'guardianType' = 'ngo' then (meta ->> 'longitudePublica')::double precision end,
+    case when papel = 'guardian' and meta ->> 'guardianType' = 'ngo' then coalesce((meta ->> 'localizacaoPublica')::boolean, false) else false end,
+    case when papel = 'guardian' and meta ->> 'guardianType' = 'ngo' then meta ->> 'cep' end,
+    case when papel = 'guardian' and meta ->> 'guardianType' = 'ngo' then meta ->> 'enderecoPrivado' end
+  )
+  on conflict (id) do nothing;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_on_auth_user_created on auth.users;
+create trigger trg_on_auth_user_created
+  after insert on auth.users
+  for each row execute function public.handle_new_user();
+
+
+revoke execute on function public.handle_new_user() from public, anon, authenticated;
