@@ -259,11 +259,11 @@ export function SobreNosView() {
 
             <div className="relative mt-8 aspect-[3/1] w-full overflow-hidden rounded-3xl border border-primary/15 bg-sky-100/70 p-3 dark:bg-sky-950/40">
               <Image
-                src="/images/home/pillars-illustration.png"
+                src="/images/imagem-sobre.png"
                 alt="Ilustração de uma jornada entre busca, divulgação e adoção"
                 fill
                 sizes="(max-width: 1024px) 100vw, 38vw"
-                className="object-contain p-2"
+                className="object-contain p-2 scale-[2]"
               />
             </div>
           </div>
