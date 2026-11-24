@@ -1,5 +1,64 @@
 # Changelog
 
+## [v0.12.2] - 2026-11-23
+### Commit
+`fix: remover a aba geral de mensagens do painel da ONG`
+
+### Mudanças
+- Mantém a aba Mensagens do painel dentro da triagem de cada candidatura.
+- Direciona o responsável que acessa o chat pelo próprio anúncio para a página de conversas sobre pets.
+
+---
+
+## [v0.12.1] - 2026-11-23
+### Commit
+`fix: alinhar ações no rodapé da candidatura`
+
+### Mudanças
+- Posiciona os botões de decisão e andamento após o conteúdo da candidatura, em uma única linha no celular e no desktop.
+
+---
+
+## [v0.12.0] - 2026-11-23
+### Commit
+`feat: aprovar ou recusar candidaturas diretamente no painel`
+
+### Mudanças
+- Substitui o seletor de andamento por ações de aprovação, recusa, avaliação, conclusão e reabertura no detalhe da candidatura.
+- Habilita a transição de pendente para aprovada na função `applications_validar_transicao_status` e condiciona a gravação ao status exibido para evitar decisões concorrentes.
+
+---
+
+## [v0.11.2] - 2026-11-23
+### Commit
+`fix: evitar sobreposição do painel de gestão na navegação do doador`
+
+### Mudanças
+- Ajusta o menu da conta ao espaço disponível à direita e mantém os links principais centralizados no desktop.
+
+---
+
+## [v0.11.1] - 2026-11-23
+### Commit
+`fix: separar formulário e mensagens nas candidaturas da ONG`
+
+### Mudanças
+- Adiciona as abas Formulário e Mensagens ao detalhe de cada candidatura, no painel de desktop e no detalhe móvel.
+- Mantém o candidato, o pet e o controle de andamento visíveis ao alternar entre as respostas e a conversa.
+
+---
+
+## [v0.11.0] - 2026-11-23
+### Commit
+`feat: integrar conversas sobre pets ao catálogo e ao painel de gestão`
+
+### Mudanças
+- Abre ou recupera a conversa do adotante pelo anúncio e reúne as respostas do responsável na aba Mensagens do painel.
+- Centraliza na seção 15 do schema a persistência, as permissões por participante, os indicadores de leitura e a publicação para o Supabase Realtime.
+- Adiciona a rota de demonstração `/demo-ong` com mensagens fictícias e respostas isoladas em memória.
+
+---
+
 ## [v0.10.0] - 2026-11-06
 ### Commit
 `feat: adicionar mapa público de ONGs com localização consentida`

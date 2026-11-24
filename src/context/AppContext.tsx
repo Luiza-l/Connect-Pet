@@ -8,7 +8,6 @@ import {
   AdopterProfile,
   PreAdoptionApplication,
   ApplicationStatus,
-  PetAdoptionStatus,
   SmartMatchQuizData,
   MatchResult,
   HousingType,
@@ -78,7 +77,7 @@ interface AppContextType {
   applicationsError: string | null;
   reloadApplications: () => void;
   submitApplication: (applicationData: Omit<PreAdoptionApplication, 'id' | 'createdAt' | 'status' | 'notes' | 'messages' | 'automatedAnalysis'>) => Promise<PreAdoptionApplication | null>;
-  updateApplicationStatus: (appId: string, status: ApplicationStatus) => Promise<boolean>;
+  updateApplicationStatus: (appId: string, status: ApplicationStatus, statusAnterior: ApplicationStatus) => Promise<boolean>;
   updateGuardianNotes: (appId: string, notes: string) => Promise<boolean>;
   sendApplicationMessage: (appId: string, content: string) => Promise<boolean>;
   generateApplicationAIAnalysis: (appId: string) => Promise<boolean>;
@@ -1950,69 +1949,32 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     }
   }, [analyzeDossier, applications, calculateAge, currentUser, showToast, supabase]);
 
-  const updateApplicationStatus = useCallback(async (appId: string, status: ApplicationStatus) => {
+  const updateApplicationStatus = useCallback(async (appId: string, status: ApplicationStatus, statusAnterior: ApplicationStatus) => {
     if (!supabase || currentUser?.role !== 'guardian') return false;
-    const candidaturaAtualizada = applications.find((app) => app.id === appId);
+    // Uma decisão tomada em outra sessão invalida o status que a ONG estava vendo.
     const { data, error } = await supabase
       .from('applications')
       .update({ status })
       .eq('id', appId)
       .eq('guardian_id', currentUser.id)
-      .select('id')
+      .eq('status', statusAnterior)
+      .select('id, status')
       .maybeSingle();
 
     if (error || !data) {
       console.warn('Não foi possível atualizar o status:', error?.message);
-      showToast('Status não atualizado', 'Tente novamente em alguns instantes.', 'error');
+      showToast('Status não atualizado', error ? 'Tente novamente em alguns instantes.' : 'A candidatura mudou ou está indisponível. A lista será atualizada.', 'error');
+      reloadApplications();
       return false;
     }
 
-    const candidaturasAposAlteracao = applications.map((app) => app.id === appId ? { ...app, status } : app);
-    setApplicationsState(candidaturasAposAlteracao);
-
-    if (candidaturaAtualizada?.petId) {
-      const petAtual = pets.find((pet) => pet.id === candidaturaAtualizada.petId);
-      const deveRecalcularPet = status === 'completed'
-        || candidaturaAtualizada.status === 'completed'
-        || petAtual?.status !== 'adopted';
-
-      if (deveRecalcularPet) {
-        const existeAdocaoConcluida = candidaturasAposAlteracao.some((app) =>
-          app.petId === candidaturaAtualizada.petId && app.status === 'completed'
-        );
-        const existeTriagemAberta = candidaturasAposAlteracao.some((app) =>
-          app.petId === candidaturaAtualizada.petId
-          && (app.status === 'pending' || app.status === 'under_review' || app.status === 'approved')
-        );
-        const novoStatusPet: PetAdoptionStatus = existeAdocaoConcluida
-          ? 'adopted'
-          : existeTriagemAberta
-            ? 'in_process'
-            : 'available';
-
-        const { error: erroPet } = await supabase
-          .from('pets')
-          .update({ status: novoStatusPet })
-          .eq('id', candidaturaAtualizada.petId)
-          .eq('guardian_id', currentUser.id);
-
-        if (erroPet) {
-          console.warn('A candidatura foi atualizada, mas o status do pet não foi sincronizado:', erroPet.message);
-          showToast('Candidatura atualizada', 'Revise o status do pet, pois a sincronização não foi concluída.', 'warning');
-          reloadApplications();
-          return true;
-        }
-
-        setPetsState((anteriores) => anteriores.map((pet) =>
-          pet.id === candidaturaAtualizada.petId ? { ...pet, status: novoStatusPet } : pet
-        ));
-      }
-    }
-    await reloadPets();
+    setApplicationsState(anteriores => anteriores.map(app => app.id === data.id ? { ...app, status: data.status } : app));
+    // A sincronização recupera o pet e a mensagem de sistema gravados pelo gatilho na mesma transação.
     reloadApplications();
-    showToast('Status atualizado', 'O andamento da candidatura foi atualizado com sucesso.', 'success');
+    const titulo = status === 'approved' ? 'Candidatura aprovada' : status === 'rejected' ? 'Candidatura recusada' : 'Status atualizado';
+    showToast(titulo, 'O andamento da candidatura foi atualizado com sucesso.', 'success');
     return true;
-  }, [applications, currentUser, pets, reloadApplications, reloadPets, showToast, supabase]);
+  }, [currentUser, reloadApplications, showToast, supabase]);
 
   const updateGuardianNotes = useCallback(async (appId: string, notes: string) => {
     if (!supabase || currentUser?.role !== 'guardian') return false;

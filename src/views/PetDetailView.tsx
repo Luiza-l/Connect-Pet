@@ -39,7 +39,7 @@ interface PetDetailViewProps {
 
 export function PetDetailView({ pet }: PetDetailViewProps) {
   const router = useRouter();
-  const { currentUser, isFavorite, toggleFavorite, showToast } = useApp();
+  const { currentUser, isFavorite, toggleFavorite, showToast, requireAuth } = useApp();
 
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0);
   const [isAdoptionModalOpen, setIsAdoptionModalOpen] = useState(false);
@@ -476,7 +476,18 @@ export function PetDetailView({ pet }: PetDetailViewProps) {
               )}
             </div>
 
-            {/* Direct WhatsApp Contact Button */}
+            <Button className="w-full rounded-2xl" onClick={() => {
+              const destino = `/mensagens?pet=${encodeURIComponent(pet.id)}`;
+              if (!requireAuth("default", { redirectTo: destino })) return;
+              if (currentUser?.id === pet.guardianId) { router.push("/mensagens"); return; }
+              if (currentUser?.role !== "adopter") {
+                showToast("Conta de adotante necessária", "Entre como adotante para conversar sobre este pet.", "info");
+                return;
+              }
+              router.push(destino);
+            }}>
+              <MessageCircle />Tirar dúvidas
+            </Button>
             {guardianPhoneDigits.length >= 10 && (
             <div className="pt-2">
               <Button
@@ -492,7 +503,7 @@ export function PetDetailView({ pet }: PetDetailViewProps) {
                   rel="noopener noreferrer"
                 >
                   <MessageCircle className="w-4 h-4 mr-2 text-emerald-600 dark:text-emerald-400" />
-                  Tirar Dúvidas no WhatsApp
+                  Contatar pelo WhatsApp
                 </a>
               </Button>
             </div>

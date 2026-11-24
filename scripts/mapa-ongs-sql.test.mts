@@ -35,7 +35,7 @@ test("migração do mapa protege endereços, respeita RLS e revoga consentimento
       insert into public.profiles (id, role, guardian_type, name, email, city, state)
       values ('11111111-1111-4111-8111-111111111111', 'guardian', 'ngo', 'ONG antiga', 'legado@teste.invalid', 'Campinas', 'SP');
     `);
-    const migracao = esquema.slice(esquema.indexOf("-- 14. Mapa de ONGs"));
+    const migracao = extrair("-- 14. Mapa de ONGs", "-- 15. Conversas sobre anúncios");
     await banco.exec(migracao);
     await banco.exec(migracao);
     await banco.exec(`

@@ -19,6 +19,7 @@ import {
   HeartHandshake,
   FileCheck2,
   LayoutDashboard,
+  MessageCircle,
   ArrowRight,
   User,
   UserCog,
@@ -170,7 +171,7 @@ export function Navbar() {
         </nav>
 
         {/* A gestão fica visível sem depender do menu da conta. */}
-        <div className="flex shrink-0 items-center gap-1.5 sm:gap-3 2xl:justify-self-end">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-3 2xl:min-w-0 2xl:justify-end 2xl:gap-2">
           {isGuardian && (
             <Link
               href="/dashboard"
@@ -256,7 +257,7 @@ export function Navbar() {
 
           {/* User Account / Demo Profile Switcher */}
           {currentUser ? (
-            <div className={isGuardian ? "relative hidden 2xl:block" : "relative"}>
+            <div className={isGuardian ? "relative hidden min-w-0 2xl:block" : "relative"}>
               <button
                 onClick={() => {
                   setProfileDropdownOpen(!profileDropdownOpen);
@@ -265,7 +266,7 @@ export function Navbar() {
                 aria-haspopup="menu"
                 aria-expanded={profileDropdownOpen}
                 aria-label={`Abrir menu de ${currentUser.name}`}
-                className="flex items-center gap-2.5 p-1.5 pr-3 min-h-[44px] rounded-full border border-border/60 bg-card hover:border-primary/40 shadow-sm transition-all text-left"
+                className="flex max-w-full items-center gap-2 p-1.5 pr-3 min-h-[44px] rounded-full border border-border/60 bg-card hover:border-primary/40 shadow-sm transition-all text-left"
               >
                 <div className="w-8 h-8 rounded-full overflow-hidden relative border border-primary/25 bg-sky-100 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300 flex items-center justify-center font-bold text-xs shrink-0">
                   {currentUser.avatar ? (
@@ -280,7 +281,7 @@ export function Navbar() {
                     <User className="w-4 h-4 text-sky-700 dark:text-sky-300" />
                   )}
                 </div>
-                <div className={`hidden flex-col ${isGuardian ? "2xl:flex" : "md:flex"}`}>
+                <div className={`hidden min-w-0 flex-col ${isGuardian ? "2xl:flex" : "md:flex"}`}>
                   <span className="max-w-24 truncate text-xs font-bold leading-tight text-foreground">
                     {currentUser.name}
                   </span>
@@ -288,7 +289,7 @@ export function Navbar() {
                     {isAdopter ? "Adotante" : "ONG / Protetor"}
                   </span>
                 </div>
-                <ChevronDown className="w-3.5 h-3.5 text-muted-foreground hidden sm:block" />
+                <ChevronDown className="w-3.5 h-3.5 shrink-0 text-muted-foreground hidden sm:block" />
               </button>
 
               {profileDropdownOpen && (
@@ -312,6 +313,10 @@ export function Navbar() {
                   </Link>
 
                   {/* Panel Shortcut */}
+                  {isAdopter && <Link href="/mensagens" role="menuitem" onClick={() => setProfileDropdownOpen(false)}
+                    className="flex min-h-[44px] items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium hover:bg-secondary">
+                    <MessageCircle className="size-4 text-primary" /> Mensagens
+                  </Link>}
                   {isAdopter && (
                     <Link
                       href="/minhas-candidaturas"
@@ -446,6 +451,10 @@ export function Navbar() {
               </Link>
             )}
 
+            {isAdopter && <Link href="/mensagens" onClick={() => setMobileMenuOpen(false)}
+              className="flex min-h-[44px] items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-muted-foreground hover:bg-secondary">
+              <MessageCircle className="size-4 text-primary" /> Mensagens
+            </Link>}
           </nav>
 
           {/* Mobile User Actions */}

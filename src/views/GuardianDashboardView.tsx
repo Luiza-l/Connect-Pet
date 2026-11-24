@@ -14,6 +14,7 @@ import {
   ChevronDown,
   ChevronRight,
   CircleCheckBig,
+  CircleX,
   Eye,
   FileCheck2,
   Grid2X2,
@@ -36,6 +37,7 @@ import { useApp } from "@/context/AppContext";
 import type { ApplicationStatus, Pet, PetAdoptionStatus, PreAdoptionApplication } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { SeletorDeslizante } from "@/components/ui/SeletorDeslizante";
 import { capitalizarFrases } from "@/lib/capitalizacao";
 import {
@@ -67,7 +69,7 @@ const CONFIGURACAO_STATUS_CANDIDATURA: Record<ApplicationStatus, { rotulo: strin
   pending: { rotulo: "Pendente", classe: "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-300" },
   under_review: { rotulo: "Em avaliação", classe: "border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-300" },
   approved: { rotulo: "Aprovada", classe: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300" },
-  rejected: { rotulo: "Não aprovada", classe: "border-destructive/30 bg-destructive/10 text-destructive" },
+  rejected: { rotulo: "Recusada", classe: "border-destructive/30 bg-destructive/10 text-destructive" },
   completed: { rotulo: "Adoção concluída", classe: "border-violet-500/30 bg-violet-500/10 text-violet-700 dark:text-violet-300" },
 };
 
@@ -77,16 +79,13 @@ const ROTULOS_STATUS_PET: Record<PetAdoptionStatus, string> = {
   adopted: "Adotado",
 };
 
-function obterTransicoesPermitidas(status: ApplicationStatus): ApplicationStatus[] {
-  const transicoes: Record<ApplicationStatus, ApplicationStatus[]> = {
-    pending: ["under_review", "rejected"],
-    under_review: ["pending", "approved", "rejected"],
-    approved: ["under_review", "rejected", "completed"],
-    rejected: ["under_review"],
-    completed: ["under_review"],
-  };
-  return transicoes[status];
-}
+const ACOES_DE_ANDAMENTO: Record<ApplicationStatus, { destino: ApplicationStatus; rotulo: string }[]> = {
+  pending: [{ destino: "under_review", rotulo: "Iniciar avaliação" }],
+  under_review: [{ destino: "pending", rotulo: "Voltar para pendente" }],
+  approved: [{ destino: "completed", rotulo: "Concluir adoção" }, { destino: "under_review", rotulo: "Reabrir avaliação" }],
+  rejected: [{ destino: "under_review", rotulo: "Reabrir avaliação" }],
+  completed: [{ destino: "under_review", rotulo: "Reabrir adoção" }],
+};
 
 function obterCompletudePet(pet: Pet): number {
   const campos = [
@@ -221,7 +220,8 @@ function PainelDossie({
   const [estaSalvandoNotas, setEstaSalvandoNotas] = useState(false);
   const [estaEnviandoMensagem, setEstaEnviandoMensagem] = useState(false);
   const [estaGerandoAnalise, setEstaGerandoAnalise] = useState(false);
-  const transicoes = obterTransicoesPermitidas(candidatura.status);
+  const podeDecidir = candidatura.status === "pending" || candidatura.status === "under_review";
+  const andamento = CONFIGURACAO_STATUS_CANDIDATURA[candidatura.status];
   const telefone = candidatura.candidate.primaryPhone?.replace(/\D/g, "");
   const rotulosImovel: Record<PreAdoptionApplication["housingType"], string> = {
     apartamento: "Apartamento",
@@ -271,223 +271,245 @@ function PainelDossie({
           <h2 className="mt-1 break-words font-serif text-xl font-bold text-foreground sm:text-2xl">{candidatura.candidate.name}</h2>
           <p className="mt-1 text-xs text-muted-foreground">Recebida em {new Date(candidatura.createdAt).toLocaleDateString("pt-BR")}</p>
         </div>
-        <label className="flex w-full flex-col gap-1 text-xs font-semibold text-muted-foreground sm:w-auto">
-          Andamento
-          <select
-            value={candidatura.status}
-            disabled={estaAtualizandoStatus}
-            onChange={(evento) => aoSolicitarStatus(evento.target.value as ApplicationStatus)}
-            className="min-h-[44px] w-full rounded-xl border border-border bg-background px-3 text-sm font-bold text-foreground outline-none focus:ring-2 focus:ring-primary sm:w-auto"
-          >
-            <option value={candidatura.status}>{CONFIGURACAO_STATUS_CANDIDATURA[candidatura.status].rotulo}</option>
-            {transicoes.map((status) => <option key={status} value={status}>{CONFIGURACAO_STATUS_CANDIDATURA[status].rotulo}</option>)}
-          </select>
-        </label>
+        <div role="status" className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+          Andamento <Badge variant="outline" className={andamento.classe}>{andamento.rotulo}</Badge>
+        </div>
       </header>
 
-      <section aria-label="Resumo da candidatura" className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <div className="rounded-xl bg-muted/50 p-3">
-          <span className="block text-xs text-muted-foreground">Moradores</span>
-          <strong className="mt-1 block text-sm text-foreground">{candidatura.adultsCount + candidatura.childrenCount}</strong>
-        </div>
-        <div className="rounded-xl bg-muted/50 p-3">
-          <span className="block text-xs text-muted-foreground">Tempo sozinho</span>
-          <strong className="mt-1 block text-sm text-foreground">{candidatura.hoursAlone}h/dia</strong>
-        </div>
-        <div className="rounded-xl bg-muted/50 p-3">
-          <span className="block text-xs text-muted-foreground">Outros animais</span>
-          <strong className="mt-1 block text-sm text-foreground">{candidatura.hasCurrentPets ? "Sim" : "Não"}</strong>
-        </div>
-        <div className="rounded-xl bg-muted/50 p-3">
-          <span className="block text-xs text-muted-foreground">Referência</span>
-          <strong className="mt-1 block text-sm text-foreground">{candidatura.automatedAnalysis ? `${candidatura.automatedAnalysis.suitabilityScore}/100` : "—"}</strong>
-        </div>
-      </section>
-
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-        <a href={`mailto:${candidatura.candidate.email}`} className="flex min-h-[44px] min-w-0 items-center justify-center rounded-xl border border-border bg-background px-3 text-sm font-semibold text-primary transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
-          <span className="truncate">{candidatura.candidate.email}</span>
-        </a>
-        {telefone ? (
-          <a href={`https://wa.me/55${telefone}`} target="_blank" rel="noreferrer" className="flex min-h-[44px] items-center justify-center rounded-xl border border-border bg-background px-3 text-sm font-semibold text-primary transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
-            WhatsApp {candidatura.candidate.primaryPhone}
-          </a>
-        ) : (
-          <div className="flex min-h-[44px] items-center justify-center rounded-xl border border-border bg-muted/30 px-3 text-sm text-muted-foreground">Telefone não informado</div>
-        )}
-      </div>
-
-      <section aria-labelledby={`respostas-${contexto}-${candidatura.id}`} className="space-y-3">
-        <div>
-          <h3 id={`respostas-${contexto}-${candidatura.id}`} className="text-sm font-bold text-foreground">Respostas do candidato</h3>
-          <p className="mt-1 text-xs text-muted-foreground">Cada resposta é exibida integralmente como foi enviada.</p>
-        </div>
-
-        <GrupoRespostas titulo="Moradia e segurança" descricao={`${rotulosImovel[candidatura.housingType]} · ${rotulosCondicao[candidatura.housingStatus]}`}>
-          <RespostaDossie pergunta="Qual é o tipo e a condição do imóvel?" resposta={`${rotulosImovel[candidatura.housingType]} — ${rotulosCondicao[candidatura.housingStatus]}`} />
-          {candidatura.housingStatus === "alugado" && <RespostaDossie pergunta="O proprietário ou condomínio autoriza animais?" resposta={simOuNao(Boolean(candidatura.landlordPermission))} />}
-          <RespostaDossie pergunta="A residência possui proteção física contra fugas ou quedas?" resposta={simOuNao(candidatura.hasProtection)} />
-          <RespostaDossie pergunta="Como é a proteção da residência?" resposta={candidatura.protectionDetails} />
-          <RespostaDossie pergunta="Onde o animal poderá circular?" resposta={candidatura.accessArea === "livre_total" ? "Livremente por toda a casa" : "Em áreas ou cômodos específicos"} />
-        </GrupoRespostas>
-
-        <GrupoRespostas titulo="Família e rotina" descricao="Cuidados, ausências e viagens" aberto>
-          <RespostaDossie pergunta="Quantas pessoas moram na residência?" resposta={`${candidatura.adultsCount} adulto(s) e ${candidatura.childrenCount} criança(s)`} />
-          <RespostaDossie pergunta="Todos os moradores concordam com a adoção?" resposta={simOuNao(candidatura.familyAgreement)} />
-          <RespostaDossie pergunta="Há casos de alergia a pelos na residência?" resposta={simOuNao(candidatura.allergyCases)} />
-          {candidatura.allergyCases && <RespostaDossie pergunta="Como a alergia será manejada?" resposta={candidatura.allergyDetails} />}
-          <RespostaDossie pergunta="Por quantas horas o animal ficará sozinho por dia?" resposta={`${candidatura.hoursAlone} hora(s)`} />
-          <RespostaDossie pergunta="Quem cuidará da alimentação, higiene, passeios e consultas? Como isso fará parte da rotina?" resposta={candidatura.dailyCarePlan} />
-          <RespostaDossie pergunta="Com quem ou onde o animal ficará durante férias e viagens?" resposta={candidatura.travelCarePlan} />
-        </GrupoRespostas>
-
-        <GrupoRespostas titulo="Experiência e preparo" descricao="Outros animais, histórico e custos">
-          <RespostaDossie pergunta="Já há outros animais na residência?" resposta={simOuNao(candidatura.hasCurrentPets)} />
-          {candidatura.hasCurrentPets && <RespostaDossie pergunta="Quais animais vivem na residência e como será feita a apresentação?" resposta={candidatura.currentPetsDescription} />}
-          <RespostaDossie pergunta="Qual é o histórico do candidato com animais?" resposta={candidatura.previousPetsHistory} />
-          <RespostaDossie pergunta="O candidato declarou estar preparado para os custos contínuos e veterinários?" resposta={simOuNao(candidatura.costAwareness)} />
-        </GrupoRespostas>
-
-        <GrupoRespostas titulo="Dados do candidato" descricao="Identificação e contato informados no cadastro">
-          <RespostaDossie pergunta="Nome completo" resposta={candidatura.candidate.name} />
-          <RespostaDossie pergunta="Data de nascimento" resposta={candidatura.candidate.birthDate} />
-          <RespostaDossie pergunta="Profissão ou ocupação" resposta={candidatura.candidate.profession} />
-          <RespostaDossie pergunta="E-mail" resposta={candidatura.candidate.email} />
-          <RespostaDossie pergunta="WhatsApp ou telefone" resposta={candidatura.candidate.primaryPhone} />
-          <RespostaDossie pergunta="Rede social" resposta={candidatura.candidate.socialMedia} />
-        </GrupoRespostas>
-      </section>
-
-      {candidatura.automatedAnalysis && (
-        <details className="group overflow-hidden rounded-2xl border border-border/70 bg-muted/25">
-          <summary className="flex min-h-[56px] cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 marker:content-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset">
-            <span className="flex min-w-0 items-center gap-2 text-sm font-bold text-foreground">
-              <Sparkles className="h-4 w-4 shrink-0 text-primary" />
-              Análise de apoio
-            </span>
-            <span className="flex shrink-0 items-center gap-2">
-              <Badge variant="outline">{candidatura.automatedAnalysis.suitabilityScore}/100</Badge>
-              <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-open:rotate-180" aria-hidden="true" />
-            </span>
-          </summary>
-          <div className="space-y-4 border-t border-border/60 p-4 text-xs">
-            <div className="rounded-xl border border-primary/20 bg-primary/5 p-3">
-              <p className="font-bold text-foreground">{candidatura.automatedAnalysis.verdict}</p>
-              {candidatura.automatedAnalysis.resumo && <p className="mt-1 whitespace-pre-wrap break-words leading-relaxed text-muted-foreground">{candidatura.automatedAnalysis.resumo}</p>}
-              {candidatura.automatedAnalysis.justificativa && <p className="mt-1 whitespace-pre-wrap break-words leading-relaxed text-muted-foreground">{candidatura.automatedAnalysis.justificativa}</p>}
+      <Tabs defaultSelectedKey="formulario" className="min-w-0 flex-col gap-4">
+        <TabsList aria-label="Detalhes da candidatura" className="min-h-12 w-full max-w-full rounded-2xl p-1 sm:w-fit">
+          <TabsTrigger id="formulario" className="min-h-11 rounded-xl px-2 sm:px-4">
+            <FileCheck2 aria-hidden="true" /> Formulário
+          </TabsTrigger>
+          <TabsTrigger id="mensagens" className="min-h-11 rounded-xl px-2 sm:px-4">
+            <MessageSquare aria-hidden="true" /> Mensagens
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent id="formulario" className="min-w-0 space-y-5">
+          <section aria-label="Resumo da candidatura" className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <div className="rounded-xl bg-muted/50 p-3">
+              <span className="block text-xs text-muted-foreground">Moradores</span>
+              <strong className="mt-1 block text-sm text-foreground">{candidatura.adultsCount + candidatura.childrenCount}</strong>
             </div>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-              <div>
-                <h4 className="mb-2 font-bold text-foreground">Pontos favoráveis</h4>
-                <ul className="space-y-2 text-muted-foreground">
-                  {candidatura.automatedAnalysis.strengths.length > 0 ? candidatura.automatedAnalysis.strengths.map((item) => (
-                    <li key={item} className="flex items-start gap-2"><CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" /><span className="break-words">{item}</span></li>
-                  )) : <li>Nenhum ponto automático registrado.</li>}
-                </ul>
-              </div>
-              <div>
-                <h4 className="mb-2 font-bold text-foreground">Confirmar na conversa</h4>
-                <ul className="space-y-2 text-muted-foreground">
-                  {candidatura.automatedAnalysis.attentionPoints.length > 0 ? candidatura.automatedAnalysis.attentionPoints.map((item) => (
-                    <li key={item} className="flex items-start gap-2"><AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-600 dark:text-amber-400" /><span className="break-words">{item}</span></li>
-                  )) : <li>Nenhum ponto de atenção automático.</li>}
-                </ul>
-              </div>
+            <div className="rounded-xl bg-muted/50 p-3">
+              <span className="block text-xs text-muted-foreground">Tempo sozinho</span>
+              <strong className="mt-1 block text-sm text-foreground">{candidatura.hoursAlone}h/dia</strong>
             </div>
-            {candidatura.automatedAnalysis.suggestedQuestions.length > 0 && (
-              <div>
-                <h4 className="mb-2 font-bold text-foreground">Perguntas sugeridas para a entrevista</h4>
-                <ul className="list-inside list-disc space-y-1.5 text-muted-foreground">
-                  {candidatura.automatedAnalysis.suggestedQuestions.map((pergunta) => <li key={pergunta} className="break-words">{pergunta}</li>)}
-                </ul>
+            <div className="rounded-xl bg-muted/50 p-3">
+              <span className="block text-xs text-muted-foreground">Outros animais</span>
+              <strong className="mt-1 block text-sm text-foreground">{candidatura.hasCurrentPets ? "Sim" : "Não"}</strong>
+            </div>
+            <div className="rounded-xl bg-muted/50 p-3">
+              <span className="block text-xs text-muted-foreground">Referência</span>
+              <strong className="mt-1 block text-sm text-foreground">{candidatura.automatedAnalysis ? `${candidatura.automatedAnalysis.suitabilityScore}/100` : "—"}</strong>
+            </div>
+          </section>
+
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <a href={`mailto:${candidatura.candidate.email}`} className="flex min-h-[44px] min-w-0 items-center justify-center rounded-xl border border-border bg-background px-3 text-sm font-semibold text-primary transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+              <span className="truncate">{candidatura.candidate.email}</span>
+            </a>
+            {telefone ? (
+              <a href={`https://wa.me/55${telefone}`} target="_blank" rel="noreferrer" className="flex min-h-[44px] items-center justify-center rounded-xl border border-border bg-background px-3 text-sm font-semibold text-primary transition hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+                WhatsApp {candidatura.candidate.primaryPhone}
+              </a>
+            ) : (
+              <div className="flex min-h-[44px] items-center justify-center rounded-xl border border-border bg-muted/30 px-3 text-sm text-muted-foreground">Telefone não informado</div>
+            )}
+          </div>
+
+          <section aria-labelledby={`respostas-${contexto}-${candidatura.id}`} className="space-y-3">
+            <div>
+              <h3 id={`respostas-${contexto}-${candidatura.id}`} className="text-sm font-bold text-foreground">Respostas do candidato</h3>
+              <p className="mt-1 text-xs text-muted-foreground">Cada resposta é exibida integralmente como foi enviada.</p>
+            </div>
+
+            <GrupoRespostas titulo="Moradia e segurança" descricao={`${rotulosImovel[candidatura.housingType]} · ${rotulosCondicao[candidatura.housingStatus]}`}>
+              <RespostaDossie pergunta="Qual é o tipo e a condição do imóvel?" resposta={`${rotulosImovel[candidatura.housingType]} — ${rotulosCondicao[candidatura.housingStatus]}`} />
+              {candidatura.housingStatus === "alugado" && <RespostaDossie pergunta="O proprietário ou condomínio autoriza animais?" resposta={simOuNao(Boolean(candidatura.landlordPermission))} />}
+              <RespostaDossie pergunta="A residência possui proteção física contra fugas ou quedas?" resposta={simOuNao(candidatura.hasProtection)} />
+              <RespostaDossie pergunta="Como é a proteção da residência?" resposta={candidatura.protectionDetails} />
+              <RespostaDossie pergunta="Onde o animal poderá circular?" resposta={candidatura.accessArea === "livre_total" ? "Livremente por toda a casa" : "Em áreas ou cômodos específicos"} />
+            </GrupoRespostas>
+
+            <GrupoRespostas titulo="Família e rotina" descricao="Cuidados, ausências e viagens" aberto>
+              <RespostaDossie pergunta="Quantas pessoas moram na residência?" resposta={`${candidatura.adultsCount} adulto(s) e ${candidatura.childrenCount} criança(s)`} />
+              <RespostaDossie pergunta="Todos os moradores concordam com a adoção?" resposta={simOuNao(candidatura.familyAgreement)} />
+              <RespostaDossie pergunta="Há casos de alergia a pelos na residência?" resposta={simOuNao(candidatura.allergyCases)} />
+              {candidatura.allergyCases && <RespostaDossie pergunta="Como a alergia será manejada?" resposta={candidatura.allergyDetails} />}
+              <RespostaDossie pergunta="Por quantas horas o animal ficará sozinho por dia?" resposta={`${candidatura.hoursAlone} hora(s)`} />
+              <RespostaDossie pergunta="Quem cuidará da alimentação, higiene, passeios e consultas? Como isso fará parte da rotina?" resposta={candidatura.dailyCarePlan} />
+              <RespostaDossie pergunta="Com quem ou onde o animal ficará durante férias e viagens?" resposta={candidatura.travelCarePlan} />
+            </GrupoRespostas>
+
+            <GrupoRespostas titulo="Experiência e preparo" descricao="Outros animais, histórico e custos">
+              <RespostaDossie pergunta="Já há outros animais na residência?" resposta={simOuNao(candidatura.hasCurrentPets)} />
+              {candidatura.hasCurrentPets && <RespostaDossie pergunta="Quais animais vivem na residência e como será feita a apresentação?" resposta={candidatura.currentPetsDescription} />}
+              <RespostaDossie pergunta="Qual é o histórico do candidato com animais?" resposta={candidatura.previousPetsHistory} />
+              <RespostaDossie pergunta="O candidato declarou estar preparado para os custos contínuos e veterinários?" resposta={simOuNao(candidatura.costAwareness)} />
+            </GrupoRespostas>
+
+            <GrupoRespostas titulo="Dados do candidato" descricao="Identificação e contato informados no cadastro">
+              <RespostaDossie pergunta="Nome completo" resposta={candidatura.candidate.name} />
+              <RespostaDossie pergunta="Data de nascimento" resposta={candidatura.candidate.birthDate} />
+              <RespostaDossie pergunta="Profissão ou ocupação" resposta={candidatura.candidate.profession} />
+              <RespostaDossie pergunta="E-mail" resposta={candidatura.candidate.email} />
+              <RespostaDossie pergunta="WhatsApp ou telefone" resposta={candidatura.candidate.primaryPhone} />
+              <RespostaDossie pergunta="Rede social" resposta={candidatura.candidate.socialMedia} />
+            </GrupoRespostas>
+          </section>
+
+          {candidatura.automatedAnalysis && (
+            <details className="group overflow-hidden rounded-2xl border border-border/70 bg-muted/25">
+              <summary className="flex min-h-[56px] cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 marker:content-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset">
+                <span className="flex min-w-0 items-center gap-2 text-sm font-bold text-foreground">
+                  <Sparkles className="h-4 w-4 shrink-0 text-primary" />
+                  Análise de apoio
+                </span>
+                <span className="flex shrink-0 items-center gap-2">
+                  <Badge variant="outline">{candidatura.automatedAnalysis.suitabilityScore}/100</Badge>
+                  <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-open:rotate-180" aria-hidden="true" />
+                </span>
+              </summary>
+              <div className="space-y-4 border-t border-border/60 p-4 text-xs">
+                <div className="rounded-xl border border-primary/20 bg-primary/5 p-3">
+                  <p className="font-bold text-foreground">{candidatura.automatedAnalysis.verdict}</p>
+                  {candidatura.automatedAnalysis.resumo && <p className="mt-1 whitespace-pre-wrap break-words leading-relaxed text-muted-foreground">{candidatura.automatedAnalysis.resumo}</p>}
+                  {candidatura.automatedAnalysis.justificativa && <p className="mt-1 whitespace-pre-wrap break-words leading-relaxed text-muted-foreground">{candidatura.automatedAnalysis.justificativa}</p>}
+                </div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                  <div>
+                    <h4 className="mb-2 font-bold text-foreground">Pontos favoráveis</h4>
+                    <ul className="space-y-2 text-muted-foreground">
+                      {candidatura.automatedAnalysis.strengths.length > 0 ? candidatura.automatedAnalysis.strengths.map((item) => (
+                        <li key={item} className="flex items-start gap-2"><CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" /><span className="break-words">{item}</span></li>
+                      )) : <li>Nenhum ponto automático registrado.</li>}
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="mb-2 font-bold text-foreground">Confirmar na conversa</h4>
+                    <ul className="space-y-2 text-muted-foreground">
+                      {candidatura.automatedAnalysis.attentionPoints.length > 0 ? candidatura.automatedAnalysis.attentionPoints.map((item) => (
+                        <li key={item} className="flex items-start gap-2"><AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-600 dark:text-amber-400" /><span className="break-words">{item}</span></li>
+                      )) : <li>Nenhum ponto de atenção automático.</li>}
+                    </ul>
+                  </div>
+                </div>
+                {candidatura.automatedAnalysis.suggestedQuestions.length > 0 && (
+                  <div>
+                    <h4 className="mb-2 font-bold text-foreground">Perguntas sugeridas para a entrevista</h4>
+                    <ul className="list-inside list-disc space-y-1.5 text-muted-foreground">
+                      {candidatura.automatedAnalysis.suggestedQuestions.map((pergunta) => <li key={pergunta} className="break-words">{pergunta}</li>)}
+                    </ul>
+                  </div>
+                )}
+                {candidatura.automatedAnalysis.fatores && candidatura.automatedAnalysis.fatores.length > 0 && (
+                  <details className="rounded-xl border border-border/60 bg-background/70">
+                    <summary className="min-h-[44px] cursor-pointer px-3 py-3 font-bold text-foreground">Como a referência foi calculada</summary>
+                    <ul className="space-y-2 border-t border-border/60 p-3 text-muted-foreground">
+                      {candidatura.automatedAnalysis.fatores.map((fator, indice) => (
+                        <li key={`${fator.criterio}-${indice}`} className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+                          <span className="break-words"><strong className="text-foreground">{fator.criterio}:</strong> {fator.explicacao}</span>
+                          <Badge variant="outline" className="w-fit shrink-0">{fator.impacto > 0 ? `+${fator.impacto}` : fator.impacto}</Badge>
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                )}
+                <div className="flex flex-col gap-3 border-t border-border/60 pt-4 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="leading-relaxed text-muted-foreground">A referência apoia a triagem e não aprova ou rejeita a candidatura.</p>
+                  <Button type="button" variant="outline" size="sm" disabled={estaGerandoAnalise} onClick={() => void gerarAnaliseIa()} className="min-h-[44px] w-full rounded-full sm:w-auto">
+                    {estaGerandoAnalise ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                    {estaGerandoAnalise ? "Analisando respostas" : candidatura.automatedAnalysis.origem === "ia" ? "Atualizar análise" : "Analisar com IA"}
+                  </Button>
+                </div>
               </div>
-            )}
-            {candidatura.automatedAnalysis.fatores && candidatura.automatedAnalysis.fatores.length > 0 && (
-              <details className="rounded-xl border border-border/60 bg-background/70">
-                <summary className="min-h-[44px] cursor-pointer px-3 py-3 font-bold text-foreground">Como a referência foi calculada</summary>
-                <ul className="space-y-2 border-t border-border/60 p-3 text-muted-foreground">
-                  {candidatura.automatedAnalysis.fatores.map((fator, indice) => (
-                    <li key={`${fator.criterio}-${indice}`} className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-3">
-                      <span className="break-words"><strong className="text-foreground">{fator.criterio}:</strong> {fator.explicacao}</span>
-                      <Badge variant="outline" className="w-fit shrink-0">{fator.impacto > 0 ? `+${fator.impacto}` : fator.impacto}</Badge>
-                    </li>
-                  ))}
-                </ul>
-              </details>
-            )}
-            <div className="flex flex-col gap-3 border-t border-border/60 pt-4 sm:flex-row sm:items-center sm:justify-between">
-              <p className="leading-relaxed text-muted-foreground">A referência apoia a triagem e não aprova ou rejeita a candidatura.</p>
-              <Button type="button" variant="outline" size="sm" disabled={estaGerandoAnalise} onClick={() => void gerarAnaliseIa()} className="min-h-[44px] w-full rounded-full sm:w-auto">
-                {estaGerandoAnalise ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-                {estaGerandoAnalise ? "Analisando respostas" : candidatura.automatedAnalysis.origem === "ia" ? "Atualizar análise" : "Analisar com IA"}
+            </details>
+          )}
+
+          <details className="group overflow-hidden rounded-2xl border border-border/70 bg-card">
+            <summary className="flex min-h-[56px] cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 marker:content-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset">
+              <span><span className="block text-sm font-bold text-foreground">Anotações internas</span><span className="mt-0.5 block text-xs text-muted-foreground">Visíveis apenas para o responsável</span></span>
+              <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" aria-hidden="true" />
+            </summary>
+            <div className="space-y-3 border-t border-border/60 p-4">
+              <label htmlFor={`notas-${contexto}-${candidatura.id}`} className="sr-only">Anotações internas</label>
+              <textarea
+                id={`notas-${contexto}-${candidatura.id}`}
+                rows={4}
+                value={notas}
+                onChange={(evento) => setNotas(evento.target.value)}
+                onBlur={() => setNotas(capitalizarFrases(notas))}
+                placeholder="Registre impressões da entrevista, combinados ou informações para a equipe."
+                className="w-full rounded-xl border border-border bg-background px-3.5 py-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary"
+              />
+              <Button variant="outline" size="sm" disabled={estaSalvandoNotas} onClick={() => void salvarNotas()} className="min-h-[44px] w-full rounded-full sm:w-auto">
+                {estaSalvandoNotas && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{estaSalvandoNotas ? "Salvando" : "Salvar anotações"}
               </Button>
             </div>
+          </details>
+        </TabsContent>
+        <TabsContent id="mensagens" className="min-w-0 space-y-3">
+          <h3 className="flex items-center gap-2 text-sm font-bold text-foreground"><MessageSquare className="h-4 w-4 text-primary" /> Conversa com o candidato</h3>
+          <div className="max-h-72 min-h-52 overflow-y-auto rounded-2xl border border-border/60 bg-muted/20 p-3 sm:p-4">
+            {candidatura.messages.length === 0 ? (
+              <div className="flex min-h-44 flex-col items-center justify-center text-center">
+                <Inbox className="mb-2 h-7 w-7 text-muted-foreground" />
+                <p className="text-xs text-muted-foreground">Nenhuma mensagem ainda. Use o campo abaixo para iniciar o contato.</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {candidatura.messages.map((item) => {
+                  if (item.senderRole === "system") {
+                    return <p key={item.id} className="text-center text-xs text-muted-foreground"><span className="inline-block rounded-full bg-muted px-3 py-1">{item.content}</span></p>;
+                  }
+                  const mensagemGuardiao = item.senderRole === "guardian";
+                  return (
+                    <div key={item.id} className={`flex flex-col ${mensagemGuardiao ? "items-end" : "items-start"}`}>
+                      <span className="mb-1 px-1 text-xs text-muted-foreground">{item.senderName} · {new Date(item.sentAt).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}</span>
+                      <p className={`max-w-[90%] whitespace-pre-wrap wrap-anywhere rounded-2xl p-3 text-xs leading-relaxed sm:max-w-md ${mensagemGuardiao ? "rounded-br-sm bg-primary text-primary-foreground" : "rounded-bl-sm border border-border bg-card text-foreground"}`}>{item.content}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
-        </details>
-      )}
-
-      <details className="group overflow-hidden rounded-2xl border border-border/70 bg-card">
-        <summary className="flex min-h-[56px] cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 marker:content-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-inset">
-          <span><span className="block text-sm font-bold text-foreground">Anotações internas</span><span className="mt-0.5 block text-xs text-muted-foreground">Visíveis apenas para o responsável</span></span>
-          <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" aria-hidden="true" />
-        </summary>
-        <div className="space-y-3 border-t border-border/60 p-4">
-          <label htmlFor={`notas-${contexto}-${candidatura.id}`} className="sr-only">Anotações internas</label>
-          <textarea
-            id={`notas-${contexto}-${candidatura.id}`}
-            rows={4}
-            value={notas}
-            onChange={(evento) => setNotas(evento.target.value)}
-            onBlur={() => setNotas(capitalizarFrases(notas))}
-            placeholder="Registre impressões da entrevista, combinados ou informações para a equipe."
-            className="w-full rounded-xl border border-border bg-background px-3.5 py-3 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary"
-          />
-          <Button variant="outline" size="sm" disabled={estaSalvandoNotas} onClick={() => void salvarNotas()} className="min-h-[44px] w-full rounded-full sm:w-auto">
-            {estaSalvandoNotas && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{estaSalvandoNotas ? "Salvando" : "Salvar anotações"}
+          <form onSubmit={enviarMensagem} className="flex flex-col gap-2 sm:flex-row">
+            <label htmlFor={`mensagem-${contexto}-${candidatura.id}`} className="sr-only">Mensagem para o candidato</label>
+            <input
+              id={`mensagem-${contexto}-${candidatura.id}`}
+              value={mensagem}
+              onChange={(evento) => setMensagem(evento.target.value)}
+              onBlur={() => setMensagem(capitalizarFrases(mensagem))}
+              placeholder="Escreva uma mensagem..."
+              className="min-h-[44px] min-w-0 flex-1 rounded-full border border-border bg-background px-4 text-xs text-foreground outline-none focus:ring-2 focus:ring-primary"
+            />
+            <Button type="submit" disabled={!mensagem.trim() || estaEnviandoMensagem} className="min-h-[44px] rounded-full sm:px-5">
+              {estaEnviandoMensagem ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}Enviar
+            </Button>
+          </form>
+        </TabsContent>
+      </Tabs>
+      <footer aria-label="Ações da candidatura" className="grid auto-cols-fr grid-flow-col gap-2 border-t border-border/60 pt-4 sm:flex sm:justify-end sm:gap-3">
+        {podeDecidir && (
+          <>
+            <Button type="button" size="sm" disabled={estaAtualizandoStatus} onClick={() => aoSolicitarStatus("approved")}
+              className="min-w-0 whitespace-normal bg-emerald-700 px-1.5 py-2 text-white hover:bg-emerald-800 sm:px-3 dark:bg-emerald-400 dark:text-emerald-950 dark:hover:bg-emerald-300">
+              <CheckCircle2 aria-hidden="true" className="hidden sm:block" /> Aprovar adoção
+            </Button>
+            <Button type="button" size="sm" variant="destructive" disabled={estaAtualizandoStatus} onClick={() => aoSolicitarStatus("rejected")}
+              className="min-w-0 whitespace-normal bg-red-700 px-1.5 py-2 text-white hover:bg-red-800 sm:px-3 dark:bg-red-400 dark:text-red-950 dark:hover:bg-red-300">
+              <CircleX aria-hidden="true" className="hidden sm:block" /> Negar adoção
+            </Button>
+          </>
+        )}
+        {ACOES_DE_ANDAMENTO[candidatura.status].map(acao => (
+          <Button key={acao.destino} type="button" size="sm" variant="outline" disabled={estaAtualizandoStatus}
+            className="min-w-0 whitespace-normal px-1.5 py-2 sm:px-3" onClick={() => aoSolicitarStatus(acao.destino)}>
+            {acao.rotulo}
           </Button>
-        </div>
-      </details>
-
-      <section className="space-y-3 border-t border-border/60 pt-5">
-        <h3 className="flex items-center gap-2 text-sm font-bold text-foreground"><MessageSquare className="h-4 w-4 text-primary" /> Conversa com o candidato</h3>
-        <div className="max-h-72 min-h-52 overflow-y-auto rounded-2xl border border-border/60 bg-muted/20 p-3 sm:p-4">
-          {candidatura.messages.length === 0 ? (
-            <div className="flex min-h-44 flex-col items-center justify-center text-center">
-              <Inbox className="mb-2 h-7 w-7 text-muted-foreground" />
-              <p className="text-xs text-muted-foreground">Nenhuma mensagem ainda. Use o campo abaixo para iniciar o contato.</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {candidatura.messages.map((item) => {
-                if (item.senderRole === "system") {
-                  return <p key={item.id} className="text-center text-xs text-muted-foreground"><span className="inline-block rounded-full bg-muted px-3 py-1">{item.content}</span></p>;
-                }
-                const mensagemGuardiao = item.senderRole === "guardian";
-                return (
-                  <div key={item.id} className={`flex flex-col ${mensagemGuardiao ? "items-end" : "items-start"}`}>
-                    <span className="mb-1 px-1 text-xs text-muted-foreground">{item.senderName} · {new Date(item.sentAt).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}</span>
-                    <p className={`max-w-[90%] rounded-2xl p-3 text-xs leading-relaxed sm:max-w-md ${mensagemGuardiao ? "rounded-br-sm bg-primary text-primary-foreground" : "rounded-bl-sm border border-border bg-card text-foreground"}`}>{item.content}</p>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-        <form onSubmit={enviarMensagem} className="flex flex-col gap-2 sm:flex-row">
-          <label htmlFor={`mensagem-${contexto}-${candidatura.id}`} className="sr-only">Mensagem para o candidato</label>
-          <input
-            id={`mensagem-${contexto}-${candidatura.id}`}
-            value={mensagem}
-            onChange={(evento) => setMensagem(evento.target.value)}
-            onBlur={() => setMensagem(capitalizarFrases(mensagem))}
-            placeholder="Escreva uma mensagem..."
-            className="min-h-[44px] flex-1 rounded-full border border-border bg-background px-4 text-xs text-foreground outline-none focus:ring-2 focus:ring-primary"
-          />
-          <Button type="submit" disabled={!mensagem.trim() || estaEnviandoMensagem} className="min-h-[44px] rounded-full sm:px-5">
-            {estaEnviandoMensagem ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}Enviar
-          </Button>
-        </form>
-      </section>
+        ))}
+      </footer>
     </article>
   );
 }
@@ -552,6 +574,7 @@ export function GuardianDashboardView() {
   const navegarParaAba = (aba: AbaPainel, candidaturaId?: string) => {
     const parametros = new URLSearchParams(parametrosBusca.toString());
     parametros.set("aba", aba);
+    parametros.delete("conversa");
     if (candidaturaId) parametros.set("candidatura", candidaturaId);
     else parametros.delete("candidatura");
     router.replace(`${pathname}?${parametros.toString()}`, { scroll: false });
@@ -627,12 +650,15 @@ export function GuardianDashboardView() {
     if (typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches) setDetalheMovelAberto(true);
   };
 
-  const confirmarAlteracaoStatus = async () => {
-    if (!alteracaoStatus || estaAtualizandoStatus) return;
+  const registrarAlteracaoStatus = async (candidatura: PreAdoptionApplication, status: ApplicationStatus) => {
+    if (estaAtualizandoStatus) return;
     setEstaAtualizandoStatus(true);
-    const atualizou = await updateApplicationStatus(alteracaoStatus.candidatura.id, alteracaoStatus.status);
-    setEstaAtualizandoStatus(false);
-    if (atualizou) setAlteracaoStatus(null);
+    try {
+      await updateApplicationStatus(candidatura.id, status, candidatura.status);
+    } finally {
+      setEstaAtualizandoStatus(false);
+      setAlteracaoStatus(null);
+    }
   };
 
   const removerPet = async () => {
@@ -648,7 +674,10 @@ export function GuardianDashboardView() {
       candidatura={candidatura}
       contexto={contexto}
       estaAtualizandoStatus={estaAtualizandoStatus}
-      aoSolicitarStatus={(status) => setAlteracaoStatus({ candidatura, status })}
+      aoSolicitarStatus={(status) => {
+        if (status === "approved" || status === "rejected") void registrarAlteracaoStatus(candidatura, status);
+        else setAlteracaoStatus({ candidatura, status });
+      }}
       aoSalvarNotas={(notas) => updateGuardianNotes(candidatura.id, notas)}
       aoEnviarMensagem={(mensagem) => sendApplicationMessage(candidatura.id, mensagem)}
       aoGerarAnaliseIa={() => generateApplicationAIAnalysis(candidatura.id)}
@@ -671,6 +700,12 @@ export function GuardianDashboardView() {
         </Button>
       </header>
 
+      <label className="grid gap-1 text-sm font-semibold md:hidden">Seções do painel
+        <select value={abaAtiva} onChange={e => navegarParaAba(e.target.value as AbaPainel)}
+          className="min-h-[44px] w-full rounded-xl border border-border bg-card px-3">
+          {ABAS.map(aba => <option key={aba.id} value={aba.id}>{aba.rotulo}</option>)}
+        </select>
+      </label>
       <SeletorDeslizante
         papel="abas"
         rotuloAria="Seções do painel"
@@ -687,7 +722,7 @@ export function GuardianDashboardView() {
               : undefined,
           };
         })}
-        className="flex gap-2 overflow-x-auto rounded-2xl border border-border/60 bg-card p-1.5 shadow-sm"
+        className="hidden flex-wrap gap-2 rounded-2xl border border-border/60 bg-card p-1.5 shadow-sm md:flex"
         classeItem="flex min-h-[44px] shrink-0 items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold sm:px-4 sm:text-sm"
         classeIndicador="rounded-xl bg-primary shadow-sm"
         classeSelecionado="text-primary-foreground"
@@ -775,7 +810,7 @@ export function GuardianDashboardView() {
         )}
 
         {abaAtiva === "candidaturas" && (
-          applicationsLoading ? <div className="flex min-h-[40vh] items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" aria-label="Carregando candidaturas" /></div>
+          applicationsLoading && candidaturasGuardiao.length === 0 ? <div className="flex min-h-[40vh] items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" aria-label="Carregando candidaturas" /></div>
           : applicationsError ? <EstadoErro titulo="Candidaturas indisponíveis" mensagem={applicationsError} aoTentarNovamente={reloadApplications} />
           : <div className="space-y-5">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
@@ -863,14 +898,14 @@ export function GuardianDashboardView() {
         )}
       </main>
 
-      <SheetContent isOpen={detalheMovelAberto && Boolean(candidaturaSelecionada)} onOpenChange={setDetalheMovelAberto} className="w-full max-w-full overflow-y-auto p-0 sm:max-w-xl lg:hidden">
+      <SheetContent isOpen={detalheMovelAberto && Boolean(candidaturaSelecionada)} onOpenChange={setDetalheMovelAberto} className="overflow-y-auto p-0 data-[side=right]:w-full data-[side=right]:sm:max-w-xl lg:hidden">
         <SheetHeader className="border-b border-border p-4 pr-14"><SheetTitle>Dossiê da candidatura</SheetTitle><SheetDescription>Revise as informações e atualize o andamento.</SheetDescription></SheetHeader>
         <div className="p-3 sm:p-4">{candidaturaSelecionada && renderizarDossie(candidaturaSelecionada, "movel")}</div>
       </SheetContent>
 
       <AlertDialogContent isOpen={Boolean(alteracaoStatus)} onOpenChange={(aberto) => { if (!aberto && !estaAtualizandoStatus) setAlteracaoStatus(null); }}>
         <AlertDialogHeader><AlertDialogTitle>Confirmar mudança de status?</AlertDialogTitle><AlertDialogDescription>{alteracaoStatus?.status === "completed" ? `A adoção de ${alteracaoStatus.candidatura.petName} será marcada como concluída e o pet passará para “Adotado”.` : alteracaoStatus?.candidatura.status === "completed" ? `A adoção será reaberta para avaliação e o status de ${alteracaoStatus.candidatura.petName} será recalculado.` : `A candidatura passará para “${alteracaoStatus ? CONFIGURACAO_STATUS_CANDIDATURA[alteracaoStatus.status].rotulo : ""}”. A alteração ficará registrada na conversa.`}</AlertDialogDescription></AlertDialogHeader>
-        <AlertDialogFooter><Button variant="outline" disabled={estaAtualizandoStatus} onClick={() => setAlteracaoStatus(null)}>Cancelar</Button><Button disabled={estaAtualizandoStatus} onClick={() => void confirmarAlteracaoStatus()}>{estaAtualizandoStatus && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Confirmar</Button></AlertDialogFooter>
+        <AlertDialogFooter><Button variant="outline" disabled={estaAtualizandoStatus} onClick={() => setAlteracaoStatus(null)}>Cancelar</Button><Button disabled={estaAtualizandoStatus} onClick={() => alteracaoStatus && void registrarAlteracaoStatus(alteracaoStatus.candidatura, alteracaoStatus.status)}>{estaAtualizandoStatus && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}Confirmar</Button></AlertDialogFooter>
       </AlertDialogContent>
 
       <AlertDialogContent isOpen={Boolean(petParaExcluir)} onOpenChange={(aberto) => { if (!aberto && !estaExcluindoPet) setPetIdParaExcluir(null); }}>

@@ -767,8 +767,8 @@ create trigger trg_applications_atualizar_data_modificacao
   before update on public.applications
   for each row execute function public.atualizar_data_modificacao();
 
--- Evita saltos que contornem a triagem. A reabertura de uma adoção concluída é permitida
--- somente para "em avaliação", deixando a correção explícita e reversível.
+-- A ONG pode decidir diretamente sobre uma candidatura pendente. A conclusão
+-- exige aprovação, e a reabertura de uma adoção concluída passa pela avaliação.
 create or replace function public.applications_validar_transicao_status()
 returns trigger
 language plpgsql
@@ -780,7 +780,7 @@ begin
   end if;
 
   if not (
-    (old.status = 'pending' and new.status in ('under_review', 'rejected'))
+    (old.status = 'pending' and new.status in ('under_review', 'approved', 'rejected'))
     or (old.status = 'under_review' and new.status in ('pending', 'approved', 'rejected'))
     or (old.status = 'approved' and new.status in ('under_review', 'rejected', 'completed'))
     or (old.status = 'rejected' and new.status = 'under_review')
@@ -1263,3 +1263,130 @@ create trigger trg_on_auth_user_created
 
 
 revoke execute on function public.handle_new_user() from public, anon, authenticated;
+
+-- 15. Conversas sobre anúncios, independentes das candidaturas
+begin;
+
+create table if not exists public.conversas_pet (
+  id uuid primary key default gen_random_uuid(),
+  pet_id uuid references public.pets(id) on delete set null,
+  responsavel_id uuid not null references public.profiles(id) on delete cascade,
+  interessado_id uuid not null default auth.uid() references public.profiles(id) on delete cascade,
+  nome_interessado text not null,
+  -- Os nomes preservam o contexto do histórico se o anúncio for removido.
+  nome_pet_original text not null,
+  nome_responsavel_original text not null,
+  criada_em timestamptz not null default now(),
+  unique (pet_id, responsavel_id, interessado_id),
+  check (responsavel_id <> interessado_id)
+);
+create index if not exists conversas_pet_responsavel on public.conversas_pet(responsavel_id);
+create index if not exists conversas_pet_interessado on public.conversas_pet(interessado_id);
+
+create table if not exists public.mensagens_pet (
+  id uuid primary key,
+  conversa_id uuid not null references public.conversas_pet(id) on delete cascade,
+  remetente_id uuid not null default auth.uid() references public.profiles(id) on delete cascade,
+  conteudo text not null check (length(conteudo) between 1 and 4000 and conteudo ~ '[^[:space:]]'),
+  enviada_em timestamptz not null default clock_timestamp(),
+  lida boolean not null default false
+);
+create index if not exists mensagens_pet_historico on public.mensagens_pet(conversa_id, enviada_em desc, id desc);
+create index if not exists mensagens_pet_pendentes on public.mensagens_pet(conversa_id, remetente_id) where not lida;
+create index if not exists mensagens_pet_remetente on public.mensagens_pet(remetente_id);
+
+alter table public.conversas_pet enable row level security;
+alter table public.mensagens_pet enable row level security;
+revoke all on public.conversas_pet, public.mensagens_pet from public, anon, authenticated;
+grant select, insert (pet_id) on public.conversas_pet to authenticated;
+grant select, insert (id, conversa_id, conteudo), update (lida) on public.mensagens_pet to authenticated;
+
+-- Somente o pet vem do cliente. O gatilho obtém as identidades e os nomes nas fontes originais.
+create or replace function public.preencher_conversa_pet() returns trigger
+language plpgsql security invoker set search_path = '' as $$
+begin
+  select p.guardian_id::uuid, p.name, p.guardian_name
+    into strict new.responsavel_id, new.nome_pet_original, new.nome_responsavel_original
+    from public.pets p where p.id = new.pet_id;
+  select perfil.name into strict new.nome_interessado from public.profiles perfil
+    where perfil.id = auth.uid() and perfil.role = 'adopter';
+  return new;
+end;
+$$;
+revoke execute on function public.preencher_conversa_pet() from public, anon, authenticated;
+drop trigger if exists preencher_conversa_pet on public.conversas_pet;
+create trigger preencher_conversa_pet before insert on public.conversas_pet
+for each row execute function public.preencher_conversa_pet();
+
+drop policy if exists ler_conversas_pet on public.conversas_pet;
+create policy ler_conversas_pet on public.conversas_pet for select to authenticated
+using ((select auth.uid()) in (interessado_id, responsavel_id));
+drop policy if exists iniciar_conversa_pet on public.conversas_pet;
+create policy iniciar_conversa_pet on public.conversas_pet for insert to authenticated
+with check (interessado_id = (select auth.uid()) and pet_id is not null);
+
+-- A consulta à conversa também passa pela sua RLS.
+drop policy if exists ler_mensagens_pet on public.mensagens_pet;
+create policy ler_mensagens_pet on public.mensagens_pet for select to authenticated
+using (exists (select 1 from public.conversas_pet c where c.id = conversa_id));
+drop policy if exists enviar_mensagem_pet on public.mensagens_pet;
+create policy enviar_mensagem_pet on public.mensagens_pet for insert to authenticated
+with check (remetente_id = (select auth.uid()) and exists (
+  select 1 from public.conversas_pet c where c.id = conversa_id
+));
+drop policy if exists marcar_mensagem_pet_lida on public.mensagens_pet;
+create policy marcar_mensagem_pet_lida on public.mensagens_pet for update to authenticated
+using (remetente_id <> (select auth.uid()) and exists (
+  select 1 from public.conversas_pet c where c.id = conversa_id
+))
+with check (lida and remetente_id <> (select auth.uid()) and exists (
+  select 1 from public.conversas_pet c where c.id = conversa_id
+));
+
+create or replace function public.abrir_conversa_pet(animal_id uuid) returns uuid
+language plpgsql security invoker set search_path = '' as $$
+declare resultado uuid;
+begin
+  insert into public.conversas_pet(pet_id) values (animal_id)
+    on conflict (pet_id, responsavel_id, interessado_id) do nothing returning id into resultado;
+  if resultado is null then
+    select c.id into strict resultado from public.conversas_pet c
+      join public.pets p on p.id = c.pet_id and p.guardian_id = c.responsavel_id::text
+      where c.pet_id = animal_id and c.interessado_id = auth.uid();
+  end if;
+  return resultado;
+end;
+$$;
+revoke all on function public.abrir_conversa_pet(uuid) from public, anon;
+grant execute on function public.abrir_conversa_pet(uuid) to authenticated;
+
+-- A prévia, o horário e as pendências são calculados a partir das mensagens confirmadas.
+create or replace view public.caixa_conversas_pet with (security_invoker = true) as
+select c.id, c.pet_id, c.responsavel_id, c.interessado_id, c.nome_interessado,
+  coalesce(p.name, c.nome_pet_original) as nome_pet, p.photos as fotos,
+  coalesce(p.guardian_name, c.nome_responsavel_original) as nome_responsavel,
+  recente.conteudo as ultima_mensagem, recente.id as ultima_mensagem_id,
+  recente.enviada_em as ultima_mensagem_em, coalesce(recente.enviada_em, c.criada_em) as atividade_em,
+  exists (select 1 from public.mensagens_pet m where m.conversa_id = c.id
+    and not m.lida and m.remetente_id <> (select auth.uid())) as nao_lida
+from public.conversas_pet c
+left join public.pets p on p.id = c.pet_id and p.guardian_id = c.responsavel_id::text
+left join lateral (select m.id, m.conteudo, m.enviada_em from public.mensagens_pet m
+  where m.conversa_id = c.id order by m.enviada_em desc, m.id desc limit 1) recente on true;
+revoke all on public.caixa_conversas_pet from public, anon, authenticated;
+grant select on public.caixa_conversas_pet to authenticated;
+
+do $$
+declare tabela text;
+begin
+  if exists (select 1 from pg_publication where pubname = 'supabase_realtime') then
+    foreach tabela in array array['conversas_pet', 'mensagens_pet'] loop
+      if not exists (select 1 from pg_publication_tables where pubname = 'supabase_realtime'
+          and schemaname = 'public' and tablename = tabela) then
+        execute format('alter publication supabase_realtime add table public.%I', tabela);
+      end if;
+    end loop;
+  end if;
+end $$;
+
+commit;
