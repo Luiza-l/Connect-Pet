@@ -1,5 +1,15 @@
 # Changelog
 
+## [v0.12.17] - 2026-11-25
+### Commit
+`fix: restaurar fotos e ajustes da página Sobre nós`
+
+### Mudanças
+- Restaura a foto do cachorro no teclado na abertura e as fotos do cocker spaniel e do gato em “Novas oportunidades”.
+- Remove os dois selos sobrepostos à foto de abertura e recupera as classes de layout do Tailwind.
+
+---
+
 ## [v0.12.16] - 2026-11-25
 ### Commit
 `fix: corrigir fechamento das tags na página Sobre nós`

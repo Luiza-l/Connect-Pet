@@ -90,7 +90,7 @@ export function SobreNosView() {
 
         <div className="page-shell grid items-center gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.92fr)] lg:gap-14">
           <div className="relative z-10 text-center lg:text-left" data-revelar>
-            <span className="inline-flex min-h-[36px] items-center gap-2 rounded-full border border-primary/20 bg-card/80 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-primary shadow-sm backdrop-blur-sm">
+            <span className="inline-flex min-h-9 items-center gap-2 rounded-full border border-primary/20 bg-card/80 px-4 py-2 text-xs font-bold uppercase tracking-[0.16em] text-primary shadow-sm backdrop-blur-sm">
               <Heart className="h-4 w-4 fill-rose-400/30 text-rose-500" />
               Sobre o ConnectPet
             </span>
@@ -102,41 +102,28 @@ export function SobreNosView() {
             </p>
 
             <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row lg:justify-start">
-              <Button asChild size="lg" className="min-h-[48px] rounded-full px-6">
+              <Button asChild size="lg" className="min-h-12 rounded-full px-6">
                 <Link href="/pets">
                   Conhecer os animais
                   <ArrowRight className="h-4 w-4 transition-transform group-hover/button:translate-x-1" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline" className="min-h-[48px] rounded-full bg-card/70 px-6 backdrop-blur-sm">
+              <Button asChild size="lg" variant="outline" className="min-h-12 rounded-full bg-card/70 px-6 backdrop-blur-sm">
                 <Link href="#nossa-missao">Nossa missão</Link>
               </Button>
             </div>
           </div>
 
-          <div className="relative mx-auto aspect-[5/4] w-full max-w-xl" data-revelar>
-            <div className="absolute inset-x-[5%] inset-y-[3%] overflow-hidden rounded-[2.5rem] border border-primary/20 bg-gradient-to-br from-card via-sky-100 to-primary/20 shadow-2xl shadow-primary/10 dark:from-card dark:via-sky-950 dark:to-primary/20 sm:rounded-[3.5rem]">
-              <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-primary/15 to-transparent" />
+          <div className="relative mx-auto aspect-5/4 w-full max-w-xl" data-revelar>
+            <div className="absolute inset-x-[5%] inset-y-[3%] overflow-hidden rounded-[2.5rem] border border-primary/20 bg-linear-to-br from-card via-sky-100 to-primary/20 shadow-2xl shadow-primary/10 dark:from-card dark:via-sky-950 dark:to-primary/20 sm:rounded-[3.5rem]">
               <Image
-                src="/images/home/hero-dog-left-transparent.png"
-                alt="Cachorro dálmata olhando com curiosidade"
+                src="/images/sobrenos/foto1-sobrenos.jfif"
+                alt="Cachorro marrom com o focinho apoiado no teclado de um notebook"
                 fill
                 preload
                 sizes="(max-width: 1024px) 90vw, 42vw"
-                className="object-contain object-bottom transition-transform duration-700 hover:scale-[1.02] motion-reduce:transition-none"
+                className="object-cover transition-transform duration-700 hover:scale-[1.02] motion-reduce:transition-none"
               />
-            </div>
-
-            <div className="absolute left-0 top-[9%] flex max-w-[10rem] items-center gap-2 rounded-2xl border border-border/70 bg-card/90 p-3 text-left shadow-lg backdrop-blur-md sm:max-w-xs sm:p-4">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-rose-500/10 text-rose-500 sm:h-11 sm:w-11">
-                <HeartHandshake className="h-5 w-5" />
-              </span>
-              <span className="text-xs font-bold leading-snug text-foreground sm:text-sm">Acolher com responsabilidade</span>
-            </div>
-
-            <div className="absolute bottom-[7%] right-0 max-w-[11rem] rounded-2xl border border-border/70 bg-card/90 p-3 shadow-lg backdrop-blur-md sm:max-w-xs sm:p-4">
-              <p className="text-xs font-bold text-primary sm:text-sm">Uma ponte segura</p>
-              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Entre uma história de resgate e um novo começo.</p>
             </div>
           </div>
         </div>
@@ -248,7 +235,7 @@ export function SobreNosView() {
               Da descoberta ao acompanhamento da candidatura, cada experiência foi pensada para reduzir ruídos e dar espaço ao que realmente importa.
             </p>
 
-            <div className="relative mt-8 aspect-[3/1] w-full overflow-hidden rounded-3xl border border-primary/15 bg-sky-100/70 p-3 dark:bg-sky-950/40">
+            <div className="relative mt-8 aspect-3/1 w-full overflow-hidden rounded-3xl border border-primary/15 bg-sky-100/70 p-3 dark:bg-sky-950/40">
               <Image
                 src="/images/home/pillars-illustration.png"
                 alt="Ilustração de uma jornada entre busca, divulgação e adoção"
@@ -268,7 +255,7 @@ export function SobreNosView() {
                   open={indice === 0}
                   className="group overflow-hidden rounded-3xl border border-border/70 bg-card shadow-sm transition-colors open:border-primary/30 open:shadow-md"
                 >
-                  <summary className="flex min-h-[72px] cursor-pointer list-none items-center gap-4 p-4 transition-colors hover:bg-secondary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:p-5 [&::-webkit-details-marker]:hidden">
+                  <summary className="flex min-h-18 cursor-pointer list-none items-center gap-4 p-4 transition-colors hover:bg-secondary/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring sm:p-5 [&::-webkit-details-marker]:hidden">
                     <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary sm:h-12 sm:w-12">
                       <Icone className="h-5 w-5 sm:h-6 sm:w-6" />
                     </span>
@@ -291,23 +278,23 @@ export function SobreNosView() {
       <section className="relative overflow-hidden bg-sky-100/70 py-16 dark:bg-sky-950/45 sm:py-20 lg:py-24">
         <PawWatermark rotate={-24} className="absolute -left-6 bottom-8 h-28 w-28 text-primary/10 sm:h-36 sm:w-36" />
         <div className="page-shell grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
-          <div className="relative mx-auto min-h-[22rem] w-full max-w-xl sm:min-h-[28rem]" data-revelar>
+          <div className="relative mx-auto min-h-88 w-full max-w-xl sm:min-h-112" data-revelar>
             <div className="absolute bottom-0 left-0 top-[7%] w-[62%] overflow-hidden rounded-[2.5rem] border border-primary/20 bg-card shadow-xl">
               <Image
-                src="/images/home/card-beagle.png"
-                alt="Cachorro beagle apoiado e olhando para frente"
+                src="/images/sobrenos/Cocker Spaniel Dour em Fundo Azul Claro.png"
+                alt="Cocker spaniel dourado com a cabeça inclinada sobre um fundo azul claro"
                 fill
                 sizes="(max-width: 1024px) 55vw, 26vw"
-                className="object-contain object-bottom p-4"
+                className="object-cover"
               />
             </div>
-            <div className="absolute bottom-[5%] right-0 top-0 w-[52%] overflow-hidden rounded-[2.5rem] border border-primary/20 bg-gradient-to-b from-primary/15 to-card shadow-xl">
+            <div className="absolute bottom-[5%] right-0 top-0 w-[52%] overflow-hidden rounded-[2.5rem] border border-primary/20 bg-linear-to-b from-primary/15 to-card shadow-xl">
               <Image
-                src="/images/home/card-cat-orange.png"
-                alt="Gato laranja apoiado e olhando para frente"
+                src="/images/sobrenos/gato-feliz.webp"
+                alt="Filhote de gato branco e rajado com a boca aberta sobre um fundo azul"
                 fill
                 sizes="(max-width: 1024px) 48vw, 23vw"
-                className="object-contain object-bottom p-4"
+                className="object-cover"
               />
             </div>
             <div className="absolute bottom-[2%] left-[36%] rounded-2xl border border-border/70 bg-card/95 px-4 py-3 text-center shadow-lg backdrop-blur-sm">
@@ -356,13 +343,13 @@ export function SobreNosView() {
                 Conheça os animais disponíveis, descubra afinidades e dê o primeiro passo com consciência e carinho.
               </p>
               <div className="mt-7 flex flex-col justify-center gap-3 sm:flex-row">
-                <Button asChild size="lg" variant="secondary" className="min-h-[48px] rounded-full bg-primary-foreground text-primary hover:bg-primary-foreground/90">
+                <Button asChild size="lg" variant="secondary" className="min-h-12 rounded-full bg-primary-foreground text-primary hover:bg-primary-foreground/90">
                   <Link href="/pets">
                     Explorar o catálogo
                     <ArrowRight className="h-4 w-4 transition-transform group-hover/button:translate-x-1" />
                   </Link>
                 </Button>
-                <Button asChild size="lg" variant="outline" className="min-h-[48px] rounded-full border-primary-foreground/30 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground dark:bg-transparent dark:hover:bg-primary-foreground/10">
+                <Button asChild size="lg" variant="outline" className="min-h-12 rounded-full border-primary-foreground/30 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground dark:bg-transparent dark:hover:bg-primary-foreground/10">
                   <Link href="/match">
                     Fazer o Smart Match
                     <Sparkles className="h-4 w-4" />
