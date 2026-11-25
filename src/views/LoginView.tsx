@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { SeletorDeslizante } from "@/components/ui/SeletorDeslizante";
 import { createClient } from "@/lib/client";
 import { isValidEmail } from "@/lib/validation";
+import { obterMensagemErro, registrarErroSeguro } from "@/lib/mensagensErro";
 import { sanitizeRedirect } from "@/components/auth/auth-features";
 import {
   UserCheck,
@@ -70,20 +71,10 @@ export function LoginView() {
       });
 
       if (error) {
-        const isRateLimit =
-          error.message.toLowerCase().includes("rate limit") ||
-          error.code === "over_request_rate_limit";
-
-        if (isRateLimit) {
-          setErrorMessage("Muitas tentativas de login em pouco tempo. Aguarde alguns instantes antes de tentar novamente.");
-        } else if (error.code === "invalid_credentials" || error.message.includes("Invalid login credentials")) {
-          setErrorMessage("E-mail ou senha incorretos.");
-        } else if (error.code === "email_not_confirmed" || error.message.includes("Email not confirmed")) {
-          setErrorMessage("Este e-mail ainda requer confirmação no Supabase. Para login imediato sem e-mail, desative a opção 'Confirm email' no painel do Supabase (Authentication > Providers > Email).");
-        } else {
-          setErrorMessage(error.message);
-        }
-        showToast("Erro no login", isRateLimit ? "Limite temporário de tentativas. Aguarde um momento." : error.message, "error");
+        registrarErroSeguro("Falha ao entrar", error);
+        const mensagem = obterMensagemErro(error, "login");
+        setErrorMessage(mensagem);
+        showToast("Não foi possível entrar", mensagem, "error");
         isSubmittingRef.current = false;
         setIsSubmitting(false);
         return;
@@ -98,8 +89,8 @@ export function LoginView() {
           .maybeSingle();
         if (erroPerfil || (profile?.role !== "guardian" && profile?.role !== "adopter")) {
           await supabase.auth.signOut({ scope: "local" });
-          console.warn("Perfil indisponível no login:", erroPerfil?.message ?? "linha inexistente em profiles");
-          const mensagem = "Sua conta não possui um perfil válido. Aplique o schema atualizado do Supabase e tente novamente.";
+          if (erroPerfil) registrarErroSeguro("Perfil indisponível após autenticação", erroPerfil);
+          const mensagem = "Não foi possível localizar os dados da sua conta. Tente entrar novamente ou fale com o suporte.";
           setErrorMessage(mensagem);
           showToast("Perfil indisponível", mensagem, "error");
           return;
@@ -112,7 +103,8 @@ export function LoginView() {
         }
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Erro ao efetuar login.";
+      registrarErroSeguro("Falha inesperada ao entrar", err);
+      const msg = obterMensagemErro(err, "login");
       setErrorMessage(msg);
       showToast("Erro no login", msg, "error");
     } finally {

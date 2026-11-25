@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { normalizarFotosPet } from "@/lib/origensImagem";
 import type { CaixaPet, ConversaPet, MensagemPet } from "@/lib/conversasPet";
+import { registrarErroSeguro } from "@/lib/mensagensErro";
 
 const formatarData = (valor: string) => new Date(valor).toLocaleString("pt-BR", {
   day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit",
@@ -49,7 +50,8 @@ function Historico({ conversa, usuario, mensagens, caixa, atualizar, aoVoltar, r
       setTexto("");
       setAviso("Mensagem enviada.");
       atualizar();
-    } catch {
+    } catch (erro) {
+      registrarErroSeguro("Falha ao enviar mensagem sobre o animal", erro);
       setAviso("Não foi possível confirmar o envio. Tente enviar novamente.");
     } finally {
       trava.current = false;
@@ -135,7 +137,8 @@ export function CaixaMensagens({ caixa, usuario, responsavel, inicial = null, ao
           }
         }
         setErro("");
-      } catch {
+      } catch (erro) {
+        registrarErroSeguro("Falha ao atualizar conversas", erro);
         if (ativo) setErro("Não foi possível atualizar as mensagens. Verifique sua conexão.");
       } finally {
         consultando = false;

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/client";
 import { ROTA_REDEFINICAO } from "@/lib/recuperacaoSenha";
 import { isValidEmail } from "@/lib/validation";
+import { obterMensagemErro, registrarErroSeguro } from "@/lib/mensagensErro";
 
 export function RecuperarSenhaView() {
   const [email, setEmail] = useState("");
@@ -47,14 +48,16 @@ export function RecuperarSenhaView() {
       });
 
       if (erroEnvio) {
-        setErro("Não foi possível processar a solicitação agora. Aguarde um minuto e tente novamente.");
+        registrarErroSeguro("Falha ao solicitar recuperação de senha", erroEnvio);
+        setErro(obterMensagemErro(erroEnvio, "recuperacao"));
         setSegundosEspera(60);
         return;
       }
 
       setSolicitacaoEnviada(true);
-    } catch {
-      setErro("Não foi possível processar a solicitação agora. Aguarde um minuto e tente novamente.");
+    } catch (falha) {
+      registrarErroSeguro("Falha inesperada ao solicitar recuperação de senha", falha);
+      setErro(obterMensagemErro(falha, "recuperacao"));
       setSegundosEspera(60);
     } finally {
       envioEmAndamento.current = false;

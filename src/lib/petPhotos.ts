@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/client";
+import { obterMensagemErro, registrarErroSeguro } from "@/lib/mensagensErro";
 
 /** Nome do bucket no Supabase Storage (deve ser igual ao criado em supabase/schema.sql). */
 export const BUCKET_FOTOS_PETS = "pet-photos";
@@ -86,9 +87,9 @@ export async function removerFotosDoStorage(supabase: SupabaseClient, urls: stri
   if (caminhos.length === 0) return;
   try {
     const { error } = await supabase.storage.from(BUCKET_FOTOS_PETS).remove(caminhos);
-    if (error) console.warn("Falha ao remover fotos do Storage:", error.message);
+    if (error) registrarErroSeguro("Falha ao remover fotos armazenadas", error);
   } catch (err) {
-    console.warn("Erro ao remover fotos do Storage:", err);
+    registrarErroSeguro("Falha inesperada ao remover fotos armazenadas", err);
   }
 }
 
@@ -107,11 +108,8 @@ export async function enviarFotosPet(fotos: FotoPet[], atualizar: AtualizarFotos
   const supabase = createClient();
   const { data, error: erroValidacao } = await supabase.auth.getUser();
   if (erroValidacao || !data.user) {
-    throw new Error(
-      erroValidacao
-        ? `Não foi possível validar sua sessão: ${erroValidacao.message}`
-        : "Não foi possível validar sua sessão. Entre novamente e tente enviar as fotos."
-    );
+    if (erroValidacao) registrarErroSeguro("Falha ao validar sessão para envio de fotos", erroValidacao);
+    throw new Error("Sua sessão expirou. Entre novamente para enviar as fotos.");
   }
   const userId = data.user.id;
 
@@ -138,11 +136,8 @@ export async function enviarFotosPet(fotos: FotoPet[], atualizar: AtualizarFotos
         upsert: false
       });
       if (error) {
-        const mensagem = /bucket not found/i.test(error.message)
-          ? "O armazenamento de fotos ainda não foi configurado (bucket 'pet-photos' não encontrado)."
-          : /row-level security|not authorized|unauthorized/i.test(error.message)
-            ? "Sem permissão para enviar fotos. Verifique se está conectado com sua conta."
-            : `Não foi possível enviar "${foto.arquivo.name}": ${error.message}`;
+        registrarErroSeguro("Falha ao enviar foto do animal", error);
+        const mensagem = obterMensagemErro(error, "uploadFoto");
         throw Object.assign(new Error(mensagem), { fotoId: foto.id });
       }
 
@@ -154,7 +149,9 @@ export async function enviarFotosPet(fotos: FotoPet[], atualizar: AtualizarFotos
       await supabase.storage.from(BUCKET_FOTOS_PETS).remove(enviados);
     }
     const fotoId = (err as { fotoId?: string }).fotoId;
-    const mensagem = err instanceof Error ? err.message : "Falha ao enviar as fotos.";
+    const mensagem = err instanceof Error && !!err && "fotoId" in err
+      ? err.message
+      : obterMensagemErro(err, "uploadFoto");
     atualizar((anteriores) =>
       anteriores.map((f) =>
         f.tipo === "local"

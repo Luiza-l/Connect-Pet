@@ -1,5 +1,43 @@
 # Changelog
 
+## [v0.12.16] - 2026-11-25
+### Commit
+`fix: corrigir fechamento das tags na página Sobre nós`
+
+### Mudanças
+- Restaura a estrutura do JSX da seção inicial, com o texto e a imagem em blocos separados dentro da grade.
+
+---
+
+## [v0.12.15] - 2026-11-25
+### Commit
+`fix: atualizar classes do Tailwind na página Sobre nós`
+
+### Mudanças
+- Usa as classes recomendadas pelo Tailwind para gradientes, proporções e alturas mínimas na página Sobre nós.
+
+---
+
+## [v0.12.14] - 2026-11-25
+### Commit
+`feat: destacar o mapa de ONGs na página inicial`
+
+### Mudanças
+- Troca o segundo card da página inicial por um atalho para o Mapa de ONGs com ícone de localização, evitando repetir o ícone do Smart Match.
+
+---
+
+## [v0.12.13] - 2026-11-25
+### Commit
+`fix: traduzir erros técnicos em mensagens seguras`
+
+### Mudanças
+- Centraliza a tradução de erros de autenticação, armazenamento e operações da plataforma em mensagens claras para quem usa o ConnectPet.
+- Remove mensagens técnicas do Supabase da interface e restringe os registros internos a metadados sem conteúdo de requisições.
+- Melhora orientações de login, cadastro, recuperação de senha, upload, pets, perfil, favoritos e candidaturas.
+
+---
+
 ## [v0.12.12] - 2026-11-25
 ### Commit
 `fix: abrir o formulário quando a recuperação chega à página inicial`

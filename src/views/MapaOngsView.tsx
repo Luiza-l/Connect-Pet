@@ -33,10 +33,10 @@ export function MapaOngsView() {
     try {
       const dados = await obterOngsNoMapa(controlador.signal);
       if (!controlador.signal.aborted) { setOngs(dados); setErro(null); }
-    } catch (falha) {
+    } catch {
       if (!controlador.signal.aborted) {
         setOngs([]);
-        setErro(falha instanceof Error ? falha.message : "Não foi possível carregar as ONGs.");
+        setErro("Não foi possível carregar as ONGs agora. Confira sua conexão e tente novamente.");
       }
     } finally {
       if (!controlador.signal.aborted) setCarregando(false);

@@ -45,6 +45,7 @@ import { SeletorLocalidade } from "@/components/forms/SeletorLocalidade";
 import { capitalizarNomeProprio } from "@/lib/capitalizacao";
 import { LocalizacaoOngForm } from "@/components/forms/LocalizacaoOngForm";
 import { criarLocalizacaoOng, validarLocalizacaoOng } from "@/lib/localizacaoOng";
+import { obterMensagemErro, registrarErroSeguro } from "@/lib/mensagensErro";
 
 export function RegisterView() {
   const router = useRouter();
@@ -255,7 +256,11 @@ export function RegisterView() {
 
       if (!isAdopterRole && guardianType === "ngo") {
         const erroLocalizacao = validarLocalizacaoOng(localizacaoOng);
-        if (erroLocalizacao) throw new Error(erroLocalizacao);
+        if (erroLocalizacao) {
+          setErrorMessage(erroLocalizacao);
+          showToast("Confira a localização", erroLocalizacao, "warning");
+          return;
+        }
       }
 
       const metadata = isAdopterRole
@@ -296,30 +301,10 @@ export function RegisterView() {
       });
 
       if (authError) {
-        const isRateLimit =
-          authError.message.toLowerCase().includes("rate limit") ||
-          authError.code === "over_email_send_rate_limit" ||
-          authError.code === "over_request_rate_limit";
-
-        if (isRateLimit) {
-          setErrorMessage(
-            "Limite de envio de e-mails atingido no Supabase. Por favor, aguarde alguns minutos antes de tentar novamente ou utilize outro e-mail."
-          );
-        } else if (authError.message.includes("already registered") || authError.code === "user_already_exists") {
-          setErrorMessage("Este e-mail já está cadastrado. Tente fazer login.");
-        } else if (authError.message.includes("Password should be")) {
-          setErrorMessage("A senha é muito fraca. Utilize pelo menos 6 caracteres.");
-        } else {
-          setErrorMessage(authError.message);
-        }
-
-        showToast(
-          "Erro no cadastro",
-          isRateLimit
-            ? "Limite temporário de envio atingido. Aguarde alguns minutos."
-            : authError.message,
-          "error"
-        );
+        registrarErroSeguro("Falha ao cadastrar", authError);
+        const mensagem = obterMensagemErro(authError, "cadastro");
+        setErrorMessage(mensagem);
+        showToast("Não foi possível concluir o cadastro", mensagem, "error");
         isSubmittingRef.current = false;
         setIsSubmitting(false);
         return;
@@ -351,7 +336,8 @@ export function RegisterView() {
         }
       }
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Ocorreu um erro ao processar seu cadastro.";
+      registrarErroSeguro("Falha inesperada no cadastro", err);
+      const msg = obterMensagemErro(err, "cadastro");
       setErrorMessage(msg);
       showToast("Erro no cadastro", msg, "error");
     } finally {

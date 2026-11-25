@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/client";
 import { validarFotoPet } from "@/lib/petPhotos";
+import { obterMensagemErro, registrarErroSeguro } from "@/lib/mensagensErro";
 
 export const BUCKET_AVATARES = "avatars";
 const TAMANHO_MAXIMO_AVATAR = 2 * 1024 * 1024;
@@ -46,7 +47,10 @@ export async function enviarAvatarPerfil(arquivo: File): Promise<string> {
     upsert: false
   });
 
-  if (error) throw new Error(`Não foi possível enviar a foto: ${error.message}`);
+  if (error) {
+    registrarErroSeguro("Falha ao enviar foto de perfil", error);
+    throw new Error(obterMensagemErro(error, "uploadFoto"));
+  }
   return supabase.storage.from(BUCKET_AVATARES).getPublicUrl(caminho).data.publicUrl;
 }
 
@@ -56,5 +60,5 @@ export async function removerAvatarPerfil(url?: string | null): Promise<void> {
   if (!caminho) return;
   const supabase = createClient();
   const { error } = await supabase.storage.from(BUCKET_AVATARES).remove([caminho]);
-  if (error) console.warn("Não foi possível remover o avatar anterior:", error.message);
+  if (error) registrarErroSeguro("Falha ao remover avatar anterior", error);
 }

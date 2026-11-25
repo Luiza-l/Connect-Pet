@@ -22,6 +22,7 @@ import { validarLocalidadeIbge } from '@/lib/localidadesIbge';
 import { isValidBirthDate, isValidPhone, validateFullName, validateIntegerRange, validateOrganizationName, validateSocialProfile } from '@/lib/validation';
 import { validarDescricoesPet, validarIdadePersistidaPet, validarNomePet, validarRacaPet, validarTemperamentos } from '@/lib/validacaoPet';
 import { capitalizarFrases, capitalizarNomeProprio } from '@/lib/capitalizacao';
+import { obterMensagemErro, registrarErroSeguro } from '@/lib/mensagensErro';
 import type { AuthFeature, AuthPromptState } from '@/components/auth/auth-features';
 import {
   avaliarCandidaturaDeterministica,
@@ -242,20 +243,6 @@ function normalizarAnaliseIa(valor: unknown, baseLocal: AnaliseAutomatica): Anal
   };
 }
 
-async function obterDetalheErroFuncao(erro: unknown): Promise<string> {
-  if (!ehRegistro(erro)) return 'Falha de comunicação com a função de IA.';
-  const contexto = erro.context;
-  if (contexto instanceof Response) {
-    try {
-      const corpo = await contexto.clone().json() as { erro?: unknown };
-      if (typeof corpo.erro === 'string' && corpo.erro.trim()) return corpo.erro.trim();
-    } catch {
-      // A mensagem padrão abaixo cobre respostas sem JSON.
-    }
-  }
-  return typeof erro.message === 'string' ? erro.message : 'Falha de comunicação com a função de IA.';
-}
-
 function cleanAvatar(val: unknown): string | undefined {
   if (typeof val === 'string' && val.trim().length > 0 && val !== 'null' && val !== 'undefined') {
     return obterUrlImagemPermitida(val) || undefined;
@@ -271,7 +258,7 @@ async function fetchUserProfile(supabaseClient: ReturnType<typeof createClient>,
   if (typeof meta.avatar === 'string' && meta.avatar.startsWith('data:')) {
     const { error } = await supabaseClient.auth.updateUser({ data: { avatar: null } });
     if (error) {
-      console.warn('Não foi possível remover o avatar Base64 dos metadados de autenticação:', error.message);
+      registrarErroSeguro('Falha ao atualizar metadados da sessão', error);
     }
   }
 
@@ -347,7 +334,7 @@ async function fetchUserProfile(supabaseClient: ReturnType<typeof createClient>,
       }
   }
 
-  console.warn('Não foi possível carregar o perfil autenticado:', error?.message || 'Perfil inexistente.');
+  if (error) registrarErroSeguro('Falha ao carregar perfil autenticado', error);
   return null;
 }
 
@@ -422,7 +409,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         return createClient();
       }
     } catch (err) {
-      console.warn('Could not initialize Supabase client:', err);
+      registrarErroSeguro('Falha ao iniciar conexão com os dados', err);
     }
     return null;
   }, []);
@@ -454,7 +441,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
 
       if (error) {
         // Banco ainda sem as colunas de energia/convivência: mantém o catálogo funcionando.
-        console.warn('Consulta completa do catálogo falhou; usando colunas básicas:', error.message);
+        registrarErroSeguro('Consulta ampliada do catálogo indisponível; usando dados básicos', error);
         ({ data, error } = await consultarPets(colunasBase));
       }
 
@@ -463,7 +450,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       setPetsState((data ?? []).map((pet) => mapearPetDoBanco(pet)));
       setPetsError(null);
     } catch (error) {
-      console.warn('Não foi possível carregar o catálogo:', error);
+      registrarErroSeguro('Falha ao carregar catálogo', error);
       if (!silencioso) {
         setPetsState([]);
         setPetsError('Não foi possível carregar os animais. Tente novamente.');
@@ -505,7 +492,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       try {
         profile = await fetchUserProfile(supabase!, sessionUser);
       } catch (error) {
-        console.warn('Não foi possível consultar o perfil autenticado:', error);
+        registrarErroSeguro('Falha ao consultar perfil autenticado', error);
       }
       if (!isMounted) return;
 
@@ -530,10 +517,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           setFavoritesState(ids);
         } else {
           setFavoritesState([]);
-          console.warn('Não foi possível carregar os favoritos:', favErr?.message);
+          if (favErr) registrarErroSeguro('Falha ao carregar favoritos', favErr);
         }
       } catch (err) {
-        console.warn('Supabase favorites fetch warning:', err);
+        registrarErroSeguro('Falha inesperada ao carregar favoritos', err);
         if (isMounted) setFavoritesState([]);
       }
     }
@@ -542,11 +529,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     supabase.auth.getUser()
       .then(async ({ data, error }) => {
         if (!isMounted) return;
-        if (error) console.warn('Não foi possível validar a sessão:', error.message);
+        if (error) registrarErroSeguro('Falha ao validar sessão', error);
         await handleUserSession(data.user ?? null);
       })
       .catch((error) => {
-        console.warn('Não foi possível validar a sessão:', error);
+        registrarErroSeguro('Falha inesperada ao validar sessão', error);
         if (isMounted) setCurrentUserState(null);
       })
       .finally(() => {
@@ -750,7 +737,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           setApplicationsState(mappedApps);
         }
       } catch (err) {
-        console.warn('Não foi possível sincronizar as candidaturas:', err);
+        registrarErroSeguro('Falha ao sincronizar candidaturas', err);
         if (isMounted) {
           setApplicationsState([]);
           setApplicationsError('Não foi possível carregar as candidaturas. Tente novamente.');
@@ -863,7 +850,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const { error } = await supabase.auth.signOut({ scope: 'local' });
       if (error) throw error;
     } catch (err) {
-      console.warn('Não foi possível encerrar a sessão:', err);
+      registrarErroSeguro('Falha ao encerrar sessão', err);
       showToast('Não foi possível sair', 'Tente novamente em alguns instantes.', 'error');
       return;
     }
@@ -1049,8 +1036,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           }
         }
     } catch (err) {
-      console.warn('Não foi possível atualizar o perfil:', err);
-      showToast('Não foi possível salvar', 'Confira sua conexão e tente novamente.', 'error');
+      registrarErroSeguro('Falha ao atualizar perfil', err);
+      showToast('Não foi possível salvar', obterMensagemErro(err, 'perfil'), 'error');
       return false;
     }
 
@@ -1141,9 +1128,9 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       showToast('Animal cadastrado!', `${petCriado.name} já está visível para adoção.`, 'success');
       return true;
     } catch (err) {
-      console.warn('Não foi possível cadastrar o animal:', err);
+      registrarErroSeguro('Falha ao cadastrar animal', err);
       await removerFotosDoStorage(supabase, dadosPetNormalizados.photos);
-      showToast('Não foi possível cadastrar', 'O animal não foi publicado. Confira os dados e tente novamente.', 'error');
+      showToast('Não foi possível cadastrar', obterMensagemErro(err, 'pet'), 'error');
       return false;
     }
   }, [currentUser, showToast, supabase]);
@@ -1242,8 +1229,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
               );
             }
 
-            console.warn('Supabase pet update failed:', error?.message || 'Nenhum animal pertencente ao perfil foi atualizado.');
-            showToast('Não foi possível salvar', 'Confira sua conexão e tente novamente.', 'error');
+            if (error) registrarErroSeguro('Falha ao atualizar animal', error);
+            showToast('Não foi possível salvar', error
+              ? obterMensagemErro(error, 'pet')
+              : 'Este animal não está mais disponível para edição. Atualize a página e tente novamente.', 'error');
             return false;
           }
 
@@ -1259,14 +1248,14 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           }
         }
     } catch (err) {
-        console.warn('Supabase pet update error:', err);
+        registrarErroSeguro('Falha inesperada ao atualizar animal', err);
         if (atualizacoesNormalizadas.photos !== undefined) {
           await removerFotosDoStorage(
             supabase,
             atualizacoesNormalizadas.photos.filter((url) => !fotosAnteriores.includes(url))
           );
         }
-        showToast('Não foi possível salvar', 'Ocorreu um erro inesperado. Tente novamente.', 'error');
+        showToast('Não foi possível salvar', obterMensagemErro(err, 'pet'), 'error');
         return false;
     }
 
@@ -1297,8 +1286,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       showToast('Pet removido', `${petToDelete.name} foi removido do catálogo.`, 'info');
       return true;
     } catch (err) {
-      console.warn('Não foi possível excluir o animal:', err);
-      showToast('Não foi possível excluir', 'O animal continua publicado. Tente novamente.', 'error');
+      registrarErroSeguro('Falha ao excluir animal', err);
+      showToast('Não foi possível excluir', obterMensagemErro(err, 'exclusaoPet'), 'error');
       return false;
     }
   }, [currentUser, pets, showToast, supabase]);
@@ -1334,8 +1323,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         : await supabase.from('favorites').insert({ user_id: currentUser.id, pet_id: petId });
       if (error) throw error;
     } catch (err) {
-      console.warn('Não foi possível atualizar o favorito:', err);
-      showToast('Não foi possível atualizar', 'Tente novamente em alguns instantes.', 'error');
+      registrarErroSeguro('Falha ao atualizar favorito', err);
+      showToast('Não foi possível atualizar', obterMensagemErro(err, 'favorito'), 'error');
       return false;
     }
 
@@ -1510,7 +1499,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const petRelacionado = pets.find((pet) => pet.id === app.petId);
       return avaliarCandidaturaDeterministica(app, petRelacionado || null);
     } catch (erro) {
-      console.warn('A avaliação auditável não pôde ser calculada; usando o motor local de compatibilidade:', erro);
+      registrarErroSeguro('Falha no cálculo de compatibilidade; usando alternativa local', erro);
       return analisarDossieLegado(app);
     }
   }, [analisarDossieLegado, pets]);
@@ -1677,7 +1666,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     try {
       return { pet, ...calcularCompatibilidadeDeterministica(quiz, pet) };
     } catch (erro) {
-      console.warn('A compatibilidade auditável não pôde ser calculada; usando o motor local anterior:', erro);
+      registrarErroSeguro('Falha no cálculo de Smart Match; usando alternativa local', erro);
       return calcularSmartMatchLegado(quiz, pet);
     }
   }, [calcularSmartMatchLegado]);
@@ -1696,7 +1685,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (error || !ehRegistro(data) || !Array.isArray(data.recomendacoes)) {
-        console.warn('A contextualização do Smart Match por IA não está disponível:', await obterDetalheErroFuncao(error));
+        if (error) registrarErroSeguro('Falha na contextualização do Smart Match', error);
         return results;
       }
 
@@ -1719,7 +1708,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         };
       });
     } catch (erro) {
-      console.warn('A contextualização do Smart Match por IA falhou:', erro);
+      registrarErroSeguro('Falha inesperada na contextualização do Smart Match', erro);
       return results;
     }
   }, [currentUser, supabase]);
@@ -1735,9 +1724,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const baseLocal = candidaturaAtual?.automatedAnalysis;
 
       if (error || !ehRegistro(data) || !baseLocal) {
-        const detalhe = await obterDetalheErroFuncao(error);
-        console.warn('Não foi possível gerar a análise contextual da candidatura:', detalhe);
-        showToast('Análise com IA indisponível', detalhe, 'warning');
+        if (error) registrarErroSeguro('Falha ao gerar análise contextual da candidatura', error);
+        showToast('Análise com IA indisponível', 'A análise local continua disponível. Tente novamente em alguns instantes.', 'warning');
         return false;
       }
 
@@ -1753,7 +1741,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       showToast('Análise contextual atualizada', 'A IA organizou justificativas e perguntas sem alterar a decisão humana.', 'success');
       return true;
     } catch (erro) {
-      console.warn('Não foi possível gerar a análise contextual da candidatura:', erro);
+      registrarErroSeguro('Falha inesperada ao gerar análise contextual', erro);
       showToast(
         'Análise com IA indisponível',
         'A pontuação local continua válida. Verifique sua conexão e tente novamente.',
@@ -1917,7 +1905,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         .select('id, created_at')
         .maybeSingle();
 
-      if (erroMensagem) console.warn('A candidatura foi criada, mas a mensagem inicial falhou:', erroMensagem.message);
+      if (erroMensagem) registrarErroSeguro('Candidatura criada, mas a mensagem inicial falhou', erroMensagem);
 
       const newApp: PreAdoptionApplication = {
         ...sanitizedData,
@@ -1943,8 +1931,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       showToast('Candidatura enviada!', `Seu dossiê para adotar ${data.petName} foi recebido pela ONG.`, 'success');
       return newApp;
     } catch (err) {
-      console.warn('Não foi possível enviar a candidatura:', err);
-      showToast('Candidatura não enviada', 'Confira sua conexão e tente novamente.', 'error');
+      registrarErroSeguro('Falha ao enviar candidatura', err);
+      showToast('Candidatura não enviada', obterMensagemErro(err, 'candidatura'), 'error');
       return null;
     }
   }, [analyzeDossier, applications, calculateAge, currentUser, showToast, supabase]);
@@ -1962,8 +1950,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       .maybeSingle();
 
     if (error || !data) {
-      console.warn('Não foi possível atualizar o status:', error?.message);
-      showToast('Status não atualizado', error ? 'Tente novamente em alguns instantes.' : 'A candidatura mudou ou está indisponível. A lista será atualizada.', 'error');
+      if (error) registrarErroSeguro('Falha ao atualizar status da candidatura', error);
+      showToast('Status não atualizado', error ? obterMensagemErro(error, 'candidatura') : 'A candidatura mudou ou está indisponível. Atualizamos a lista para você.', 'error');
       reloadApplications();
       return false;
     }
@@ -1988,8 +1976,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       .maybeSingle();
 
     if (error || !data) {
-      console.warn('Não foi possível salvar a nota:', error?.message);
-      showToast('Nota não salva', 'Tente novamente em alguns instantes.', 'error');
+      if (error) registrarErroSeguro('Falha ao salvar nota da ONG', error);
+      showToast('Nota não salva', error ? obterMensagemErro(error, 'perfil') : 'A candidatura não está mais disponível. Atualize a lista e tente novamente.', 'error');
       return false;
     }
 
@@ -2015,8 +2003,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       .single();
 
     if (error || !data) {
-      console.warn('Não foi possível enviar a mensagem:', error?.message);
-      showToast('Mensagem não enviada', 'Tente novamente em alguns instantes.', 'error');
+      if (error) registrarErroSeguro('Falha ao enviar mensagem', error);
+      showToast('Mensagem não enviada', error ? obterMensagemErro(error, 'mensagem') : 'A conversa não está mais disponível. Atualize a página e tente novamente.', 'error');
       return false;
     }
 

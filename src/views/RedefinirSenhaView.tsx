@@ -6,6 +6,7 @@ import Image from "next/image";
 import { ArrowLeft, Eye, EyeOff, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { criarClienteRecuperacao } from "@/lib/client";
+import { obterMensagemErro, registrarErroSeguro } from "@/lib/mensagensErro";
 
 type EstadoLink = "validando" | "valido" | "invalido" | "concluido";
 
@@ -85,10 +86,11 @@ export function RedefinirSenhaView() {
           return;
         }
         if (erroAuth.code === "weak_password") {
-          setErro("A senha não atende aos critérios de segurança da conta.");
+          setErro(obterMensagemErro(erroAtualizacao, "redefinicao"));
           return;
         }
-        setErro("Não foi possível atualizar a senha. Tente novamente ou solicite um novo link.");
+        registrarErroSeguro("Falha ao redefinir senha", erroAtualizacao);
+        setErro(obterMensagemErro(erroAtualizacao, "redefinicao"));
         return;
       }
 
@@ -96,8 +98,9 @@ export function RedefinirSenhaView() {
       setEstadoLink("concluido");
       setSenha("");
       setConfirmacao("");
-    } catch {
-      setErro("Não foi possível atualizar a senha. Tente novamente ou solicite um novo link.");
+    } catch (falha) {
+      registrarErroSeguro("Falha inesperada ao redefinir senha", falha);
+      setErro(obterMensagemErro(falha, "redefinicao"));
     } finally {
       atualizacaoEmAndamento.current = false;
       setEstaSalvando(false);

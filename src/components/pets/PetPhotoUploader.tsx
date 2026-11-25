@@ -234,8 +234,8 @@ export function PetPhotoUploader({ fotos, onChange, disabled = false, maxFotos =
       setPosicao({ x: 0, y: 0 });
       setFilaEdicao((anteriores) => anteriores.slice(1));
       setErroEdicao(null);
-    } catch (erro) {
-      setErroEdicao(erro instanceof Error ? erro.message : "Não foi possível gerar a imagem editada.");
+    } catch {
+      setErroEdicao("Não foi possível preparar a imagem. Escolha outra foto ou tente novamente.");
     }
   };
 

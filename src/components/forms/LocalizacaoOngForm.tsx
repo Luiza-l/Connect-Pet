@@ -29,8 +29,8 @@ export function LocalizacaoOngForm({ cidade, estado, valor, aoAlterar, desabilit
       if (consultaAtual !== revisao.current) return;
       aoAlterar({ ...valorAtual.current, ponto, confirmada: false });
       setMostrarMapa(true);
-    } catch (falha) {
-      if (consultaAtual === revisao.current) setErro(falha instanceof Error ? falha.message : "Não foi possível localizar o município. Você pode escolher uma região no mapa.");
+    } catch {
+      if (consultaAtual === revisao.current) setErro("Não foi possível localizar o município agora. Tente novamente ou escolha a região no mapa.");
     } finally {
       if (consultaAtual === revisao.current) setBuscando(false);
     }

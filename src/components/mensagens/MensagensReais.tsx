@@ -7,6 +7,7 @@ import { useApp } from "@/context/AppContext";
 import { abrirConversaPet, obterCaixaPet } from "@/lib/conversasPet";
 import { CaixaMensagens } from "./CaixaMensagens";
 import { Button } from "@/components/ui/button";
+import { registrarErroSeguro } from "@/lib/mensagensErro";
 
 export function MensagensReais({ inicial, pet }: { inicial?: string; pet?: string }) {
   const { currentUser, authLoading } = useApp();
@@ -21,7 +22,10 @@ export function MensagensReais({ inicial, pet }: { inicial?: string; pet?: strin
     let ativo = true;
     abrirConversaPet(pet).then((id) => {
       if (ativo) router.replace(`/mensagens?conversa=${encodeURIComponent(id)}`);
-    }).catch(() => { if (ativo) setErro(true); });
+    }).catch((falha) => {
+      registrarErroSeguro("Falha ao abrir conversa sobre o animal", falha);
+      if (ativo) setErro(true);
+    });
     return () => { ativo = false; };
   }, [pet, usuario, papel, tentativa, router]);
 

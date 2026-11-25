@@ -12,6 +12,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { AlertCircle, Loader2 } from "lucide-react";
 import { PetPhotoUploader } from "@/components/pets/PetPhotoUploader";
 import { FotoPet, enviarFotosPet, fotosRemotasIniciais } from "@/lib/petPhotos";
+import { obterMensagemErro } from "@/lib/mensagensErro";
 import {
   interpretarIdadePet,
   RACAS_POR_ESPECIE,
@@ -141,7 +142,7 @@ export function PetForm({ initialData, isEditing = false }: PetFormProps) {
     try {
       photos = await enviarFotosPet(fotos, setFotos);
     } catch (err) {
-      setErroFotos(err instanceof Error ? err.message : "Não foi possível enviar as fotos.");
+      setErroFotos(obterMensagemErro(err, "uploadFoto"));
       setIsSubmitting(false);
       return;
     }

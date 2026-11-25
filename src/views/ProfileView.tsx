@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useApp } from "@/context/AppContext";
+import { registrarErroSeguro } from "@/lib/mensagensErro";
 import {
   User,
   Camera,
@@ -152,7 +153,7 @@ function ProfileForm({ user }: { user: CurrentUser }) {
       }
       await removerAvatarPerfil(avatarAnterior);
     } catch (err) {
-      console.error(err);
+      registrarErroSeguro("Falha ao remover foto de perfil", err);
       showToast("Erro ao remover", "Não foi possível remover a foto de perfil.", "error");
     }
   };
@@ -288,7 +289,7 @@ function ProfileForm({ user }: { user: CurrentUser }) {
       setAvatar(avatarRemoto || undefined);
       setAvatarFile(null);
     } catch (err) {
-      console.error(err);
+      registrarErroSeguro("Falha ao salvar perfil", err);
       showToast("Erro ao salvar", "Não foi possível salvar as alterações. Tente novamente.", "error");
     } finally {
       setIsSaving(false);
