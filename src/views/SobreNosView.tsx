@@ -113,40 +113,20 @@ export function SobreNosView() {
               </Button>
             </div>
 
-            <div className="mt-7 flex flex-wrap justify-center gap-x-5 gap-y-3 text-xs font-semibold text-muted-foreground sm:text-sm lg:justify-start">
-              <span className="inline-flex items-center gap-2">
-                <BadgeCheck className="h-4 w-4 text-primary" /> Processo transparente
-              </span>
-              <span className="inline-flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-primary" /> Adoção responsável
-              </span>
-            </div>
           </div>
 
           <div className="relative mx-auto aspect-[5/4] w-full max-w-xl" data-revelar>
             <div className="absolute inset-x-[5%] inset-y-[3%] overflow-hidden rounded-[2.5rem] border border-primary/20 bg-gradient-to-br from-card via-sky-100 to-primary/20 shadow-2xl shadow-primary/10 dark:from-card dark:via-sky-950 dark:to-primary/20 sm:rounded-[3.5rem]">
-              <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-primary/15 to-transparent" />
               <Image
-                src="/images/home/hero-dog-left-transparent.png"
-                alt="Cachorro dálmata olhando com curiosidade"
+                src="/images/sobrenos/foto1-sobrenos.jfif"
+                alt="Cachorro marrom com o focinho apoiado no teclado de um notebook"
                 fill
                 preload
                 sizes="(max-width: 1024px) 90vw, 42vw"
-                className="object-contain object-bottom transition-transform duration-700 hover:scale-[1.02] motion-reduce:transition-none"
+                className="object-cover transition-transform duration-700 hover:scale-[1.02] motion-reduce:transition-none"
               />
             </div>
 
-            <div className="absolute left-0 top-[9%] flex max-w-[10rem] items-center gap-2 rounded-2xl border border-border/70 bg-card/90 p-3 text-left shadow-lg backdrop-blur-md sm:max-w-xs sm:p-4">
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-rose-500/10 text-rose-500 sm:h-11 sm:w-11">
-                <HeartHandshake className="h-5 w-5" />
-              </span>
-              <span className="text-xs font-bold leading-snug text-foreground sm:text-sm">Acolher com responsabilidade</span>
-            </div>
-
-            <div className="absolute bottom-[7%] right-0 max-w-[11rem] rounded-2xl border border-border/70 bg-card/90 p-3 shadow-lg backdrop-blur-md sm:max-w-xs sm:p-4">
-              <p className="text-xs font-bold text-primary sm:text-sm">Uma ponte segura</p>
-              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">Entre uma história de resgate e um novo começo.</p>
-            </div>
           </div>
         </div>
       </section>
@@ -303,20 +283,20 @@ export function SobreNosView() {
           <div className="relative mx-auto min-h-[22rem] w-full max-w-xl sm:min-h-[28rem]" data-revelar>
             <div className="absolute bottom-0 left-0 top-[7%] w-[62%] overflow-hidden rounded-[2.5rem] border border-primary/20 bg-card shadow-xl">
               <Image
-                src="/images/home/card-beagle.png"
-                alt="Cachorro beagle apoiado e olhando para frente"
+                src="/images/sobrenos/Cocker Spaniel Dour em Fundo Azul Claro.png"
+                alt="Cocker spaniel dourado com a cabeça inclinada sobre um fundo azul claro"
                 fill
                 sizes="(max-width: 1024px) 55vw, 26vw"
-                className="object-contain object-bottom p-4"
+                className="object-cover"
               />
             </div>
             <div className="absolute bottom-[5%] right-0 top-0 w-[52%] overflow-hidden rounded-[2.5rem] border border-primary/20 bg-gradient-to-b from-primary/15 to-card shadow-xl">
               <Image
-                src="/images/home/card-cat-orange.png"
-                alt="Gato laranja apoiado e olhando para frente"
+                src="/images/sobrenos/gato-feliz.webp"
+                alt="Filhote de gato branco e rajado com a boca aberta sobre um fundo azul"
                 fill
                 sizes="(max-width: 1024px) 48vw, 23vw"
-                className="object-contain object-bottom p-4"
+                className="object-cover"
               />
             </div>
             <div className="absolute bottom-[2%] left-[36%] rounded-2xl border border-border/70 bg-card/95 px-4 py-3 text-center shadow-lg backdrop-blur-sm">

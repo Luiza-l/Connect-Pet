@@ -1,5 +1,50 @@
 # Changelog
 
+## [v0.12.7] - 2026-11-25
+### Commit
+`feat: atualizar foto do cachorro na página Sobre nós`
+
+### Mudanças
+- Substitui o beagle ao lado do gato pela foto do cocker spaniel dourado na seção “Novas oportunidades”.
+
+---
+
+## [v0.12.6] - 2026-11-25
+### Commit
+`feat: atualizar foto do gato na página Sobre nós`
+
+### Mudanças
+- Substitui o gato laranja pela foto de um filhote na seção “Novas oportunidades”.
+
+---
+
+## [v0.12.5] - 2026-11-25
+### Commit
+`feat: atualizar foto de abertura da página Sobre nós`
+
+### Mudanças
+- Exibe a foto do cachorro com o focinho no teclado na abertura da página Sobre nós.
+
+---
+
+## [v0.12.4] - 2026-11-25
+### Commit
+`fix: aproximar imagem do terceiro card da página inicial`
+
+### Mudanças
+- Ajusta separadamente a posição do cachorro em telas pequenas e maiores para mantê-lo junto ao topo do terceiro card.
+
+---
+
+## [v0.12.3] - 2026-11-25
+### Commit
+`fix: remover selos da página sobre nós`
+
+### Mudanças
+- Remove os selos destacados da seção principal da página Sobre nós.
+
+---
+
 ## [v0.12.2] - 2026-11-23
 ### Commit
 `fix: remover a aba geral de mensagens do painel da ONG`

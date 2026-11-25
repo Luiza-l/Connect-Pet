@@ -206,7 +206,7 @@ export function HomeView() {
               className="group relative mx-auto flex min-h-[320px] w-full max-w-sm flex-col items-center justify-between rounded-3xl border border-primary/20 bg-gradient-to-b from-primary/15 to-primary/5 px-5 pb-6 pt-14 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl dark:from-primary/20 dark:to-card sm:max-w-none sm:px-6 sm:pt-16"
             >
               {/* Pet Sobreposto no Topo */}
-              <div className="absolute -top-12 sm:-top-16 left-1/2 -translate-x-1/2 w-32 sm:w-44 pointer-events-none select-none transition-transform duration-300 group-hover:scale-105">
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-32 pointer-events-none select-none transition-transform duration-300 group-hover:scale-105 sm:-top-12 sm:w-44">
                 <Image
                   src="/images/home/card-dachshund.png"
                   alt="Dachshund de pelo longo com patinhas apoiadas"
@@ -447,7 +447,7 @@ export function HomeView() {
             className="w-8 h-8 sm:w-10 sm:h-10 text-sky-600/35 dark:text-sky-300/20"
           />
         </div>  */}
-        
+
         {/* Onda Superior Estilo Nuvem Conectando 'Nossa Jornada' e 'Dicas' */}
         <div className="w-full overflow-hidden leading-none absolute top-0 left-0 right-0 z-10 -mt-0.5">
           <svg
@@ -462,7 +462,7 @@ export function HomeView() {
         </div>
 
         <div className="container mx-auto px-4 sm:px-6 pt-12 sm:pt-16 md:pt-20 relative z-20 max-w-4xl text-center">
-          
+
           {/* Composição Ilustrada com Fundo Transparente (Dachshund, Setas e Dicas) */}
           <div className="relative w-full max-w-2xl mx-auto my-2 sm:my-4 px-2 select-none">
             <Image
@@ -555,9 +555,8 @@ export function HomeView() {
                       className="absolute right-2.5 top-2.5 flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full border border-border/70 bg-card/95 text-slate-600 shadow-md backdrop-blur-sm transition-all hover:scale-110 hover:text-rose-500 active:scale-95 dark:border-white/10 dark:bg-slate-900/90 dark:text-slate-300"
                     >
                       <Heart
-                        className={`w-5 h-5 transition-colors ${
-                          favorite ? "fill-rose-500 text-rose-500" : ""
-                        }`}
+                        className={`w-5 h-5 transition-colors ${favorite ? "fill-rose-500 text-rose-500" : ""
+                          }`}
                       />
                     </button>
                   </Link>
@@ -586,9 +585,8 @@ export function HomeView() {
                         {[pet.location?.city, pet.location?.state].filter(Boolean).join(", ") || "Localização não informada"}
                       </span>
                       <span
-                        className={`w-3 h-3 rounded-full ${
-                          pet.status === "available" ? "bg-emerald-500" : "bg-amber-500"
-                        }`}
+                        className={`w-3 h-3 rounded-full ${pet.status === "available" ? "bg-emerald-500" : "bg-amber-500"
+                          }`}
                         title={pet.status === "available" ? "Disponível" : "Em Processo"}
                       />
                     </div>
