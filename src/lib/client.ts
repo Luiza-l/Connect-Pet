@@ -1,5 +1,7 @@
 import { createClient as criarClienteSupabase } from '@supabase/supabase-js'
 
+export const ROTA_REDEFINICAO = '/redefinir-senha'
+
 function limparCookiesLegadosDeAutenticacao() {
   if (typeof document === 'undefined') return
 
@@ -25,18 +27,26 @@ function limparCookiesLegadosDeAutenticacao() {
   }
 }
 
-function criarNovoCliente() {
+function criarNovoCliente(recuperacao = false) {
   return criarClienteSupabase(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     {
       auth: {
-        persistSession: true,
-        autoRefreshToken: true,
-        detectSessionInUrl: true,
+        persistSession: !recuperacao,
+        autoRefreshToken: !recuperacao,
+        ...(recuperacao ? { storageKey: 'connectpet-recuperacao' } : {}),
+        detectSessionInUrl: recuperacao
+          ? (_url, parametros) => parametros.type === 'recovery' && !!parametros.access_token
+          : typeof window === 'undefined' || window.location.pathname !== ROTA_REDEFINICAO,
       },
     }
   )
+}
+
+// O SDK valida o retorno do e-mail em memória, sem reutilizar a conta de outra aba.
+export function criarClienteRecuperacao() {
+  return criarNovoCliente(true)
 }
 
 let clienteSupabase: ReturnType<typeof criarNovoCliente> | null = null

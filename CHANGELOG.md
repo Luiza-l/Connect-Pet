@@ -1,5 +1,45 @@
 # Changelog
 
+## [v0.12.11] - 2026-11-25
+### Commit
+`fix: direcionar a recuperação de senha ao domínio público`
+
+### Mudanças
+- Usa o domínio configurado em `NEXT_PUBLIC_SITE_URL` para o retorno do e-mail de recuperação.
+- Aguarda a validação do link pelo Supabase em uma sessão em memória exclusiva da página de redefinição.
+
+---
+
+## [v0.12.10] - 2026-11-25
+### Commit
+`feat: permitir visualizar senhas nos formulários de autenticação`
+
+### Mudanças
+- Adiciona controles acessíveis para mostrar ou ocultar a senha no login e nas duas modalidades de cadastro.
+
+---
+
+## [v0.12.9] - 2026-11-25
+### Commit
+`feat: adicionar redefinição segura de senha`
+
+### Mudanças
+- Adiciona solicitação de recuperação com resposta genérica, limite de reenvio na interface e redirecionamento do Supabase Auth para a rota de redefinição.
+- Valida a sessão de recuperação emitida pelo Supabase antes de permitir a troca da senha e encerra a sessão local após a conclusão.
+- Mantém os critérios de senha do cadastro, oferece confirmação e visualização dos campos e orienta sobre links inválidos ou expirados.
+
+---
+
+## [v0.12.8] - 2026-11-25
+### Commit
+`feat: editar fotos de pets antes do envio`
+
+### Mudanças
+- Adiciona recorte 4:3 com zoom, movimentação e pré-visualização para novas fotos e substituições no cadastro de pets.
+- Gera um JPEG otimizado no navegador antes do envio ao Supabase Storage, mantendo o mesmo arquivo nos cards e detalhes para ONGs e doadores.
+
+---
+
 ## [v0.12.7] - 2026-11-25
 ### Commit
 `feat: atualizar foto do cachorro na página Sobre nós`

@@ -15,7 +15,9 @@ import {
   Building2,
   Mail,
   Lock,
-  ArrowRight
+  ArrowRight,
+  Eye,
+  EyeOff
 } from "lucide-react";
 
 export function LoginView() {
@@ -29,6 +31,7 @@ export function LoginView() {
   const [roleTab, setRoleTab] = useState<"adopter" | "guardian">("adopter");
   const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState("");
+  const [mostrarSenha, setMostrarSenha] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isSubmittingRef = useRef(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -180,7 +183,7 @@ export function LoginView() {
             <div className="relative">
               <Lock className="w-4 h-4 text-muted-foreground absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
-                type="password"
+                type={mostrarSenha ? "text" : "password"}
                 id="senha-login"
                 required
                 maxLength={64}
@@ -188,8 +191,22 @@ export function LoginView() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="min-h-[44px] w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                className="min-h-[44px] w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
               />
+              <button
+                type="button"
+                aria-label={mostrarSenha ? "Ocultar senha" : "Mostrar senha"}
+                aria-pressed={mostrarSenha}
+                onClick={() => setMostrarSenha((visivel) => !visivel)}
+                className="absolute right-1 top-1/2 flex min-h-[44px] min-w-[44px] -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:text-foreground"
+              >
+                {mostrarSenha ? <EyeOff aria-hidden="true" className="h-4 w-4" /> : <Eye aria-hidden="true" className="h-4 w-4" />}
+              </button>
+            </div>
+            <div className="text-right">
+              <Link href="/recuperar-senha" className="inline-flex min-h-[44px] items-center font-semibold text-primary hover:underline">
+                Esqueceu sua senha?
+              </Link>
             </div>
           </div>
 

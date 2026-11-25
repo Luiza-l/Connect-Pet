@@ -14,6 +14,8 @@ import {
   Building2,
   Mail,
   Lock,
+  Eye,
+  EyeOff,
   ArrowRight,
   Phone,
   User,
@@ -62,6 +64,7 @@ export function RegisterView() {
   const [adopterPhone, setAdopterPhone] = useState("");
   const [adopterEmail, setAdopterEmail] = useState("");
   const [adopterPassword, setAdopterPassword] = useState("");
+  const [mostrarSenha, setMostrarSenha] = useState(false);
 
   // Guardian Form
   const [guardianType, setGuardianType] = useState<"ngo" | "individual">("ngo");
@@ -566,7 +569,7 @@ export function RegisterView() {
                 <div className="relative">
                   <Lock className="w-4 h-4 text-muted-foreground absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
-                    type="password"
+                    type={mostrarSenha ? "text" : "password"}
                     required
                     minLength={6}
                     maxLength={64}
@@ -575,8 +578,17 @@ export function RegisterView() {
                   aria-label="Senha"
                     onChange={(e) => setAdopterPassword(e.target.value)}
                     placeholder="Mínimo 6 caracteres"
-                    className="min-h-[44px] w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-4 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="min-h-[44px] w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-12 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
                   />
+                  <button
+                    type="button"
+                    aria-label={mostrarSenha ? "Ocultar senha" : "Mostrar senha"}
+                    aria-pressed={mostrarSenha}
+                    onClick={() => setMostrarSenha((visivel) => !visivel)}
+                    className="absolute right-1 top-1/2 flex min-h-[44px] min-w-[44px] -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:text-foreground"
+                  >
+                    {mostrarSenha ? <EyeOff aria-hidden="true" className="h-4 w-4" /> : <Eye aria-hidden="true" className="h-4 w-4" />}
+                  </button>
                 </div>
               </div>
             </>
@@ -734,7 +746,7 @@ export function RegisterView() {
                 <div className="relative">
                   <Lock className="w-4 h-4 text-muted-foreground absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
-                    type="password"
+                    type={mostrarSenha ? "text" : "password"}
                     required
                     minLength={6}
                     maxLength={64}
@@ -743,8 +755,17 @@ export function RegisterView() {
                   aria-label="Senha de acesso"
                     onChange={(e) => setNgoPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="min-h-[44px] w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-4 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
+                    className="min-h-[44px] w-full rounded-xl border border-border bg-background py-2.5 pl-10 pr-12 text-xs focus:outline-none focus:ring-2 focus:ring-primary"
                   />
+                  <button
+                    type="button"
+                    aria-label={mostrarSenha ? "Ocultar senha" : "Mostrar senha"}
+                    aria-pressed={mostrarSenha}
+                    onClick={() => setMostrarSenha((visivel) => !visivel)}
+                    className="absolute right-1 top-1/2 flex min-h-[44px] min-w-[44px] -translate-y-1/2 items-center justify-center rounded-full text-muted-foreground hover:text-foreground"
+                  >
+                    {mostrarSenha ? <EyeOff aria-hidden="true" className="h-4 w-4" /> : <Eye aria-hidden="true" className="h-4 w-4" />}
+                  </button>
                 </div>
               </div>
             </>
