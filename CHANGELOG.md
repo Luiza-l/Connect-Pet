@@ -1,5 +1,14 @@
 # Changelog
 
+## [v0.12.12] - 2026-11-25
+### Commit
+`fix: abrir o formulário quando a recuperação chega à página inicial`
+
+### Mudanças
+- Encaminha o retorno de recuperação para a página de nova senha antes de iniciar a sessão geral do ConnectPet.
+
+---
+
 ## [v0.12.11] - 2026-11-25
 ### Commit
 `fix: direcionar a recuperação de senha ao domínio público`

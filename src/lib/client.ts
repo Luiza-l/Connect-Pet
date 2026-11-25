@@ -1,6 +1,6 @@
 import { createClient as criarClienteSupabase } from '@supabase/supabase-js'
 
-export const ROTA_REDEFINICAO = '/redefinir-senha'
+import { ROTA_REDEFINICAO } from './recuperacaoSenha'
 
 function limparCookiesLegadosDeAutenticacao() {
   if (typeof document === 'undefined') return

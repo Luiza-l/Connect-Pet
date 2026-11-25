@@ -6,7 +6,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, ArrowRight, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { createClient, ROTA_REDEFINICAO } from "@/lib/client";
+import { createClient } from "@/lib/client";
+import { ROTA_REDEFINICAO } from "@/lib/recuperacaoSenha";
 import { isValidEmail } from "@/lib/validation";
 
 export function RecuperarSenhaView() {
