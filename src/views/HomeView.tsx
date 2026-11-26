@@ -130,7 +130,7 @@ export function HomeView() {
               className="group relative mx-auto flex min-h-[320px] w-full max-w-sm flex-col items-center justify-between rounded-3xl border border-primary/20 bg-gradient-to-b from-primary/15 to-primary/5 px-5 pb-6 pt-14 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl dark:from-primary/20 dark:to-card sm:max-w-none sm:px-6 sm:pt-16"
             >
               {/* Pet Sobreposto no Topo */}
-              <div className="absolute -top-12 sm:-top-16 left-1/2 -translate-x-1/2 w-32 sm:w-40 pointer-events-none select-none transition-transform duration-300 group-hover:scale-105">
+              <div className="absolute -top-13 sm:-top-17 left-1/2 -translate-x-1/2 w-32 sm:w-40 pointer-events-none select-none transition-transform duration-300 group-hover:scale-105">
                 <Image
                   src="/images/home/card-beagle.png"
                   alt="Beagle com patinhas apoiadas"
@@ -167,7 +167,7 @@ export function HomeView() {
               className="group relative mx-auto flex min-h-[320px] w-full max-w-sm flex-col items-center justify-between rounded-3xl border border-primary/20 bg-gradient-to-b from-primary/15 to-primary/5 px-5 pb-6 pt-14 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl dark:from-primary/20 dark:to-card sm:max-w-none sm:px-6 sm:pt-16"
             >
               {/* Pet Sobreposto no Topo */}
-              <div className="absolute -top-14 sm:-top-20 left-1/2 -translate-x-1/2 w-32 sm:w-40 pointer-events-none select-none transition-transform duration-300 group-hover:scale-105">
+              <div className="absolute -top-14 sm:-top-21 left-1/2 -translate-x-1/2 w-32 sm:w-40 pointer-events-none select-none transition-transform duration-300 group-hover:scale-105">
                 <Image
                   src="/images/home/card-cat-orange.png"
                   alt="Gatinho laranja com patinhas apoiadas"
@@ -204,7 +204,7 @@ export function HomeView() {
               className="group relative mx-auto flex min-h-[320px] w-full max-w-sm flex-col items-center justify-between rounded-3xl border border-primary/20 bg-gradient-to-b from-primary/15 to-primary/5 px-5 pb-6 pt-14 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl dark:from-primary/20 dark:to-card sm:max-w-none sm:px-6 sm:pt-16"
             >
               {/* Pet Sobreposto no Topo */}
-              <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-32 pointer-events-none select-none transition-transform duration-300 group-hover:scale-105 sm:-top-12 sm:w-44">
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-32 pointer-events-none select-none transition-transform duration-300 group-hover:scale-105 sm:-top-14 sm:w-44">
                 <Image
                   src="/images/home/card-dachshund.png"
                   alt="Dachshund de pelo longo com patinhas apoiadas"
@@ -238,10 +238,10 @@ export function HomeView() {
             {/* Card 4: Seu próximo melhor amigo (Gatinho Rajado) */}
             <Link
               href="/pets"
-              className="group relative mx-auto flex min-h-[320px] w-full max-w-sm flex-col items-center justify-between rounded-3xl border border-primary/20 bg-gradient-to-b from-primary/15 to-primary/5 px-5 pb-6 pt-14 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl dark:from-primary/20 dark:to-card sm:max-w-none sm:px-6 sm:pt-16"
+              className="group relative mx-auto flex min-h-[320px] w-full max-w-sm flex-col items-center justify-between rounded-3xl border border-primary/20 bg-gradient-to-b from-primary/15 to-primary/5 px-5 pb-6 pt-16 text-center shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-xl dark:from-primary/20 dark:to-card sm:max-w-none sm:px-6 sm:pt-20"
             >
               {/* Pet Sobreposto no Topo */}
-              <div className="absolute -top-12 sm:-top-16 left-1/2 -translate-x-1/2 w-32 sm:w-40 pointer-events-none select-none transition-transform duration-300 group-hover:scale-105">
+              <div className="absolute -top-14 sm:-top-17 left-1/2 -translate-x-1/2 w-36 sm:w-44 pointer-events-none select-none transition-transform duration-300 group-hover:scale-105">
                 <Image
                   src="/images/home/card-cat-tabby.png"
                   alt="Gatinho rajado com patinhas apoiadas"
