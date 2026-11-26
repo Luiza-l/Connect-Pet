@@ -26,6 +26,7 @@ import {
   MapPin
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { NotificacoesGuardiao } from "./NotificacoesGuardiao";
 
 const assinarHidratacao = () => () => {};
 const obterSnapshotCliente = () => true;
@@ -193,6 +194,7 @@ export function Navbar() {
           )}
           
           {/* Theme Selector Button */}
+          {isGuardian && <NotificacoesGuardiao key={currentUser.id} usuario={currentUser.id} />}
           <div className="relative">
             <button
               onClick={() => {
@@ -257,7 +259,7 @@ export function Navbar() {
 
           {/* User Account / Demo Profile Switcher */}
           {currentUser ? (
-            <div className={isGuardian ? "relative hidden min-w-0 2xl:block" : "relative"}>
+            <div className={isGuardian ? "relative hidden shrink-0 2xl:block" : "relative"}>
               <button
                 onClick={() => {
                   setProfileDropdownOpen(!profileDropdownOpen);
@@ -266,7 +268,7 @@ export function Navbar() {
                 aria-haspopup="menu"
                 aria-expanded={profileDropdownOpen}
                 aria-label={`Abrir menu de ${currentUser.name}`}
-                className="flex max-w-full items-center gap-2 p-1.5 pr-3 min-h-[44px] rounded-full border border-border/60 bg-card hover:border-primary/40 shadow-sm transition-all text-left"
+                className={`flex min-h-11 items-center rounded-full border border-border/60 bg-card shadow-sm transition-colors hover:border-primary/40 ${isGuardian ? "size-11 justify-center" : "max-w-full gap-2 p-1.5 pr-3 text-left"}`}
               >
                 <div className="w-8 h-8 rounded-full overflow-hidden relative border border-primary/25 bg-sky-100 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300 flex items-center justify-center font-bold text-xs shrink-0">
                   {currentUser.avatar ? (
@@ -281,15 +283,17 @@ export function Navbar() {
                     <User className="w-4 h-4 text-sky-700 dark:text-sky-300" />
                   )}
                 </div>
-                <div className={`hidden min-w-0 flex-col ${isGuardian ? "2xl:flex" : "md:flex"}`}>
-                  <span className="max-w-24 truncate text-xs font-bold leading-tight text-foreground">
-                    {currentUser.name}
-                  </span>
-                  <span className="text-xs font-medium text-primary leading-none">
-                    {isAdopter ? "Adotante" : "ONG / Protetor"}
-                  </span>
-                </div>
-                <ChevronDown className="w-3.5 h-3.5 shrink-0 text-muted-foreground hidden sm:block" />
+                {isAdopter && (
+                  <>
+                    <div className="hidden min-w-0 flex-col md:flex">
+                      <span className="max-w-24 truncate text-xs font-bold leading-tight text-foreground">
+                        {currentUser.name}
+                      </span>
+                      <span className="text-xs font-medium text-primary leading-none">Adotante</span>
+                    </div>
+                    <ChevronDown className="hidden size-3.5 shrink-0 text-muted-foreground sm:block" />
+                  </>
+                )}
               </button>
 
               {profileDropdownOpen && (
@@ -297,9 +301,9 @@ export function Navbar() {
                   <div className="p-2.5 border-b border-border/60 mb-2">
                     <p className="text-xs font-bold text-foreground">{currentUser.name}</p>
                     <p className="text-xs text-muted-foreground truncate">{currentUser.email}</p>
-                    <span className="mt-1.5 inline-block px-2 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary">
-                      {isAdopter ? "Candidato a Tutor" : "ONG / Protetor"}
-                    </span>
+                    {isAdopter && <span className="mt-1.5 inline-block px-2 py-0.5 rounded-full text-xs font-semibold bg-primary/10 text-primary">
+                      Candidato a Tutor
+                    </span>}
                   </div>
 
                   {/* Editar Perfil */}

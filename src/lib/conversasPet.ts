@@ -71,6 +71,7 @@ export function obterCaixaPet(usuario: string): CaixaPet {
       const { error } = await banco.from("mensagens_pet").update({ lida: true })
         .eq("conversa_id", conversa).neq("remetente_id", usuario).eq("lida", false).lte("enviada_em", ate);
       if (error) throw error;
+      window.dispatchEvent(new Event("avisos-guardiao-atualizados"));
     },
     observar(atualizar) {
       const canal = banco.channel(`caixa-pet-${usuario}-${crypto.randomUUID()}`)

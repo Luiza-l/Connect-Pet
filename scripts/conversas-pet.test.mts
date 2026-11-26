@@ -26,16 +26,26 @@ test("chat por anúncio recupera histórico, confirma leitura e restringe opera�
       create publication supabase_realtime;
       create function auth.uid() returns uuid language sql stable as
         $$ select nullif(current_setting('request.jwt.claim.sub', true), '')::uuid $$;
+      create function auth.jwt() returns jsonb language sql stable as $$ select '{}'::jsonb $$;
       grant usage on schema auth to authenticated;
       create table public.profiles(id uuid primary key, role text, name text);
       alter table public.profiles enable row level security;
       create policy proprio on public.profiles for select to authenticated using(id=auth.uid());
       ${definicaoPet}
+      ${sql.slice(sql.indexOf("-- 3. Tabela de Candidaturas"), sql.indexOf("-- 5. Tabela de Perfis"))}
+      alter table public.applications enable row level security;
+      alter table public.application_messages enable row level security;
+      ${sql.slice(sql.indexOf('drop policy if exists "Allow participants to view applications"'), sql.indexOf("-- 8. Documentação"))}
+      grant select, insert on public.applications, public.application_messages to authenticated;
       grant select on public.pets, public.profiles to authenticated;
     `);
-    const migracao = sql.slice(sql.indexOf("-- 15. Conversas sobre anúncios"));
+    const migracao = sql.slice(sql.indexOf("-- 15. Conversas sobre anúncios"), sql.indexOf("-- 16. Notificações"));
     await banco.exec(migracao);
     await banco.exec(migracao);
+    const notificacoes = sql.slice(sql.indexOf("-- 16. Notificações"));
+    await banco.exec(notificacoes);
+    await banco.exec(notificacoes);
+    const avisos = async () => (await banco.query("select tipo from public.avisos_guardiao order by tipo")).rows;
     const publicadas = await banco.query("select tablename from pg_publication_tables where pubname='supabase_realtime' order by tablename");
     assert.deepEqual(publicadas.rows, [{ tablename: "conversas_pet" }, { tablename: "mensagens_pet" }]);
     for (const [id, papel] of [[ong, "guardian"], [outraOng, "guardian"], [adotante, "adopter"], [outroAdotante, "adopter"]]) {
@@ -50,6 +60,12 @@ test("chat por anúncio recupera histórico, confirma leitura e restringe opera�
     await assert.rejects(caixa(), /permission denied/);
     await banco.exec("reset role; set role authenticated");
     await assumir(adotante);
+    const candidatura = randomUUID();
+    await banco.query(`insert into applications(id,pet_id,guardian_id,candidate_id,candidate_name,candidate_email,candidate)
+      values ($1,$2,$3,$4,'Adotante','teste@example.invalid',jsonb_build_object('id',$4::text))`, [candidatura,pet,ong,adotante]);
+    await banco.query(`insert into application_messages(application_id,sender_id,sender_name,sender_role,message)
+      values ($1,$2,'Adotante','candidate','Olá')`, [candidatura,adotante]);
+    assert.deepEqual(await avisos(), []);
     const conversa = await abrir(pet);
     assert.equal(await abrir(pet), conversa);
     const segunda = await abrir(segundoPet);
@@ -61,6 +77,8 @@ test("chat por anúncio recupera histórico, confirma leitura e restringe opera�
     await assert.rejects(banco.query("update public.mensagens_pet set conteudo='alterado'"), /permission denied/);
     assert.equal((await caixa())[0].nao_lida, false);
     await assumir(outraOng);
+    assert.deepEqual(await avisos(), []);
+    assert.equal((await banco.query("update application_messages set vista_pelo_guardiao=true returning id")).rows.length, 0);
     assert.deepEqual(await caixa(), []);
     assert.equal((await banco.query("select id from public.mensagens_pet")).rows.length, 0);
     await assert.rejects(enviar(randomUUID(), conversa, "Teste"), /row-level security/);
@@ -71,10 +89,15 @@ test("chat por anúncio recupera histórico, confirma leitura e restringe opera�
     await assert.rejects(banco.query("insert into public.conversas_pet(pet_id,responsavel_id) values ($1,$2)", [pet, outraOng]), /permission denied/);
     const outra = await abrir(terceiroPet);
     await assumir(ong);
+    assert.deepEqual(await avisos(), [{ tipo: "candidatura" }, { tipo: "conversa" }]);
+    await banco.query("update applications set vista_pelo_guardiao=true where id=$1", [candidatura]);
+    assert.deepEqual(await avisos(), [{ tipo: "conversa" }, { tipo: "mensagem_candidatura" }]);
+    await banco.query("update application_messages set vista_pelo_guardiao=true where application_id=$1", [candidatura]);
     assert.ok(!(await caixa()).some(c => c.id === outra));
     assert.equal((await caixa()).find(c => c.id === conversa)?.nao_lida, true);
     await banco.query("update public.mensagens_pet set lida=true where id=$1", [mensagem]);
     assert.equal((await caixa()).find(c => c.id === conversa)?.nao_lida, false);
+    assert.deepEqual(await avisos(), []);
     await enviar(randomUUID(), conversa, "Claro!");
     await assumir(adotante);
     const resumo = (await caixa())[0];

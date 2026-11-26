@@ -1390,3 +1390,49 @@ begin
 end $$;
 
 commit;
+
+-- 16. Notificações recebidas por ONGs e doadores.
+begin;
+
+-- O histórico anterior à ativação não gera alertas retroativos.
+alter table public.applications add column if not exists vista_pelo_guardiao boolean not null default true;
+alter table public.applications alter column vista_pelo_guardiao set default false;
+alter table public.application_messages add column if not exists vista_pelo_guardiao boolean not null default true;
+alter table public.application_messages alter column vista_pelo_guardiao set default false;
+revoke update on public.application_messages from public, anon, authenticated;
+grant update (vista_pelo_guardiao) on public.applications, public.application_messages to authenticated;
+
+drop policy if exists candidatura_chega_nao_lida on public.applications;
+create policy candidatura_chega_nao_lida on public.applications as restrictive for insert to authenticated
+  with check (not vista_pelo_guardiao);
+drop policy if exists mensagem_chega_nao_lida on public.application_messages;
+create policy mensagem_chega_nao_lida on public.application_messages as restrictive for insert to authenticated
+  with check (not vista_pelo_guardiao);
+drop policy if exists guardiao_le_mensagem on public.application_messages;
+create policy guardiao_le_mensagem on public.application_messages for update to authenticated
+  using (sender_role in ('candidate','adopter') and exists (
+    select 1 from public.applications a where a.id = application_id and a.guardian_id = (select auth.uid())::text))
+  with check (vista_pelo_guardiao and exists (
+    select 1 from public.applications a where a.id = application_id and a.guardian_id = (select auth.uid())::text));
+
+create index if not exists candidaturas_nao_vistas on public.applications (guardian_id, created_at desc)
+  where not vista_pelo_guardiao;
+create index if not exists mensagens_candidatura_nao_vistas on public.application_messages (application_id, created_at desc)
+  where not vista_pelo_guardiao and sender_role in ('candidate','adopter');
+
+create or replace view public.avisos_guardiao with (security_invoker = true) as
+  select 'candidatura'::text as tipo, id as destino, pet_name as animal, created_at as recebido_em, guardian_id as guardiao_id
+  from public.applications where guardian_id = (select auth.uid())::text and not vista_pelo_guardiao
+  union all
+  select 'mensagem_candidatura', a.id, a.pet_name, max(m.created_at), a.guardian_id
+  from public.application_messages m join public.applications a on a.id = m.application_id
+  where a.guardian_id = (select auth.uid())::text and not m.vista_pelo_guardiao and m.sender_role in ('candidate','adopter')
+    and a.vista_pelo_guardiao
+  group by a.id
+  union all
+  select 'conversa', id, nome_pet, atividade_em, responsavel_id::text from public.caixa_conversas_pet
+  where responsavel_id = (select auth.uid()) and nao_lida;
+revoke all on public.avisos_guardiao from public, anon, authenticated;
+grant select on public.avisos_guardiao to authenticated;
+
+commit;

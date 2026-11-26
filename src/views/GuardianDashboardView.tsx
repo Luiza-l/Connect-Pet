@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -40,6 +40,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { SeletorDeslizante } from "@/components/ui/SeletorDeslizante";
 import { capitalizarFrases } from "@/lib/capitalizacao";
+import { createClient } from "@/lib/client";
+import { registrarErroSeguro } from "@/lib/mensagensErro";
 import {
   AlertDialogContent,
   AlertDialogDescription,
@@ -55,6 +57,12 @@ import {
 } from "@/components/ui/sheet";
 
 type AbaPainel = "visao-geral" | "candidaturas" | "animais" | "metricas";
+const telaMovel = () => window.matchMedia("(width < 64rem)").matches;
+function observarTelaMovel(atualizar: () => void) {
+  const media = window.matchMedia("(width < 64rem)");
+  media.addEventListener("change", atualizar);
+  return () => media.removeEventListener("change", atualizar);
+}
 type OrdenacaoAnimais = "recentes" | "nome" | "completude";
 type OrdenacaoCandidaturas = "recentes" | "antigas" | "atividade";
 
@@ -201,6 +209,7 @@ function GrupoRespostas({
 function PainelDossie({
   candidatura,
   contexto,
+  abaInicial,
   estaAtualizandoStatus,
   aoSolicitarStatus,
   aoSalvarNotas,
@@ -209,6 +218,7 @@ function PainelDossie({
 }: {
   candidatura: PreAdoptionApplication;
   contexto: "desktop" | "movel";
+  abaInicial: "formulario" | "mensagens";
   estaAtualizandoStatus: boolean;
   aoSolicitarStatus: (status: ApplicationStatus) => void;
   aoSalvarNotas: (notas: string) => Promise<boolean>;
@@ -217,6 +227,50 @@ function PainelDossie({
 }) {
   const [notas, setNotas] = useState(candidatura.guardianNotes || "");
   const [mensagem, setMensagem] = useState("");
+  const [aba, setAba] = useState<string | number>(abaInicial);
+  const painel = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const elemento = painel.current;
+    if (!elemento) return;
+    let ativo = true;
+    let emLeitura = false;
+    let confirmado = false;
+    let visivel = false;
+    async function confirmarLeitura() {
+      if (!ativo || confirmado || emLeitura || document.hidden || !visivel) return;
+      emLeitura = true;
+      try {
+        const banco = createClient();
+        await banco.from("applications").update({ vista_pelo_guardiao: true })
+          .eq("id", candidatura.id).eq("vista_pelo_guardiao", false).throwOnError();
+        if (aba === "mensagens") {
+          const ids = candidatura.messages.filter(item => item.senderRole === "adopter").map(item => item.id);
+          for (let inicio = 0; ativo && inicio < ids.length; inicio += 100) {
+            await banco.from("application_messages").update({ vista_pelo_guardiao: true })
+              .eq("application_id", candidatura.id).eq("vista_pelo_guardiao", false)
+              .in("id", ids.slice(inicio, inicio + 100)).throwOnError();
+          }
+        }
+        confirmado = true;
+        window.dispatchEvent(new Event("avisos-guardiao-atualizados"));
+      } catch (erro) {
+        registrarErroSeguro("Falha ao confirmar leitura da candidatura", erro);
+      } finally {
+        emLeitura = false;
+      }
+    }
+    const observador = new IntersectionObserver(([entrada]) => {
+      visivel = entrada.isIntersecting;
+      if (visivel) void confirmarLeitura();
+    });
+    observador.observe(elemento);
+    document.addEventListener("visibilitychange", confirmarLeitura);
+    return () => {
+      ativo = false;
+      observador.disconnect();
+      document.removeEventListener("visibilitychange", confirmarLeitura);
+    };
+  }, [aba, candidatura.id, candidatura.messages]);
   const [estaSalvandoNotas, setEstaSalvandoNotas] = useState(false);
   const [estaEnviandoMensagem, setEstaEnviandoMensagem] = useState(false);
   const [estaGerandoAnalise, setEstaGerandoAnalise] = useState(false);
@@ -264,7 +318,7 @@ function PainelDossie({
   };
 
   return (
-    <article className="space-y-5 rounded-3xl border border-border/70 bg-card p-4 shadow-sm sm:p-6">
+    <article ref={painel} className="space-y-5 rounded-3xl border border-border/70 bg-card p-4 shadow-sm sm:p-6">
       <header className="flex flex-col gap-4 border-b border-border/60 pb-5 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <p className="text-xs font-bold uppercase tracking-wider text-primary">Candidatura para {candidatura.petName}</p>
@@ -276,7 +330,7 @@ function PainelDossie({
         </div>
       </header>
 
-      <Tabs defaultSelectedKey="formulario" className="min-w-0 flex-col gap-4">
+      <Tabs selectedKey={aba} onSelectionChange={setAba} className="min-w-0 flex-col gap-4">
         <TabsList aria-label="Detalhes da candidatura" className="min-h-12 w-full max-w-full rounded-2xl p-1 sm:w-fit">
           <TabsTrigger id="formulario" className="min-h-11 rounded-xl px-2 sm:px-4">
             <FileCheck2 aria-hidden="true" /> Formulário
@@ -550,7 +604,8 @@ export function GuardianDashboardView() {
   const [statusCandidatura, setStatusCandidatura] = useState<ApplicationStatus | "todos">("todos");
   const [petCandidatura, setPetCandidatura] = useState("todos");
   const [ordenacaoCandidaturas, setOrdenacaoCandidaturas] = useState<OrdenacaoCandidaturas>("recentes");
-  const [detalheMovelAberto, setDetalheMovelAberto] = useState(false);
+  const emTelaMovel = useSyncExternalStore(observarTelaMovel, telaMovel, () => false);
+  const abaDossie = parametrosBusca.get("detalhe") === "mensagens" ? "mensagens" : "formulario";
   const [petIdParaExcluir, setPetIdParaExcluir] = useState<string | null>(null);
   const [estaExcluindoPet, setEstaExcluindoPet] = useState(false);
   const [alteracaoStatus, setAlteracaoStatus] = useState<{ candidatura: PreAdoptionApplication; status: ApplicationStatus } | null>(null);
@@ -575,6 +630,7 @@ export function GuardianDashboardView() {
     const parametros = new URLSearchParams(parametrosBusca.toString());
     parametros.set("aba", aba);
     parametros.delete("conversa");
+    parametros.delete("detalhe");
     if (candidaturaId) parametros.set("candidatura", candidaturaId);
     else parametros.delete("candidatura");
     router.replace(`${pathname}?${parametros.toString()}`, { scroll: false });
@@ -593,7 +649,9 @@ export function GuardianDashboardView() {
       });
   }, [buscaCandidatura, candidaturasGuardiao, ordenacaoCandidaturas, petCandidatura, statusCandidatura]);
 
-  const candidaturaSelecionada = candidaturasFiltradas.find((item) => item.id === candidaturaParametro) || candidaturasFiltradas[0] || null;
+  const candidaturaSelecionada = candidaturaParametro && parametrosBusca.has("detalhe")
+    ? candidaturasGuardiao.find(item => item.id === candidaturaParametro)
+    : candidaturasFiltradas.find((item) => item.id === candidaturaParametro) || candidaturasFiltradas[0] || null;
 
   const animaisFiltrados = useMemo(() => {
     const termo = buscaAnimal.trim().toLocaleLowerCase("pt-BR");
@@ -647,7 +705,6 @@ export function GuardianDashboardView() {
 
   const selecionarCandidatura = (candidaturaId: string) => {
     navegarParaAba("candidaturas", candidaturaId);
-    if (typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches) setDetalheMovelAberto(true);
   };
 
   const registrarAlteracaoStatus = async (candidatura: PreAdoptionApplication, status: ApplicationStatus) => {
@@ -670,7 +727,8 @@ export function GuardianDashboardView() {
 
   const renderizarDossie = (candidatura: PreAdoptionApplication, contexto: "desktop" | "movel") => (
     <PainelDossie
-      key={`${contexto}-${candidatura.id}`}
+      key={`${contexto}-${candidatura.id}-${abaDossie}`}
+      abaInicial={abaDossie}
       candidatura={candidatura}
       contexto={contexto}
       estaAtualizandoStatus={estaAtualizandoStatus}
@@ -898,7 +956,7 @@ export function GuardianDashboardView() {
         )}
       </main>
 
-      <SheetContent isOpen={detalheMovelAberto && Boolean(candidaturaSelecionada)} onOpenChange={setDetalheMovelAberto} className="overflow-y-auto p-0 data-[side=right]:w-full data-[side=right]:sm:max-w-xl lg:hidden">
+      <SheetContent isOpen={emTelaMovel && abaAtiva === "candidaturas" && Boolean(candidaturaParametro && candidaturaSelecionada)} onOpenChange={(aberto) => { if (!aberto) navegarParaAba("candidaturas"); }} className="overflow-y-auto p-0 data-[side=right]:w-full data-[side=right]:sm:max-w-xl lg:hidden">
         <SheetHeader className="border-b border-border p-4 pr-14"><SheetTitle>Dossiê da candidatura</SheetTitle><SheetDescription>Revise as informações e atualize o andamento.</SheetDescription></SheetHeader>
         <div className="p-3 sm:p-4">{candidaturaSelecionada && renderizarDossie(candidaturaSelecionada, "movel")}</div>
       </SheetContent>

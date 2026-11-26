@@ -1,5 +1,24 @@
 # Changelog
 
+## [v0.13.1] - 2026-11-26
+### Commit
+`fix: exibir apenas o avatar de ONGs e doadores na barra de navegação`
+
+### Mudanças
+- Usa a foto de perfil como botão do menu da conta para evitar que o texto ultrapasse o espaço disponível ao lado do sino.
+
+---
+
+## [v0.13.0] - 2026-11-26
+### Commit
+`feat: avisar ONGs e doadores sobre mensagens e candidaturas`
+
+### Mudanças
+- Adiciona um sino no cabeçalho que abre a conversa ou a candidatura recebida.
+- Registra a leitura por conta e atualiza os avisos enquanto a página está aberta.
+
+---
+
 ## [v0.12.18] - 2026-11-26
 ### Commit
 `fix: substituir selos decorativos por marcadores de lista`
