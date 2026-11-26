@@ -1,5 +1,15 @@
 # Changelog
 
+## [v0.13.5] - 2026-11-26
+### Commit
+`feat: vincular "Termos de Uso" no rodapé ao PDF do documento`
+
+### Mudanças
+- PDF `Termo_de_Uso_–_ConnectPet.pdf` adicionado em `public/termos-de-uso.pdf`.
+- "Termos de Uso" no rodapé convertido de `<span>` para link que abre o PDF em nova aba.
+
+---
+
 ## [v0.13.4] - 2026-11-26
 ### Commit
 `feat: transformar tag "Posse Responsável" no rodapé em link de denúncia`

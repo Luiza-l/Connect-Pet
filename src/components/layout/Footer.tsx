@@ -74,31 +74,39 @@ export function Footer() {
             </p>
           </div>
           <div className="shrink-0">
-              <a
-                href="https://www.worldanimalprotection.org.br/participe/denuncia/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary transition-colors hover:bg-primary/20 hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
-                aria-label="Acesse os canais de denúncia de maus-tratos a animais"
-              >
-                <CheckCircle className="w-3.5 h-3.5 text-sky-600" /> Posse Responsável
-          </a>
+            <a
+              href="https://www.worldanimalprotection.org.br/participe/denuncia/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex min-h-[44px] items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary transition-colors hover:bg-primary/20 hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50"
+              aria-label="Acesse os canais de denúncia de maus-tratos a animais"
+            >
+              <CheckCircle className="w-3.5 h-3.5 text-sky-600" /> Posse Responsável
+            </a>
+          </div>
         </div>
-      </div>
 
-      {/* Linha Inferior com Copyright */}
-      <div className="flex flex-col items-center justify-between gap-3 border-t border-sky-300/50 pt-5 text-center text-xs font-medium text-muted-foreground dark:border-sky-800/70 sm:flex-row sm:text-left">
-        <p>© 2026 ConnectPet • Adoção Consciente e Responsável. Todos os direitos reservados.</p>
-        <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs">
-          <span>Privacidade &amp; LGPD</span>
-          <span>Termos de Uso</span>
-          <span className="flex items-center gap-1">
-            <Heart className="w-3 h-3 text-rose-500 fill-rose-500" /> Salve Vidas
-          </span>
+        {/* Linha Inferior com Copyright */}
+        <div className="flex flex-col items-center justify-between gap-3 border-t border-sky-300/50 pt-5 text-center text-xs font-medium text-muted-foreground dark:border-sky-800/70 sm:flex-row sm:text-left">
+          <p>© 2026 ConnectPet • Adoção Consciente e Responsável. Todos os direitos reservados.</p>
+          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-xs">
+            <span>Privacidade &amp; LGPD</span>
+            <a
+              href="/termos-de-uso.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline-offset-2 hover:underline hover:text-foreground transition-colors"
+              aria-label="Abrir Termos de Uso em PDF"
+            >
+              Termos de Uso
+            </a>
+            <span className="flex items-center gap-1">
+              <Heart className="w-3 h-3 text-rose-500 fill-rose-500" /> Salve Vidas
+            </span>
+          </div>
         </div>
-      </div>
 
-    </div>
+      </div>
     </footer >
   );
 }
