@@ -1,5 +1,27 @@
 # Changelog
 
+## [v0.13.4] - 2026-11-26
+### Commit
+`feat: transformar tag "Posse Responsável" no rodapé em link de denúncia`
+
+### Mudanças
+- A tag estática "Posse Responsável" no rodapé foi convertida em link clicável redirecionando para https://www.worldanimalprotection.org.br/participe/denuncia/.
+- Link abre em nova aba (`target="_blank"`) com `rel="noopener noreferrer"`.
+- Estilo mantido (pill arredondado) com hover e foco acessível adicionados.
+
+---
+
+## [v0.13.3] - 2026-11-26
+### Commit
+`chore: upgrade Next.js 16.4.0 → 16.4.6 (security patch)`
+
+### Mudanças
+- Atualizado `next` de `16.4.0` para `16.4.6` para corrigir vulnerabilidade de segurança publicada.
+- Atualizado `eslint-config-next` para `16.4.6` em sincronia.
+- Adicionado `experimental.agentUpgrade: "security"` no `next.config.ts` conforme instrução do upgrade.
+
+---
+
 ## [v0.13.2] - 2026-11-26
 ### Commit
 `fix: remover item Mensagens do menu do adotante na navbar`
