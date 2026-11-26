@@ -117,7 +117,7 @@ export function SobreNosView() {
           <div className="relative mx-auto aspect-5/4 w-full max-w-xl" data-revelar>
             <div className="absolute inset-x-[5%] inset-y-[3%] overflow-hidden rounded-[2.5rem] border border-primary/20 bg-linear-to-br from-card via-sky-100 to-primary/20 shadow-2xl shadow-primary/10 dark:from-card dark:via-sky-950 dark:to-primary/20 sm:rounded-[3.5rem]">
               <Image
-                src="/images/sobrenos/foto1-sobrenos.jfif"
+                src="/images/sobrenos/cachorro-notebook.png"
                 alt="Cachorro marrom com o focinho apoiado no teclado de um notebook"
                 fill
                 preload
