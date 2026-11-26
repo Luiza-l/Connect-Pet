@@ -1,5 +1,15 @@
 # Changelog
 
+## [v0.13.2] - 2026-11-26
+### Commit
+`fix: remover item Mensagens do menu do adotante na navbar`
+
+### Mudanças
+- Removida a opção "Mensagens" do dropdown de perfil do adotante (desktop).
+- Removida a opção "Mensagens" do menu mobile do adotante.
+
+---
+
 ## [v0.13.1] - 2026-11-26
 ### Commit
 `fix: exibir apenas o avatar de ONGs e doadores na barra de navegação`

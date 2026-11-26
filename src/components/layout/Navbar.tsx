@@ -327,12 +327,6 @@ export function Navbar() {
                   >
                     <UserCog className="w-4 h-4 text-primary" /> Editar Perfil
                   </Link>
-
-                  {/* Panel Shortcut */}
-                  {isAdopter && <Link href="/mensagens" role="menuitem" onClick={() => setProfileDropdownOpen(false)}
-                    className="flex min-h-[44px] items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-medium hover:bg-secondary">
-                    <MessageCircle className="size-4 text-primary" /> Mensagens
-                  </Link>}
                   {isAdopter && (
                     <Link
                       href="/minhas-candidaturas"
@@ -467,11 +461,6 @@ export function Navbar() {
                 <FileCheck2 className="w-4 h-4 text-primary" /> Minhas Candidaturas
               </Link>
             )}
-
-            {isAdopter && <Link href="/mensagens" onClick={() => setMobileMenuOpen(false)}
-              className="flex min-h-[44px] items-center gap-3 rounded-2xl px-4 py-3 text-sm font-semibold text-muted-foreground hover:bg-secondary">
-              <MessageCircle className="size-4 text-primary" /> Mensagens
-            </Link>}
           </nav>
 
           {/* Mobile User Actions */}
