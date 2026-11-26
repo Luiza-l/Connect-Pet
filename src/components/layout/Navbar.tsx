@@ -42,6 +42,7 @@ export function Navbar() {
   } = useApp();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const botaoMenuMovel = useRef<HTMLButtonElement>(null);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [themeDropdownOpen, setThemeDropdownOpen] = useState(false);
   const estaHidratado = useSyncExternalStore(
@@ -66,10 +67,16 @@ export function Navbar() {
   }, [mobileMenuOpen, profileDropdownOpen, themeDropdownOpen]);
 
   useEffect(() => {
-    if (!mobileMenuOpen) return;
+    if (!mobileMenuOpen || !botaoMenuMovel.current) return;
+    const botao = botaoMenuMovel.current;
+    const observador = new ResizeObserver(() => {
+      if (botao.getClientRects().length === 0) setMobileMenuOpen(false);
+    });
+    observador.observe(botao);
     const overflowAnterior = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
+      observador.disconnect();
       document.body.style.overflow = overflowAnterior;
     };
   }, [mobileMenuOpen]);
@@ -110,14 +117,19 @@ export function Navbar() {
       setIndicador({ esquerda: elemento.offsetLeft, largura: elemento.offsetWidth, visivel: true });
     };
     atualizarIndicador();
+    const observador = new ResizeObserver(atualizarIndicador);
+    Object.values(refsLinks.current).forEach(link => { if (link) observador.observe(link); });
     window.addEventListener("resize", atualizarIndicador);
-    return () => window.removeEventListener("resize", atualizarIndicador);
+    return () => {
+      observador.disconnect();
+      window.removeEventListener("resize", atualizarIndicador);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/60 bg-background/90 shadow-sm shadow-foreground/[0.02] backdrop-blur-xl transition-colors">
-      <div className="mx-auto flex h-16 w-full max-w-screen-2xl items-center justify-between gap-2 px-4 sm:h-20 sm:gap-3 sm:px-6 lg:px-8 2xl:grid 2xl:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] 2xl:gap-6">
+      <div className="mx-auto flex min-h-16 w-full max-w-screen-2xl items-center justify-between gap-2 px-4 sm:min-h-20 sm:gap-3 sm:px-6 navegacao:grid navegacao:grid-cols-[auto_1fr] navegacao:gap-y-1 navegacao:py-2 lg:px-8 xl:grid-cols-[minmax(max-content,1fr)_auto_minmax(max-content,1fr)] 2xl:gap-x-6">
         
         {/* Logo */}
         <Link href="/" aria-label="ConnectPet — página inicial" className="group flex min-h-[44px] shrink-0 items-center gap-2 sm:gap-3 lg:justify-self-start">
@@ -139,7 +151,7 @@ export function Navbar() {
         </Link>
 
         {/* Center Desktop Navigation */}
-        <nav aria-label="Navegação principal" className="relative hidden items-center gap-1 rounded-full border border-border/60 bg-secondary/50 p-1.5 2xl:flex 2xl:justify-self-center 2xl:gap-3">
+        <nav aria-label="Navegação principal" className="relative hidden items-center gap-1 rounded-full border border-border/60 bg-secondary/50 p-1.5 navegacao:col-span-full navegacao:row-start-2 navegacao:flex navegacao:justify-self-center xl:col-span-1 xl:col-start-2 xl:row-start-1 2xl:gap-3">
           <span
             aria-hidden="true"
             className={`pointer-events-none absolute left-0 top-1.5 bottom-1.5 rounded-full bg-background shadow-sm ring-1 ring-border/50 transition-[transform,width,opacity] duration-300 ease-out motion-reduce:transition-none ${
@@ -172,7 +184,7 @@ export function Navbar() {
         </nav>
 
         {/* A gestão fica visível sem depender do menu da conta. */}
-        <div className="flex shrink-0 items-center gap-1.5 sm:gap-3 2xl:min-w-0 2xl:justify-end 2xl:gap-2">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-3 navegacao:col-start-2 navegacao:row-start-1 navegacao:justify-self-end xl:col-start-3 2xl:gap-2">
           {isGuardian && (
             <Link
               href="/dashboard"
@@ -259,7 +271,7 @@ export function Navbar() {
 
           {/* User Account / Demo Profile Switcher */}
           {currentUser ? (
-            <div className={isGuardian ? "relative hidden shrink-0 2xl:block" : "relative"}>
+            <div className={isGuardian ? "relative hidden shrink-0 navegacao:block" : "relative"}>
               <button
                 onClick={() => {
                   setProfileDropdownOpen(!profileDropdownOpen);
@@ -375,13 +387,14 @@ export function Navbar() {
 
           {/* Mobile Menu Hamburger */}
           <button
+            ref={botaoMenuMovel}
             type="button"
             onClick={() => {
               setMobileMenuOpen((menuAberto) => !menuAberto);
               setProfileDropdownOpen(false);
               setThemeDropdownOpen(false);
             }}
-            className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full border border-border/60 bg-card text-foreground 2xl:hidden"
+            className="p-2.5 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-full border border-border/60 bg-card text-foreground navegacao:hidden"
             aria-label={mobileMenuOpen ? "Fechar menu" : "Abrir menu"}
             aria-expanded={mobileMenuOpen}
             aria-controls="menu-movel"
@@ -398,11 +411,11 @@ export function Navbar() {
             type="button"
             aria-label="Fechar menu"
             onClick={() => setMobileMenuOpen(false)}
-            className="fixed inset-x-0 bottom-0 top-16 z-40 cursor-default bg-foreground/30 backdrop-blur-sm sm:top-20 2xl:hidden"
+            className="fixed inset-x-0 bottom-0 top-16 z-40 cursor-default bg-foreground/30 backdrop-blur-sm sm:top-20 navegacao:hidden"
           />
           <div
             id="menu-movel"
-            className="fixed bottom-0 right-0 top-16 z-50 w-full max-w-sm overflow-y-auto border-l border-border bg-background px-4 py-5 shadow-2xl animate-in slide-in-from-right-4 sm:top-20 sm:px-6 2xl:hidden"
+            className="fixed bottom-0 right-0 top-16 z-50 w-full max-w-sm overflow-y-auto border-l border-border bg-background px-4 py-5 shadow-2xl animate-in slide-in-from-right-4 sm:top-20 sm:px-6 navegacao:hidden"
           >
           {isGuardian && (
             <Link

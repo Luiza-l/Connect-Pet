@@ -471,7 +471,7 @@ export function CatalogView() {
         {/* Mantém todos os filtros acessíveis com rolagem independente do catálogo. */}
         <aside
           aria-label="Filtros do catálogo"
-          className="hidden overflow-hidden rounded-3xl border border-border/60 bg-card p-2 shadow-sm lg:sticky lg:top-28 lg:col-span-1 lg:flex lg:max-h-[calc(100dvh-8rem)] lg:flex-col"
+          className="hidden overflow-hidden rounded-3xl border border-border/60 bg-card p-2 shadow-sm lg:sticky lg:top-40 lg:col-span-1 lg:flex lg:max-h-[calc(100dvh-11rem)] lg:flex-col xl:top-28 xl:max-h-[calc(100dvh-8rem)]"
         >
           <div
             role="region"

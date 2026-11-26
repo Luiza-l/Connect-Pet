@@ -225,7 +225,7 @@ export function SobreNosView() {
 
       <section className="py-16 sm:py-20 lg:py-24">
         <div className="page-shell grid gap-10 lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)] lg:items-start lg:gap-14">
-          <div className="lg:sticky lg:top-28" data-revelar>
+          <div className="lg:sticky lg:top-40 xl:top-28" data-revelar>
             <span className="section-kicker">Feito para apoiar boas decisões</span>
             <h2 className="mt-3 text-balance font-serif text-3xl font-bold sm:text-4xl lg:text-5xl">
               Recursos que acompanham toda a jornada.
