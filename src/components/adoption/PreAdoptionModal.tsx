@@ -7,7 +7,6 @@ import { Pet, PreAdoptionApplication, AdopterProfile } from "@/types";
 import { useApp } from "@/context/AppContext";
 import {
   X,
-  CheckCircle2,
   AlertTriangle,
   ArrowRight,
   ArrowLeft,
@@ -383,22 +382,18 @@ export function PreAdoptionModal({ pet, isOpen, onClose }: PreAdoptionModalProps
                 <h4 className="font-bold text-sm text-foreground uppercase tracking-wider">
                   Requisitos Obrigatórios para esta Adoção:
                 </h4>
-                <ul className="space-y-2.5 text-xs sm:text-sm text-muted-foreground">
-                  <li className="flex items-center gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
-                    <span><strong>Idade mínima: 21 anos completos</strong> (comprovada por documento oficial).</span>
+                <ul className="list-disc space-y-2.5 ps-5 text-xs text-muted-foreground sm:text-sm">
+                  <li>
+                    <strong>Idade mínima: 21 anos completos</strong> (comprovada por documento oficial).
                   </li>
-                  <li className="flex items-center gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
-                    <span><strong>Imóvel seguro:</strong> Telas em janelas/sacadas para apartamentos ou muros altos sem rota de fuga para casas.</span>
+                  <li>
+                    <strong>Imóvel seguro:</strong> Telas em janelas/sacadas para apartamentos ou muros altos sem rota de fuga para casas.
                   </li>
-                  <li className="flex items-center gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
-                    <span><strong>Concordância total:</strong> Todos os moradores da residência devem apoiar a acolhida.</span>
+                  <li>
+                    <strong>Concordância total:</strong> Todos os moradores da residência devem apoiar a acolhida.
                   </li>
-                  <li className="flex items-center gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
-                    <span><strong>Compromisso financeiro:</strong> Custos contínuos com alimentação de qualidade, vacinas anuais e imprevistos de saúde.</span>
+                  <li>
+                    <strong>Compromisso financeiro:</strong> Custos contínuos com alimentação de qualidade, vacinas anuais e imprevistos de saúde.
                   </li>
                 </ul>
               </div>

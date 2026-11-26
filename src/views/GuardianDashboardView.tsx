@@ -380,9 +380,9 @@ function PainelDossie({
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                   <div>
                     <h4 className="mb-2 font-bold text-foreground">Pontos favoráveis</h4>
-                    <ul className="space-y-2 text-muted-foreground">
+                    <ul className="list-disc space-y-2 ps-5 text-muted-foreground">
                       {candidatura.automatedAnalysis.strengths.length > 0 ? candidatura.automatedAnalysis.strengths.map((item) => (
-                        <li key={item} className="flex items-start gap-2"><CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" /><span className="break-words">{item}</span></li>
+                        <li key={item} className="break-words">{item}</li>
                       )) : <li>Nenhum ponto automático registrado.</li>}
                     </ul>
                   </div>

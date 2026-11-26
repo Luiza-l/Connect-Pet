@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
-  BadgeCheck,
   Building2,
   ChevronDown,
   ClipboardCheck,
@@ -311,16 +310,13 @@ export function SobreNosView() {
             <p className="mt-5 text-base leading-relaxed text-muted-foreground sm:text-lg">
               A adoção responsável interrompe ciclos de abandono, abre espaço para novos resgates e cria vínculos capazes de transformar duas vidas ao mesmo tempo.
             </p>
-            <ul className="mt-7 space-y-4" aria-label="Compromissos para uma adoção responsável">
+            <ul className="mt-7 list-disc space-y-4 ps-5 text-sm leading-relaxed text-foreground sm:text-base" aria-label="Compromissos para uma adoção responsável">
               {[
                 "Respeitar o tempo de adaptação e a individualidade do animal.",
                 "Considerar cuidados, rotina e custos por toda a vida.",
                 "Escolher pela compatibilidade, não apenas pela aparência.",
               ].map((compromisso) => (
-                <li key={compromisso} className="flex items-start gap-3 text-sm leading-relaxed text-foreground sm:text-base">
-                  <BadgeCheck className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
-                  {compromisso}
-                </li>
+                <li key={compromisso}>{compromisso}</li>
               ))}
             </ul>
           </div>

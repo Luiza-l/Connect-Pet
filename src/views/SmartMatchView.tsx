@@ -9,7 +9,6 @@ import {
   Sparkles,
   ArrowRight,
   RotateCcw,
-  CheckCircle2,
   Heart,
   Baby,
   PawPrint,
@@ -385,12 +384,9 @@ export function SmartMatchView() {
                     )}
                     <div className="space-y-1 text-xs">
                       <span className="font-bold text-foreground block">Fatores usados no índice:</span>
-                      <ul className="space-y-1 text-muted-foreground">
+                      <ul className="list-disc space-y-1 ps-5 text-muted-foreground">
                         {result.matchedReasons.map((reason, idx) => (
-                          <li key={idx} className="flex items-center gap-2">
-                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                            <span>{reason}</span>
-                          </li>
+                          <li key={idx}>{reason}</li>
                         ))}
                       </ul>
                     </div>

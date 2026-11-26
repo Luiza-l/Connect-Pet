@@ -1,5 +1,14 @@
 # Changelog
 
+## [v0.12.18] - 2026-11-26
+### Commit
+`fix: substituir selos decorativos por marcadores de lista`
+
+### Mudanças
+- Usa marcadores simples nas listas da página Sobre nós, da pré-adoção, do Smart Match e do painel de gestão.
+
+---
+
 ## [v0.12.17] - 2026-11-25
 ### Commit
 `fix: restaurar fotos e ajustes da página Sobre nós`
